@@ -1,0 +1,833 @@
+[
+  {
+    "_id": "67d1248018bb95dfe4b72507",
+    "customer": "tharun",
+    "phoneNumber": "4444444444",
+    "tableNumber": "N/A",
+    "deliveryAddress": "sdgdxcbv",
+    "whatsappNumber": "4555555555",
+    "email": "cvhfd@gmail.com",
+    "items": [
+      {
+        "item_name": "Patty",
+        "basePrice": 30,
+        "quantity": 1,
+        "amount": 140,
+        "addons": [
+          {
+            "addon_name": "black tea",
+            "addon_price": 40,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          },
+          {
+            "addon_name": "cola",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "L"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "Cola",
+            "combo_price": 20,
+            "combo_image": "/static/images/Cola.jpeg",
+            "size": "S",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "S"
+      }
+    ],
+    "total": 140,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-12",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 140
+      }
+    ],
+    "date": "2025-03-12",
+    "time": "11:36:56",
+    "vat_amount": 14,
+    "grand_total": 154,
+    "invoice_no": "INV-1741759616"
+  },
+  {
+    "_id": "67d2b663c7c505450dd25f00",
+    "customer": "kyle",
+    "phoneNumber": "+918921083090",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "kyle solution",
+      "flat_villa_no": "21",
+      "location": "kozhikode"
+    },
+    "whatsappNumber": "+918921083090",
+    "email": "kyle@gmail.com",
+    "items": [
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 120,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 120,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-13",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 120
+      }
+    ],
+    "date": "2025-03-13",
+    "time": "16:11:39",
+    "vat_amount": 12,
+    "grand_total": 132,
+    "invoice_no": "INV-1741862499"
+  },
+  {
+    "_id": "67d2ca7d906897c935baa8cc",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "gudalur",
+      "flat_villa_no": "20",
+      "location": "tamilnadu"
+    },
+    "whatsappNumber": "8921083091",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Buffalo Sauce",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 50,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Mediterranean Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 50,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-13",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 50
+      }
+    ],
+    "date": "2025-03-13",
+    "time": "17:37:25",
+    "vat_amount": 5,
+    "grand_total": 55,
+    "invoice_no": "INV-1741867645"
+  },
+  {
+    "_id": "67d2cd7745ab382e34b7cd96",
+    "customer": "tharun",
+    "phoneNumber": "+916381360779",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "tharu",
+      "flat_villa_no": "21",
+      "location": "Tamilnadu"
+    },
+    "whatsappNumber": "6381360779",
+    "email": "tharumanoj143143@gmail.com",
+    "items": [
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 120,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 50,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 170,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-13",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 170
+      }
+    ],
+    "date": "2025-03-13",
+    "time": "17:50:07",
+    "vat_amount": 17,
+    "grand_total": 187,
+    "invoice_no": "INV-1741868407"
+  },
+  {
+    "_id": "67d401f1955cb240681e6248",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "gudalur",
+      "flat_villa_no": "20",
+      "location": "tamilnadu"
+    },
+    "whatsappNumber": "8921083091",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 50,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 50,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-14",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 50
+      }
+    ],
+    "date": "2025-03-14",
+    "time": "15:46:17",
+    "vat_amount": 5,
+    "grand_total": 55,
+    "invoice_no": "INV-1741947377"
+  },
+  {
+    "_id": "67d40263955cb240681e6249",
+    "customer": "tharun",
+    "phoneNumber": "+916381360779",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "tharu",
+      "flat_villa_no": "21",
+      "location": "Tamilnadu"
+    },
+    "whatsappNumber": "6381360779",
+    "email": "tharumanoj143143@gmail.com",
+    "items": [
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 50,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 50,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-14",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 50
+      }
+    ],
+    "date": "2025-03-14",
+    "time": "15:48:11",
+    "vat_amount": 5,
+    "grand_total": 55,
+    "invoice_no": "INV-1741947491"
+  },
+  {
+    "_id": "67d529bc322c694c2194ff2a",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "gudalur",
+      "flat_villa_no": "20",
+      "location": "tamilnadu"
+    },
+    "whatsappNumber": "8921083091",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "7 Up",
+        "basePrice": 40,
+        "quantity": 1,
+        "amount": 40,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "S"
+      },
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 120,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Chicken Biriyani",
+        "basePrice": 150,
+        "quantity": 1,
+        "amount": 150,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Prepared Food Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 130,
+        "addons": [
+          {
+            "addon_name": "black tea",
+            "addon_price": 40,
+            "addon_quantity": 2,
+            "addon_image": "",
+            "size": "M"
+          }
+        ],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 70,
+        "addons": [],
+        "selectedCombos": [
+          {
+            "name1": "black tea",
+            "combo_price": 20,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "S",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 510,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-15",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 510
+      }
+    ],
+    "date": "2025-03-15",
+    "time": "12:48:20",
+    "vat_amount": 51,
+    "grand_total": 561,
+    "invoice_no": "INV-1742023100"
+  },
+  {
+    "_id": "67d54848322c694c2194ff2e",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "kyle solution",
+      "flat_villa_no": "21",
+      "location": "kozhikode"
+    },
+    "whatsappNumber": "8921083090",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 460,
+        "addons": [
+          {
+            "addon_name": "Patty",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          },
+          {
+            "addon_name": "Buffalo Sauce",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "Cola",
+            "combo_price": 80,
+            "combo_image": "/static/images/Cola.jpeg",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "Black Tea",
+            "combo_price": 20,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "French Fries",
+            "combo_price": 70,
+            "combo_image": "/static/images/image.png",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "7 Up",
+            "combo_price": 70,
+            "combo_image": "/static/images/sprite.jpg",
+            "size": "M",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Cola",
+        "basePrice": 80,
+        "quantity": 2,
+        "amount": 160,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Pizza",
+        "basePrice": 150,
+        "quantity": 1,
+        "amount": 150,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Patty",
+        "basePrice": 50,
+        "quantity": 1,
+        "amount": 180,
+        "addons": [
+          {
+            "addon_name": "black tea",
+            "addon_price": 40,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          },
+          {
+            "addon_name": "cola",
+            "addon_price": 40,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "black tea",
+            "combo_price": 50,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "M",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 950,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-15",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 950
+      }
+    ],
+    "date": "2025-03-15",
+    "time": "14:58:40",
+    "vat_amount": 95,
+    "grand_total": 1045,
+    "invoice_no": "INV-1742030920"
+  },
+  {
+    "_id": "67d54f71322c694c2194ff2f",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "kyle solution",
+      "flat_villa_no": "21",
+      "location": "kozhikode"
+    },
+    "whatsappNumber": "8921083090",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Patty",
+        "basePrice": 20,
+        "quantity": 1,
+        "amount": 90,
+        "addons": [
+          {
+            "addon_name": "black tea",
+            "addon_price": 20,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "S"
+          },
+          {
+            "addon_name": "cola",
+            "addon_price": 30,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "S"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "black tea",
+            "combo_price": 20,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "S",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "S"
+      },
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 460,
+        "addons": [
+          {
+            "addon_name": "Patty",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          },
+          {
+            "addon_name": "Buffalo Sauce",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "Cola",
+            "combo_price": 80,
+            "combo_image": "/static/images/Cola.jpeg",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "Black Tea",
+            "combo_price": 20,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "French Fries",
+            "combo_price": 70,
+            "combo_image": "/static/images/image.png",
+            "size": "M",
+            "selectedVariant": {
+              "type": "spicy",
+              "image": "/static/images/image.png"
+            }
+          },
+          {
+            "name1": "7 Up",
+            "combo_price": 70,
+            "combo_image": "/static/images/sprite.jpg",
+            "size": "M",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Chicken Biriyani",
+        "basePrice": 150,
+        "quantity": 1,
+        "amount": 270,
+        "addons": [
+          {
+            "addon_name": "Chicken Biriyani",
+            "addon_price": 120,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "L"
+          }
+        ],
+        "selectedCombos": [],
+        "kitchen": "Prepared Food Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Cola",
+        "basePrice": 80,
+        "quantity": 1,
+        "amount": 80,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Coffee",
+        "basePrice": 35,
+        "quantity": 1,
+        "amount": 35,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 935,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-15",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 935
+      }
+    ],
+    "date": "2025-03-15",
+    "time": "15:29:13",
+    "vat_amount": 93.5,
+    "grand_total": 1028.5,
+    "invoice_no": "INV-1742032753"
+  },
+  {
+    "_id": "67d7bb5badc00eff3b954a2c",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "kyle solution",
+      "flat_villa_no": "21",
+      "location": "kozhikode"
+    },
+    "whatsappNumber": "8921083090",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Black Tea",
+        "basePrice": 20,
+        "quantity": 1,
+        "amount": 20,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Cola",
+        "basePrice": 80,
+        "quantity": 1,
+        "amount": 110,
+        "addons": [],
+        "selectedCombos": [],
+        "kitchen": "Main Kitchen",
+        "selectedSize": "M"
+      },
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 80,
+        "quantity": 1,
+        "amount": 230,
+        "addons": [
+          {
+            "addon_name": "Patty",
+            "addon_price": 80,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "L"
+          }
+        ],
+        "selectedCombos": [
+          {
+            "name1": "Black Tea",
+            "combo_price": 20,
+            "combo_image": "/static/images/black tea.jpg",
+            "size": "M",
+            "selectedVariant": null
+          },
+          {
+            "name1": "Cola",
+            "combo_price": 50,
+            "combo_image": "/static/images/Cola.jpeg",
+            "size": "S",
+            "selectedVariant": null
+          }
+        ],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "S"
+      }
+    ],
+    "total": 360,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-17",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 360
+      }
+    ],
+    "date": "2025-03-17",
+    "time": "11:34:11",
+    "vat_amount": 36,
+    "grand_total": 396,
+    "invoice_no": "INV-1742191451"
+  },
+  {
+    "_id": "67d7fb42b1bfab04d7833723",
+    "customer": "manoj",
+    "phoneNumber": "+918921083091",
+    "tableNumber": "N/A",
+    "deliveryAddress": {
+      "building_name": "kyle solution",
+      "flat_villa_no": "21",
+      "location": "kozhikode"
+    },
+    "whatsappNumber": "8921083090",
+    "email": "manojmanoj88680@gmail.com",
+    "items": [
+      {
+        "item_name": "Chicken Burger",
+        "basePrice": 120,
+        "quantity": 1,
+        "amount": 220,
+        "addons": [
+          {
+            "addon_name": "Buffalo Sauce",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          },
+          {
+            "addon_name": "Patty",
+            "addon_price": 50,
+            "addon_quantity": 1,
+            "addon_image": "",
+            "size": "M"
+          }
+        ],
+        "selectedCombos": [],
+        "kitchen": "Continental Kitchen",
+        "selectedSize": "M"
+      }
+    ],
+    "total": 220,
+    "payment_terms": [
+      {
+        "due_date": "2025-03-17",
+        "payment_terms": "Immediate"
+      }
+    ],
+    "payments": [
+      {
+        "mode_of_payment": "CASH",
+        "amount": 220
+      }
+    ],
+    "date": "2025-03-17",
+    "time": "16:06:50",
+    "vat_amount": 22,
+    "grand_total": 242,
+    "invoice_no": "INV-1742207810"
+  }
+]

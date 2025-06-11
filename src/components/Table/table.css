@@ -1,0 +1,104 @@
+/* Table Box */
+.table-box {
+  display: inline-block;
+  padding: 15px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+}
+
+/* Table Container and Shape */
+.table-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  transition: transform 0.2s ease-in-out;
+}
+
+.table-container:hover {
+  transform: scale(1.05);
+}
+
+.table-shape {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Chair Styling */
+.chair {
+  position: absolute;
+  font-size: 24px;
+  color: #6c757d; /* Bootstrap secondary color for unknown status */
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.chair:hover {
+  transform: scale(1.1);
+}
+
+.chair.booked {
+  color: #dc3545; /* Bootstrap danger color */
+}
+
+.chair.reserved {
+  color: #ff69b4; /* Custom pink for reserved */
+}
+
+.chair.available {
+  color: #28a745; /* Bootstrap success color */
+}
+
+.chair.selected {
+  color: #007bff; /* Bootstrap primary color for selected */
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+/* Back Arrow */
+.back-arrow {
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Color Legend */
+.color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #333;
+}
+
+.color-box.booked {
+  background-color: #dc3545;
+}
+
+.color-box.reserved {
+  background-color: #ff69b4;
+}
+
+.color-box.available {
+  background-color: #28a745;
+}
+
+.color-box.selected {
+  background-color: #007bff;
+}
+
+/* Go to Order Button */
+.go-to-order-btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out;
+}
+
+.go-to-order-btn:hover {
+  transform: scale(1.05);
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "67c13a43b17f8701d0200f8c",
+    "table_number": 4,
+    "number_of_chairs": 6
+  },
+  {
+    "_id": "67c13a55b17f8701d0200f8d",
+    "table_number": 3,
+    "number_of_chairs": 2
+  },
+  {
+    "_id": "67c13a5fb17f8701d0200f8e",
+    "table_number": 2,
+    "number_of_chairs": 4
+  },
+  {
+    "_id": "67c13a69b17f8701d0200f8f",
+    "table_number": 1,
+    "number_of_chairs": 2
+  }
+]

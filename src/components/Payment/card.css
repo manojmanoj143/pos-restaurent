@@ -1,0 +1,112 @@
+/* card.css */
+.card-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2rem;
+    color: #007bff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #007bff, #00b4db);
+    border-bottom: none;
+}
+
+.items-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.item-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+}
+
+.item-card .item-total {
+    color: #28a745;
+}
+
+.addon-list, .combo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.totals-section {
+    border: 1px solid #dee2e6;
+}
+
+.form-control {
+    font-size: 1.1rem;
+    padding: 10px;
+}
+
+.btn-success {
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* Warning and Success Alerts */
+.alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    font-size: 1rem;
+}
+
+.alert .btn {
+    margin-left: 15px;
+    padding: 5px 20px;
+    font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .alert {
+        min-width: 80%;
+    }
+}
+
+@media (max-width: 576px) {
+    .alert {
+        min-width: 90%;
+        font-size: 0.9rem;
+    }
+
+    .alert .btn {
+        padding: 4px 15px;
+        font-size: 0.8rem;
+    }
+}

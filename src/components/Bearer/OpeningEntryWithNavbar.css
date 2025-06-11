@@ -1,0 +1,90 @@
+/* src/components/Bearer/OpeningEntryWithNavbar.css */
+.icon-size {
+  width: 36px;
+  height: 36px;
+  vertical-align: middle;
+}
+
+.nav-link {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.navbar-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-item {
+  margin: 0 10px;
+}
+
+.opening-entry-container {
+  padding: 20px;
+  pointer-events: auto;
+}
+
+.grand-tot-div {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.grand-tot-div span:first-child {
+  margin-right: 10px;
+}
+
+.form-control {
+  pointer-events: auto;
+}
+
+.btn {
+  pointer-events: auto;
+}
+
+.alert {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  min-width: 300px;
+  padding: 15px;
+  font-size: 1rem;
+}
+
+.alert .btn {
+  margin-left: 15px;
+  padding: 5px 20px;
+  font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .alert {
+    min-width: 80%;
+  }
+}
+
+@media (max-width: 576px) {
+  .alert {
+    min-width: 90%;
+    font-size: 0.9rem;
+  }
+
+  .alert .btn {
+    padding: 4px 15px;
+    font-size: 0.8rem;
+  }
+}

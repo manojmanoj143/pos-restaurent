@@ -1,0 +1,45 @@
+[
+  {
+    "_id": "67d4fabbc41ca0824eeadd14",
+    "pos_opening_entry": "OPEN-1741938399",
+    "posting_date": "2025-03-14",
+    "period_end_date": "2025-03-15T03:57",
+    "pos_transactions": [
+      {
+        "pos_invoice": "INV-1741947377",
+        "grand_total": 55,
+        "posting_date": "2025-03-14",
+        "customer": "manoj"
+      },
+      {
+        "pos_invoice": "INV-1741947491",
+        "grand_total": 55,
+        "posting_date": "2025-03-14",
+        "customer": "tharun"
+      }
+    ],
+    "payment_reconciliation": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": "10000",
+        "expected_amount": "10110.00",
+        "closing_amount": "10110.00"
+      }
+    ],
+    "taxes": [
+      {
+        "account_head": "VAT",
+        "rate": 10,
+        "amount": 10
+      }
+    ],
+    "grand_total": 110,
+    "net_total": 100,
+    "total_quantity": 2,
+    "creation": "2025-03-15T09:27:47.420369",
+    "modified": "2025-03-15T09:27:47.420369",
+    "name": "CLOSE-1742011067",
+    "status": "Draft",
+    "docstatus": 0
+  }
+]

@@ -1,0 +1,57 @@
+/* src/index.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: white;
+  font-family: 'Dubai Regular', Arial, sans-serif;
+  pointer-events: auto; /* Ensure clicks are not blocked globally */
+}
+
+button, a, input, select {
+  pointer-events: auto; /* Ensure interactive elements are clickable */
+  cursor: pointer;
+}
+
+/* Prevent overlays from blocking clicks */
+div[style*="position: fixed"],
+div[style*="position: absolute"] {
+  pointer-events: none; /* Disable clicks on overlays unless specified */
+}
+
+div[style*="position: fixed"] *,
+div[style*="position: absolute"] * {
+  pointer-events: auto; /* Re-enable clicks on children if needed */
+}
+
+/* Font definitions */
+@font-face {
+  font-family: 'Dubai Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Dubai Regular'), url('./dubai-cufonfonts-webfont/Dubai-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Dubai Light';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Dubai Light'), url('./dubai-cufonfonts-webfont/Dubai-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Dubai Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Dubai Medium'), url('./dubai-cufonfonts-webfont/Dubai-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Dubai Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Dubai Bold'), url('./dubai-cufonfonts-webfont/Dubai-Bold.woff') format('woff');
+}

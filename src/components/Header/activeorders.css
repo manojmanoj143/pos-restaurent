@@ -1,0 +1,449 @@
+/* Container styling specific to ActiveOrders */
+.active-orders-container {
+    padding: 30px;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Alert styling */
+.active-orders-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1050;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    background-color: #ffffff;
+    /* transition: all 0.1s ease-in-out;
+    animation: slideIn 0.1s ease-in-out; */
+}
+
+.active-orders-alert-warning {
+    border: 2px solid #f6e05e;
+    color: #744210;
+}
+
+.active-orders-alert-success {
+    border: 2px solid #68d391;
+    color: #2f855a;
+}
+
+.active-orders-alert-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Back button styling */
+.active-orders-back-button {
+    font-size: 30px;
+    cursor: pointer;
+    color: #3182ce;
+    transition: all 0.3s ease;
+}
+
+.active-orders-back-button:hover {
+    color: #2b6cb0;
+    transform: scale(1.2) rotate(-5deg);
+}
+
+/* Header styling */
+.active-orders-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.active-orders-header h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* Refresh button styling */
+.active-orders-refresh-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Filter buttons styling */
+.active-orders-filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.active-orders-filter-buttons .active-orders-btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.active-orders-filter-buttons .active-orders-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Table styling */
+.active-orders-table-wrapper h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.active-orders-table-responsive {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.active-orders-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.active-orders-table th,
+.active-orders-table td {
+    padding: 15px;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.active-orders-table th {
+    background: linear-gradient(135deg, #2b6cb0, #3182ce);
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.active-orders-table td {
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.active-orders-table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f7fafc;
+}
+
+.active-orders-table-bordered th,
+.active-orders-table-bordered td {
+    border: 1px solid #e2e8f0;
+}
+
+/* Status styling */
+.active-orders-list-group-item {
+    font-size: 13px;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.active-orders-list-group-item.status-pending {
+    background-color: #fff1f0;
+    color: #9b2c2c;
+}
+
+.active-orders-list-group-item.status-preparing {
+    background-color: #fefcbf;
+    color: #744210;
+}
+
+.active-orders-list-group-item.status-prepared {
+    background-color: #c6f6d5;
+    color: #2f855a;
+}
+
+.active-orders-list-group-item.status-pickedup {
+    background-color: #bee3f8;
+    color: #2b6cb0;
+}
+
+.active-orders-list-group-item.status-pickedup::after {
+    content: "Picked Up ✅";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2f855a;
+    background-color: #c6f6d5;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+/* Item header styling */
+.active-orders-item-header {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d3748;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.active-orders-item-header:hover {
+    background-color: #edf2f7;
+}
+
+/* Ingredients, Addons, Combos, and Kitchen Statuses lists */
+.active-orders-ingredients-list,
+.active-orders-addons-list,
+.active-orders-combos-list,
+.active-orders-kitchen-statuses {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    font-size: 12px;
+}
+
+.active-orders-ingredients-list li {
+    color: #4a5568;
+}
+
+.active-orders-addons-list li {
+    color: #38a169;
+}
+
+.active-orders-combos-list li {
+    color: #c53030;
+}
+
+.active-orders-kitchen-statuses li {
+    color: #4a5568;
+}
+
+/* Button styling */
+.active-orders-btn {
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.active-orders-btn-primary {
+    background: linear-gradient(135deg, #3182ce, #63b3ed);
+    color: #ffffff;
+}
+
+.active-orders-btn-primary:hover {
+    background: linear-gradient(135deg, #2b6cb0, #4299e1);
+    transform: translateY(-2px);
+}
+
+.active-orders-btn-danger {
+    background: linear-gradient(135deg, #e53e3e, #f56565);
+    color: #ffffff;
+}
+
+.active-orders-btn-danger:hover {
+    background: linear-gradient(135deg, #c53030, #e53e3e);
+    transform: translateY(-2px);
+}
+
+.active-orders-btn-success {
+    background: linear-gradient(135deg, #38a169, #68d391);
+    color: #ffffff;
+}
+
+.active-orders-btn-success:hover {
+    background: linear-gradient(135deg, #2f855a, #38a169);
+    transform: translateY(-2px);
+}
+
+.active-orders-btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+/* Select dropdown styling */
+.active-orders-select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    background-color: #ffffff;
+    font-size: 14px;
+    width: 100%;
+    max-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.active-orders-select:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+/* List group styling */
+.active-orders-list-group {
+    margin-top: 15px;
+    list-style: none;
+    padding: 0;
+}
+
+/* Modal styling */
+.active-orders-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+    animation: fadeInOverlay 0.3s ease-in-out;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.active-orders-modal-content {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.active-orders-modal-content p {
+    margin-bottom: 25px;
+    font-size: 16px;
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.active-orders-modal-content .active-orders-btn {
+    margin: 0 15px;
+}
+
+/* Text centering */
+.active-orders-text-center {
+    text-align: center;
+    color: #718096;
+    font-size: 16px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .active-orders-container {
+        padding: 20px;
+    }
+
+    .active-orders-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .active-orders-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .active-orders-filter-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .active-orders-container {
+        padding: 15px;
+    }
+
+    .active-orders-table th,
+    .active-orders-table td {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .active-orders-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .active-orders-table-wrapper h2 {
+        font-size: 1.25rem;
+    }
+
+    .active-orders-alert {
+        width: 95%;
+        font-size: 14px;
+        padding: 15px;
+    }
+
+    .active-orders-filter-buttons .active-orders-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .active-orders-select {
+        max-width: 100%;
+    }
+}

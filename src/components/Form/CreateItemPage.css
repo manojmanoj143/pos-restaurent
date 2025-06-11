@@ -1,0 +1,680 @@
+/* General Container */
+.create-item-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Header */
+.create-item-page .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Warning Box */
+.create-item-page .warning-box {
+  background: linear-gradient(90deg, #fff1a3, #ffd1a3);
+  border: 1px solid #ffca7a;
+  color: #5a3f00;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.create-item-page .warning-box:hover {
+  transform: translateY(-2px);
+}
+
+.create-item-page .warning-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.create-item-page .close-warning {
+  background: none;
+  border: none;
+  color: #5a3f00;
+  cursor: pointer;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-radius: 30px;
+  transition: color 0.3s ease;
+}
+
+.create-item-page .close-warning:hover {
+  color: #e74c3c;
+}
+
+/* Back Button */
+.create-item-page .back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  background: linear-gradient(45deg, #ffffff, #e6f0fa);
+  border: none;
+  border-radius: 30px;
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-item-page .back-button:hover {
+  background: linear-gradient(45deg, #60a5fa, #3b82f6);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Titles */
+.create-item-page .page-title {
+  color: #1e3a8a;
+  font-weight: 700;
+  margin: 0 auto;
+  padding-bottom: 10px;
+  border-bottom: 4px solid #60a5fa;
+  position: relative;
+}
+
+.create-item-page .page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  border-radius: 2px;
+}
+
+.create-item-page .section-title {
+  color: #1e3a8a;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 4px solid #60a5fa;
+  width: fit-content;
+}
+
+.create-item-page .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* Column */
+.create-item-page .column {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  max-height: 70vh;
+  overflow-y: auto;
+  transition: box-shadow 0.3s ease;
+}
+
+.create-item-page .column:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Input */
+.create-item-page .input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  font-size: 14px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.create-item-page .input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  outline: none;
+}
+
+/* Button */
+.create-item-page .button {
+  padding: 0 24px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.create-item-page .top-button-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  justify-content: flex-end;
+}
+
+.create-item-page .submit-button {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  color: white;
+  padding: 0 24px;
+  font-size: 16px;
+  height: 48px;
+  width: 220px;
+  border-radius: 30px;
+}
+
+.create-item-page .submit-button:hover {
+  background: linear-gradient(45deg, #16a34a, #15803d);
+  transform: scale(1.05);
+}
+
+.create-item-page .add-button {
+  background: linear-gradient(45deg, #60a5fa, #3b82f6);
+  color: white;
+  padding: 0 24px;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  border-radius: 30px;
+}
+
+.create-item-page .add-button:hover {
+  background: linear-gradient(45deg, #3b82f6, #2563eb);
+  transform: scale(1.05);
+}
+
+.create-item-page .delete-button {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+  color: white;
+  padding: 0 18px;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  border-radius: 30px;
+  margin-top: 10px;
+}
+
+.create-item-page .delete-button:hover {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  transform: scale(1.05);
+}
+
+.create-item-page .save-button {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  color: white;
+  padding: 0 18px;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  border-radius: 30px;
+  margin-top: 10px;
+}
+
+.create-item-page .save-button:hover {
+  background: linear-gradient(45deg, #16a34a, #15803d);
+  transform: scale(1.05);
+}
+
+/* Modal Overlay */
+.create-item-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(17, 24, 39, 0.75);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Remove blur effect when multiple modals are open */
+.create-item-page .modal-overlay:nth-of-type(1) {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Ensure subsequent overlays don't add additional blur */
+.create-item-page .modal-overlay:nth-of-type(2) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Modal */
+.create-item-page .modal {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 750px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-in-out;
+  display: block;
+}
+
+/* Modal Positioning and Z-Index */
+.create-item-page .modal.left-modal {
+  left: 10%;
+  transform: translateY(-50%);
+  z-index: 1002;
+}
+
+.create-item-page .modal.right-modal {
+  left: auto;
+  right: 10%;
+  transform: translateY(-50%);
+  z-index: 1001;
+}
+
+/* Ensure modals don't overlap */
+@media (max-width: 1200px) {
+  .create-item-page .modal.left-modal {
+    left: 5%;
+  }
+  .create-item-page .modal.right-modal {
+    right: 5%;
+  }
+}
+
+@media (max-width: 768px) {
+  .create-item-page .modal.left-modal,
+  .create-item-page .modal.right-modal {
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+  }
+
+  .create-item-page .modal.left-modal {
+    top: 30%;
+  }
+
+  .create-item-page .modal.right-modal {
+    top: 70%;
+  }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-60%); opacity: 0; }
+  to { transform: translateY(-50%); opacity: 1; }
+}
+
+/* Modal Header (Fixed Header) */
+.create-item-page .modal-header {
+  position: sticky; /* Use sticky to keep it within the modal's scroll context */
+  top: 0;
+  background: linear-gradient(145deg, #3b82f6, #60a5fa); /* Match the modal's gradient */
+  color: white; /* Contrast text color for visibility */
+  padding: 15px 20px;
+  margin: -35px -35px 15px -35px; /* Offset the modal's padding */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1003; /* Ensure it stays above other content */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Modal Title */
+.create-item-page .modal-title {
+  color: white; /* Changed to white for contrast against the gradient background */
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Close Button in Modal Header */
+.create-item-page .close-button {
+  position: relative; /* Changed from absolute to relative since the header is now sticky */
+  background: none;
+  border: none;
+  font-size: 16px;
+  height: 48px;
+  width: auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30px;
+  cursor: pointer;
+  color: white; /* Changed to white for contrast */
+  transition: color 0.3s ease;
+}
+
+.create-item-page .close-button:hover {
+  color: #ef4444;
+}
+
+/* Modal Content (Add padding to prevent overlap with fixed header) */
+.create-item-page .modal-content {
+  padding-top: 20px; /* Adjust based on the height of the header */
+}
+
+/* Nested Section */
+.create-item-page .nested-section {
+  border: 1px solid #bfdbfe;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: transform 0.3s ease;
+}
+
+.create-item-page .nested-section:hover {
+  transform: translateY(-2px);
+}
+
+/* Form Container */
+.create-item-page .form-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Row */
+.create-item-page .row {
+  display: flex;
+  flex-grow: 1;
+  gap: 25px;
+  flex-wrap: nowrap;
+}
+
+/* Submit Section */
+.create-item-page .submit-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+}
+
+/* Image Preview */
+.create-item-page .image-preview {
+  max-width: 120px;
+  max-height: 120px;
+  margin-top: 12px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #bfdbfe;
+  transition: transform 0.3s ease;
+}
+
+.create-item-page .image-preview:hover {
+  transform: scale(1.1);
+}
+
+/* Top Section */
+.create-item-page .top-section {
+  margin-bottom: 25px;
+}
+
+/* List Container */
+.create-item-page .list-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 25px;
+}
+
+.create-item-page .list-column {
+  flex: 1;
+}
+
+.create-item-page .list-title {
+  color: #1e3a8a;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+/* Variant Section */
+.create-item-page .variant-section {
+  margin-top: 20px;
+}
+
+.create-item-page .variant-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* Image Gallery */
+.create-item-page .image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.create-item-page .image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Variant Table */
+.create-item-page .variant-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.create-item-page .variant-table th,
+.create-item-page .variant-table td {
+  padding: 12px;
+  border-bottom: 1px solid #bfdbfe;
+  text-align: left;
+}
+
+.create-item-page .variant-table th {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  color: white;
+  font-weight: 600;
+}
+
+/* Excel Table (For Addons and Combos List) */
+.create-item-page .excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.create-item-page .excel-table th,
+.create-item-page .excel-table td {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.create-item-page .excel-table th {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.create-item-page .excel-table td {
+  color: #1e3a8a;
+  font-size: 14px;
+}
+
+.create-item-page .excel-table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.create-item-page .excel-table tbody tr:hover {
+  background: #e6f0fa;
+  cursor: pointer;
+}
+
+.create-item-page .excel-table td img {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 8px;
+}
+
+/* Nutrition List */
+.create-item-page .nutrition-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Form Group */
+.create-item-page .form-group {
+  margin-bottom: 15px;
+}
+
+/* Modal Actions */
+.create-item-page .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Variant Title */
+.create-item-page .variant-title {
+  color: #1e3a8a;
+  font-weight: 500;
+  margin-top: 20px;
+}
+
+/* Alent Title (Fixing Typo) */
+.create-item-page .alent-title {
+  color: #1e3a8a;
+  font-weight: 500;
+  margin-top: 20px;
+}
+
+/* Loading */
+.create-item-page .loading {
+  text-align: center;
+  color: #1e3a8a;
+  font-size: 16px;
+}
+
+/* Label */
+.create-item-page label {
+  color: #1e3a8a;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.create-item-page label span {
+  color: #ef4444;
+}
+
+/* Inputs and Selects */
+.create-item-page select,
+.create-item-page input[type="text"],
+.create-item-page input[type="number"],
+.create-item-page input[type="datetime-local"],
+.create-item-page input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  font-size: 14px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.create-item-page select:focus,
+.create-item-page input[type="text"]:focus,
+.create-item-page input[type="number"]:focus,
+.create-item-page input[type="datetime-local"]:focus,
+.create-item-page input[type="file"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  outline: none;
+}
+
+.create-item-page input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-item-page .row {
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
+  }
+
+  .create-item-page .column {
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    border-radius: 15px;
+  }
+
+  .create-item-page .submit-button {
+    width: 100%;
+  }
+
+  .create-item-page .list-container {
+    flex-direction: column;
+    gap: 15px;
+    justify-content: flex-start;
+  }
+
+  .create-item-page .modal {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .create-item-page .image-preview {
+    max-width: 100px;
+    max-height: 100px;
+  }
+
+  .create-item-page .excel-table td img {
+    max-width: 60px;
+    max-height: 60px;
+  }
+
+  .create-item-page .top-button-container {
+    justify-content: center;
+  }
+}

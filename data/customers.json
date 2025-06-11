@@ -1,0 +1,32 @@
+[
+  {
+    "_id": "67d1730ca5cff4b609c88e5a",
+    "customer_name": "kyle",
+    "building_name": "kyle solution",
+    "flat_villa_no": "21",
+    "location": "kozhikode",
+    "phone_number": "+918921083090",
+    "whatsapp_number": "+918921083090",
+    "email": "kyle@gmail.com"
+  },
+  {
+    "_id": "67d2a80cc7c505450dd25efc",
+    "customer_name": "manoj",
+    "building_name": "kyle solution",
+    "flat_villa_no": "21",
+    "location": "kozhikode",
+    "phone_number": "+918921083091",
+    "whatsapp_number": "8921083090",
+    "email": "manojmanoj88680@gmail.com"
+  },
+  {
+    "_id": "67d2cd7245ab382e34b7cd95",
+    "customer_name": "tharun",
+    "building_name": "tharu",
+    "flat_villa_no": "21",
+    "location": "Tamilnadu",
+    "phone_number": "+916381360779",
+    "whatsapp_number": "6381360779",
+    "email": "tharumanoj143143@gmail.com"
+  }
+]

@@ -1,0 +1,460 @@
+.cash-container {
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the left */
+  position: relative;
+}
+
+/* Back Button */
+.cash-back-btn {
+  background: #ffffff;
+  color: #2c3e50;
+  border: 2px solid #3498db;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 25px;
+  position: absolute;
+  top: 20px;
+  left: 20px; /* Positioned at the top-left corner */
+}
+
+.cash-back-btn:hover {
+  background: #3498db;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+}
+
+.cash-back-btn:disabled {
+  background: #bdc3c7;
+  border-color: #bdc3c7;
+  color: #7f8c8d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Error Message */
+.cash-error {
+  background: #fef1f1;
+  color: #e74c3c;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin: 70px 0 25px 0; /* Adjusted margin to account for back button */
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);
+  font-weight: 500;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  align-self: center;
+}
+
+/* Content Wrapper */
+.cash-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Cash Card */
+.cash-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.cash-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Header */
+.cash-header {
+  background: linear-gradient(90deg, #2980b9 0%, #3498db 100%);
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 20px 20px 0 0;
+}
+
+.cash-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Body */
+.cash-body {
+  padding: 25px;
+}
+
+/* Customer Info */
+.cash-customer-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cash-customer-info p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+/* Items Title */
+.cash-items-title {
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+}
+
+/* Table Wrapper */
+.cash-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Table */
+.cash-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.cash-table th,
+.cash-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ecf0f1;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.cash-table th {
+  background: #ecf0f1;
+  font-weight: 600;
+  text-align: left;
+  color: #34495e;
+}
+
+.cash-table td:nth-child(2),
+.cash-table th:nth-child(2) {
+  text-align: center;
+}
+
+.cash-table td:nth-child(3),
+.cash-table th:nth-child(3),
+.cash-table td:nth-child(4),
+.cash-table th:nth-child(4),
+.cash-table td:nth-child(5),
+.cash-table th:nth-child(5) {
+  text-align: right;
+}
+
+.cash-sub-item td:nth-child(1) {
+  padding-left: 30px;
+  color: #7f8c8d;
+}
+
+.grand-total-header {
+  color: #e74c3c; /* Red color for Grand Total header in table */
+  font-weight: 600;
+}
+
+.grand-total {
+  color: #e74c3c; /* Red color for Grand Total in table and totals */
+  font-weight: 600;
+}
+
+/* Totals */
+.cash-totals {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cash-totals p {
+  margin: 8px 0;
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  color: #2c3e50;
+}
+
+/* Input Section */
+.cash-input-section {
+  margin-bottom: 25px;
+}
+
+.cash-input-section label {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.cash-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cash-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+.cash-input:disabled {
+  background: #ecf0f1;
+  border-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Change Section */
+.cash-change {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-bottom: 25px;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.cash-change label {
+  color: #34495e;
+}
+
+/* Confirm Button */
+.cash-confirm {
+  text-align: center;
+}
+
+.cash-confirm-btn {
+  background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+  color: #ffffff;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cash-confirm-btn:hover {
+  background: linear-gradient(90deg, #3498db 0%, #3498db 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 94, 153, 0.4);
+}
+
+.cash-confirm-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Empty State */
+.cash-empty {
+  text-align: center;
+  padding: 30px;
+}
+
+.cash-empty p {
+  font-size: 18px;
+  color: #7f8c8d;
+  margin-bottom: 25px;
+}
+
+.cash-return-btn {
+  background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cash-return-btn:hover {
+  background: linear-gradient(90deg, #2980b9 0%, #2471a3 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+}
+
+.cash-return-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal Customizations */
+.cash-modal-header {
+  background: #3498db;
+  color: #ffffff;
+  border-radius: 15px 15px 0 0;
+}
+
+.cash-modal-input {
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  padding: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.cash-modal-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+.cash-modal-footer {
+  border-top: none;
+  padding: 15px 25px;
+}
+
+/* Warning and Success Alerts */
+.alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    font-size: 1rem;
+}
+
+.alert .btn {
+    margin-left: 15px;
+    padding: 5px 20px;
+    font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .cash-card {
+      max-width: 100%;
+  }
+
+  .cash-table th,
+  .cash-table td {
+      font-size: 13px;
+      padding: 10px;
+  }
+
+  .cash-header h3 {
+      font-size: 20px;
+  }
+
+  .cash-back-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+  }
+
+  .alert {
+      min-width: 80%;
+  }
+}
+
+@media (max-width: 576px) {
+  .cash-container {
+      padding: 15px;
+  }
+
+  .cash-card {
+      border-radius: 15px;
+  }
+
+  .cash-table th,
+  .cash-table td {
+      font-size: 12px;
+      padding: 8px;
+  }
+
+  .cash-input {
+      padding: 10px;
+  }
+
+  .cash-confirm-btn {
+      padding: 12px;
+      font-size: 14px;
+  }
+
+  .cash-return-btn {
+      padding: 10px 20px;
+      font-size: 13px;
+  }
+
+  .cash-totals p,
+  .cash-customer-info p {
+      font-size: 13px;
+  }
+
+  .cash-change {
+      font-size: 14px;
+  }
+
+  .cash-header h3 {
+      font-size: 18px;
+  }
+
+  .cash-back-btn {
+      top: 15px;
+      left: 15px;
+  }
+
+  .alert {
+      min-width: 90%;
+      font-size: 0.9rem;
+  }
+
+  .alert .btn {
+      padding: 4px 15px;
+      font-size: 0.8rem;
+  }
+}

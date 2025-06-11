@@ -1,0 +1,7 @@
+[
+  { "_id": "1", "table_number": 4 },
+  { "_id": "2", "table_number": 3 },
+  { "_id": "3", "table_number": 2 },
+  { "_id": "4", "table_number": 0 },
+  { "_id": "5", "table_number": null }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "67bfe5f8a350b8155fc632ca",
+    "email": "admin@gmail.com",
+    "password": "admin",
+    "role": "admin"
+  },
+  {
+    "_id": "67d26bf7e37ac0071d78aa2a",
+    "email": "bearer@gmail.com",
+    "password": "bearer",
+    "role": "bearer",
+    "username": "bearer",
+    "company": "POS 8"
+  },
+  {
+    "_id": "67d4ff5c14fdeb5b544f18ff",
+    "email": "manoj@gmail.com",
+    "password": "manoj",
+    "role": "bearer",
+    "username": "manoj",
+    "company": "pos 8",
+    "pos_profile": "POS-001"
+  }
+]

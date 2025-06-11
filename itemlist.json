@@ -1,0 +1,280 @@
+[
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8af" },
+        "item_code": "Patty",
+        "item_name": "Patty",
+        "item_group": "Addons",
+        "image": "Extra Patty.webp",
+        "name": "Patty",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": "Continental Kitchen",
+        "price_list_rate": 50.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b0" },
+        "item_code": "Chicken Burger",
+        "item_name": "Chicken Burger",
+        "item_group": "Burger",
+        "image": "classic cheese.webp",
+        "name": "Chicken Burger",
+        "custom_addon_applicable": 1,
+        "custom_combo_applicable": 1,
+        "custom_total_calories": 60,
+        "custom_total_protein": 37,
+        "kitchen": "Continental Kitchen",
+        "price_list_rate": 150.0,
+        "addons": [
+            {
+                "name1": "Patty",
+                "addon_price": 50.0,
+                "addon_image": "Extra Patty.webp"
+            },
+            {
+                "name1": "Buffalo Sauce",
+                "addon_price": 50.0,
+                "addon_image": "Buffalo Sauce.jpg"
+            }
+        ],
+        "combos": [
+            {
+                "name1": "Cola",
+                "combo_price": 80.0,
+                "combo_image": "Cola.jpeg"
+            }
+        ],
+        "ingredients": [
+            {
+                "ingredients_name": "potato",
+                "calories": 10,
+                "protein": 10
+            },
+            {
+                "ingredients_name": "Chicken",
+                "calories": 50,
+                "protein": 27
+            }
+        ]
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b1" },
+        "item_code": "Buffalo Sauce",
+        "item_name": "Buffalo Sauce",
+        "item_group": "Addons",
+        "image": "Buffalo Sauce.jpg",
+        "name": "Buffalo Sauce",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": "Mediterranean Kitchen",
+        "price_list_rate": 50.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b2" },
+        "item_code": "Pizza",
+        "item_name": "Pizza",
+        "item_group": "Pizza",
+        "image": "BBQ Chicken Pizza.jpg",
+        "name": "Pizza",
+        "custom_addon_applicable": 1,
+        "custom_combo_applicable": 1,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": "Continental Kitchen",
+        "price_list_rate": 150.0,
+        "addons": [
+            {
+                "name1": "Buffalo Sauce",
+                "addon_price": 50.0,
+                "addon_image": "Buffalo Sauce.jpg"
+            }
+        ],
+        "combos": [],
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b3" },
+        "item_code": "Chicken Biriyani",
+        "item_name": "Chicken Biriyani",
+        "item_group": "Biriyani",
+        "image": "hyderabadi biriyani.png",
+        "name": "Chicken Biriyani",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": "Prepared Food Kitchen",
+        "price_list_rate": 150.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b4" },
+        "item_code": "7 Up",
+        "item_name": "7 Up",
+        "item_group": "Drinks",
+        "image": "sprite.jpg",
+        "name": "7 Up",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 70.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b5" },
+        "item_code": "Cola",
+        "item_name": "Cola",
+        "item_group": "Cold Drinks",
+        "image": "Cola.jpeg",
+        "name": "Cola",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 80.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b6" },
+        "item_code": "Coffee",
+        "item_name": "Coffee",
+        "item_group": "Hot Drinks",
+        "image": "Coffee.jpg",
+        "name": "Coffee",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 35.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b7" },
+        "item_code": "Tea",
+        "item_name": "Tea",
+        "item_group": "Hot Drinks",
+        "image": "cardamom-tea3.jpg",
+        "name": "Tea",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 30.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b8" },
+        "item_code": "Black Tea",
+        "item_name": "Black Tea",
+        "item_group": "Hot Drinks",
+        "image": "black tea.jpg",
+        "name": "Black Tea",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 20.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8b9" },
+        "item_code": "Watermelon",
+        "item_name": "Watermelon",
+        "item_group": "Juice",
+        "image": "Fresh-Watermelon-Juice-Recipe.jpg",
+        "name": "Watermelon",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 130.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8ba" },
+        "item_code": "Pineapple",
+        "item_name": "Pineapple",
+        "item_group": "Juice",
+        "image": "pineaple.jpeg",
+        "name": "Pineapple",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 120.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8bb" },
+        "item_code": "Grape",
+        "item_name": "Grape",
+        "item_group": "Juice",
+        "image": "Black-Grape-Juice.jpg",
+        "name": "Grape",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 120.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8bc" },
+        "item_code": "Lemon Lime Soda",
+        "item_name": "Lemon Lime Soda",
+        "item_group": "Cold Drinks",
+        "image": "lemon.jpg",
+        "name": "Lemon Lime Soda",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 50.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8bd" },
+        "item_code": "Ginger Ale",
+        "item_name": "Ginger Ale",
+        "item_group": "Cold Drinks",
+        "image": "ginger ale.jpg",
+        "name": "Ginger Ale",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 100.0,
+        "ingredients": []
+    },
+    {
+        "_id": { "$oid": "63ed9d1b8e3b70c5f1e9e8be" },
+        "item_code": "French Fries",
+        "item_name": "French Fries",
+        "item_group": "Combos",
+        "image": "image.png",
+        "name": "French Fries",
+        "custom_addon_applicable": 0,
+        "custom_combo_applicable": 0,
+        "custom_total_calories": 0,
+        "custom_total_protein": 0,
+        "kitchen": null,
+        "price_list_rate": 70.0,
+        "ingredients": []
+    }
+]

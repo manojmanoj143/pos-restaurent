@@ -1,0 +1,32 @@
+{
+  "customer": "John Doe",
+  "date": "2023-05-01",
+  "time": "14:30:00",
+  "total": "150.00",
+  "vat_amount": "15.00",
+  "grand_total": "165.00",
+  "invoice_no": "INV-1682934567",
+  "items": [
+    {
+      "item_name": "Rice",
+      "basePrice": "100.00",
+      "quantity": "1",
+      "amount": "150.00"
+    }
+  ],
+  "addons": [
+    {
+      "item_name": "Rice",
+      "addon_name": "Patty",
+      "addon_price": "50.00",
+      "addon_quantity": "1",
+      "addon_image": "ExtraPatty.webp"
+    }
+  ],
+  "payments": [
+    {
+      "mode_of_payment": "CASH",
+      "amount": "165.00"
+    }
+  ]
+}

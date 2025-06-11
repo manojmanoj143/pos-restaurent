@@ -1,0 +1,124 @@
+[
+  {
+    "_id": "67d2a4c0c7c505450dd25efa",
+    "period_start_date": "2025-03-12",
+    "posting_date": "2025-03-13",
+    "company": "MyCompany",
+    "user": "bearer",
+    "balance_details": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": 10000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-13T14:56:24.250996",
+    "modified": "2025-03-13T14:56:24.250996",
+    "name": "OPEN-1741857984",
+    "pos_profile": "POS-001"
+  },
+  {
+    "_id": "67d3dedfd48d0f59f5dbd481",
+    "period_start_date": "2025-03-14",
+    "posting_date": "2025-03-14",
+    "company": "MyCompany",
+    "user": "bearer",
+    "balance_details": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": 10000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-14T13:16:39.796658",
+    "modified": "2025-03-14T13:16:39.796658",
+    "name": "OPEN-1741938399",
+    "pos_profile": "POS-001"
+  },
+  {
+    "_id": "67d3e881d48d0f59f5dbd483",
+    "period_start_date": "2025-03-14",
+    "posting_date": "2025-03-14",
+    "company": "MyCompany",
+    "user": "bearer",
+    "balance_details": [
+      {
+        "mode_of_payment": "Credit Card",
+        "opening_amount": 10000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-14T13:57:45.580106",
+    "modified": "2025-03-14T13:57:45.580106",
+    "name": "OPEN-1741940865",
+    "pos_profile": "POS-001"
+  },
+  {
+    "_id": "67d3f48f955cb240681e623f",
+    "period_start_date": "2025-03-14",
+    "posting_date": "2025-03-14",
+    "company": "MyCompany",
+    "user": "bearer",
+    "balance_details": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": 2000
+      },
+      {
+        "mode_of_payment": "Credit Card",
+        "opening_amount": 3000
+      },
+      {
+        "mode_of_payment": "UPI",
+        "opening_amount": 4000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-14T14:49:11.739437",
+    "modified": "2025-03-14T14:49:11.739437",
+    "name": "OPEN-1741943951",
+    "pos_profile": "POS-001"
+  },
+  {
+    "_id": "67d4095d955cb240681e624a",
+    "period_start_date": "2025-03-22",
+    "posting_date": "2025-03-14",
+    "company": "MyCompany",
+    "user": "bearer",
+    "balance_details": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": 12000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-14T16:17:57.592520",
+    "modified": "2025-03-14T16:17:57.592520",
+    "name": "OPEN-1741949277",
+    "pos_profile": "POS-001"
+  },
+  {
+    "_id": "67d4ffbb14fdeb5b544f1900",
+    "period_start_date": "2025-03-15",
+    "posting_date": "2025-03-15",
+    "company": "pos 8",
+    "user": "manoj",
+    "balance_details": [
+      {
+        "mode_of_payment": "Cash",
+        "opening_amount": 12000
+      }
+    ],
+    "status": "Draft",
+    "docstatus": 0,
+    "creation": "2025-03-15T09:49:07.409259",
+    "modified": "2025-03-15T09:49:07.409259",
+    "name": "OPEN-1742012347",
+    "pos_profile": "POS-001"
+  }
+]
