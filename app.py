@@ -139,9 +139,9 @@ except Exception as e:
     sys.exit(1)
 
 # Twilio setup
-account_sid = 'ab'
-auth_token = 'ab'
-twilio_phone = 'ab'
+account_sid = 'AC05480a3334e70b80d9c62f379f45a7a0'
+auth_token = '712d7f74696bef1d72f8da8d009f36b1'
+twilio_phone = '+12185304627'
 # twilio_messaging_sid = 'MGf5700bd791ccba00ef2084cc78d41573'  # Uncomment if needed
 
 
@@ -2558,7 +2558,7 @@ def generate_unique_id():
 def save_active_order():
     try:
         data = request.get_json()
-        order_id = str(uuid.uuid4())
+        order_id = generate_unique_id()
         
         cart_items = data.get('cartItems', [])
         for item in cart_items:
@@ -2810,9 +2810,7 @@ def delete_order(order_id):
     try:
         result = activeorders_collection.delete_one({'orderId': order_id})
         if result.deleted_count > 0:
-            # Also delete related trip reports
-            tripreports_collection.delete_many({'orderId': order_id})
-            logger.info(f"Deleted order: {order_id} and related trip reports")
+            logger.info(f"Deleted order: {order_id}")
             return jsonify({'success': True}), 200
         logger.warning(f"Order not found: {order_id}")
         return jsonify({'error': 'Order not found'}), 404

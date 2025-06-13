@@ -628,7 +628,6 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
         filteredAddonCustomVariants[addonName] = selectedAddonCustomVariants[addonName] || {};
         addonPrices[addonName] = price + customVariantsPrice;
 
-        // Store custom variant details for add-ons
         if (addon.custom_variants?.length > 0) {
           addonCustomVariantsDetails[addonName] = {};
           addon.custom_variants.forEach(variant => {
@@ -689,7 +688,6 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
         filteredComboCustomVariants[comboName] = selectedComboCustomVariants[comboName] || {};
         comboPrices[comboName] = price + customVariantsPrice;
 
-        // Store custom variant details for combos
         if (combo.custom_variants?.length > 0) {
           comboCustomVariantsDetails[comboName] = {};
           combo.custom_variants.forEach(variant => {
@@ -737,12 +735,12 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
       addonVariants: filteredAddonVariants,
       addonCustomVariants: filteredAddonCustomVariants,
       addonPrices,
-      addonCustomVariantsDetails, // Added for addon custom variants
+      addonCustomVariantsDetails,
       comboQuantities: filteredComboQuantities,
       comboVariants: filteredComboVariants,
       comboCustomVariants: filteredComboCustomVariants,
       comboPrices,
-      comboCustomVariantsDetails, // Added for combo custom variants
+      comboCustomVariantsDetails,
       selectedCombos: selectedCombos.map(combo => ({
         name1: combo.name1,
         price: comboPrices[combo.name1] || (combo.size?.enabled ? combo.size.medium_price : combo.combo_price || 0),
@@ -1719,30 +1717,28 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                 Object.values(comboIngredients).every(ings => ings.length === 0) ? (
                   <p>No ingredients available.</p>
                 ) : selectedSizeFilter ? (
-                  <table className="nutrition-table" style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d1d5db' }}>
+                  <table className="nutrition-table">
                     <thead>
-                      <tr style={{ backgroundColor: '#f9fafb' }}>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Nutrition</th>
+                      <tr>
+                        <th>Nutrition</th>
                         {fetchedItem.ingredients.map((ingredient, index) => (
-                          <th key={`main-${index}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
-                            {ingredient.name}
-                          </th>
+                          <th key={`main-${index}`} className="main-ingredient">{ingredient.name}</th>
                         ))}
                         {Object.entries(addonIngredients).map(([addonName, ingredients]) =>
                           ingredients.map((ingredient, index) => (
-                            <th key={`addon-${addonName}-${index}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                            <th key={`addon-${addonName}-${index}`} className="addon-ingredient">
                               {ingredient.name} ({addonName})
                             </th>
                           ))
                         )}
                         {Object.entries(comboIngredients).map(([comboName, ingredients]) =>
                           ingredients.map((ingredient, index) => (
-                            <th key={`combo-${comboName}-${index}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                            <th key={`combo-${comboName}-${index}`} className="combo-ingredient">
                               {ingredient.name} ({comboName})
                             </th>
                           ))
                         )}
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Total</th>
+                        <th className="total-column">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1755,19 +1751,17 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                         if (!hasNutrition) return null;
                         return (
                           <tr key={nutIndex}>
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
-                              {nutritionName}
-                            </td>
+                            <td>{nutritionName}</td>
                             {fetchedItem.ingredients.map((ingredient, ingIndex) => {
                               const nutritionIndex = ingredient.nutrition?.findIndex(
                                 nut => nut.nutrition_name === nutritionName
                               ) ?? -1;
                               if (nutritionIndex === -1) {
-                                return <td key={`main-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>-</td>;
+                                return <td key={`main-${ingIndex}`} className="main-ingredient">-</td>;
                               }
                               const scaledValues = calculateNutrition(ingredient, selectedSizeFilter);
                               return (
-                                <td key={`main-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                <td key={`main-${ingIndex}`} className="main-ingredient">
                                   {scaledValues[nutritionIndex]} gm
                                 </td>
                               );
@@ -1778,11 +1772,11 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                                   nut => nut.nutrition_name === nutritionName
                                 ) ?? -1;
                                 if (nutritionIndex === -1) {
-                                  return <td key={`addon-${addonName}-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>-</td>;
+                                  return <td key={`addon-${addonName}-${ingIndex}`} className="addon-ingredient">-</td>;
                                 }
                                 const scaledValues = calculateNutrition(ingredient, selectedSizeFilter, true, addonName);
                                 return (
-                                  <td key={`addon-${addonName}-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                  <td key={`addon-${addonName}-${ingIndex}`} className="addon-ingredient">
                                     {scaledValues[nutritionIndex]} gm
                                   </td>
                                 );
@@ -1794,17 +1788,17 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                                   nut => nut.nutrition_name === nutritionName
                                 ) ?? -1;
                                 if (nutritionIndex === -1) {
-                                  return <td key={`combo-${comboName}-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>-</td>;
+                                  return <td key={`combo-${comboName}-${ingIndex}`} className="combo-ingredient">-</td>;
                                 }
                                 const scaledValues = calculateNutrition(ingredient, selectedSizeFilter, false, null, true, comboName);
                                 return (
-                                  <td key={`combo-${comboName}-${ingIndex}`} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                  <td key={`combo-${comboName}-${ingIndex}`} className="combo-ingredient">
                                     {scaledValues[nutritionIndex]} gm
                                   </td>
                                 );
                               })
                             )}
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                            <td className="total-column">
                               {calculateTotalNutritionForSize(selectedSizeFilter, nutritionName)} gm
                             </td>
                           </tr>
@@ -1813,32 +1807,32 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                     </tbody>
                   </table>
                 ) : (
-                  <table className="nutrition-table" style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d1d5db' }}>
+                  <table className="nutrition-table">
                     <thead>
-                      <tr style={{ backgroundColor: '#f9fafb' }}>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Ingredient</th>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Nutrition</th>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Small (gm)</th>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Medium (gm)</th>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Large (gm)</th>
-                        <th style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>Total (gm)</th>
+                      <tr>
+                        <th>Ingredient</th>
+                        <th>Nutrition</th>
+                        <th className="size-column">Small (gm)</th>
+                        <th className="size-column">Medium (gm)</th>
+                        <th className="size-column">Large (gm)</th>
+                        <th className="total-column">Total (gm)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {fetchedItem.ingredients.map((ingredient, ingIndex) => (
                         ingredient.nutrition.map((nut, nutIndex) => (
-                          <tr key={`main-${ingIndex}-${nutIndex}`}>
+                          <tr key={`main-${ingIndex}-${nutIndex}`} className="main-row">
                             {nutIndex === 0 && (
-                              <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                              <td rowSpan={ingredient.nutrition.length} className="main-ingredient">
                                 {ingredient.name}
                               </td>
                             )}
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{nut.nutrition_name}</td>
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'small')[nutIndex]} gm</td>
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'medium')[nutIndex]} gm</td>
-                            <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'large')[nutIndex]} gm</td>
+                            <td>{nut.nutrition_name}</td>
+                            <td className="size-column">{calculateNutrition(ingredient, 'small')[nutIndex]} gm</td>
+                            <td className="size-column">{calculateNutrition(ingredient, 'medium')[nutIndex]} gm</td>
+                            <td className="size-column">{calculateNutrition(ingredient, 'large')[nutIndex]} gm</td>
                             {nutIndex === 0 && (
-                              <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                              <td rowSpan={ingredient.nutrition.length} className="total-column">
                                 {calculateTotalNutritionForSize(currentSizeFilter, nut.nutrition_name)} gm
                               </td>
                             )}
@@ -1848,18 +1842,18 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                       {Object.entries(addonIngredients).map(([addonName, ingredients]) =>
                         ingredients.map((ingredient, ingIndex) => (
                           ingredient.nutrition.map((nut, nutIndex) => (
-                            <tr key={`addon-${addonName}-${ingIndex}-${nutIndex}`}>
+                            <tr key={`addon-${addonName}-${ingIndex}-${nutIndex}`} className="addon-row">
                               {nutIndex === 0 && (
-                                <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                <td rowSpan={ingredient.nutrition.length} className="addon-ingredient">
                                   {ingredient.name} ({addonName})
                                 </td>
                               )}
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{nut.nutrition_name}</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'small', true, addonName)[nutIndex]} gm</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'medium', true, addonName)[nutIndex]} gm</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'large', true, addonName)[nutIndex]} gm</td>
+                              <td>{nut.nutrition_name}</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'small', true, addonName)[nutIndex]} gm</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'medium', true, addonName)[nutIndex]} gm</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'large', true, addonName)[nutIndex]} gm</td>
                               {nutIndex === 0 && (
-                                <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                <td rowSpan={ingredient.nutrition.length} className="total-column">
                                   {calculateTotalNutritionForSize(currentSizeFilter, nut.nutrition_name)} gm
                                 </td>
                               )}
@@ -1870,18 +1864,18 @@ const FoodDetails = ({ item, cartItem, onClose, onUpdate }) => {
                       {Object.entries(comboIngredients).map(([comboName, ingredients]) =>
                         ingredients.map((ingredient, ingIndex) => (
                           ingredient.nutrition.map((nut, nutIndex) => (
-                            <tr key={`combo-${comboName}-${ingIndex}-${nutIndex}`}>
+                            <tr key={`combo-${comboName}-${ingIndex}-${nutIndex}`} className="combo-row">
                               {nutIndex === 0 && (
-                                <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                <td rowSpan={ingredient.nutrition.length} className="combo-ingredient">
                                   {ingredient.name} ({comboName})
                                 </td>
                               )}
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{nut.nutrition_name}</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'small', false, null, true, comboName)[nutIndex]} gm</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'medium', false, null, true, comboName)[nutIndex]} gm</td>
-                              <td style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>{calculateNutrition(ingredient, 'large', false, null, true, comboName)[nutIndex]} gm</td>
+                              <td>{nut.nutrition_name}</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'small', false, null, true, comboName)[nutIndex]} gm</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'medium', false, null, true, comboName)[nutIndex]} gm</td>
+                              <td className="size-column">{calculateNutrition(ingredient, 'large', false, null, true, comboName)[nutIndex]} gm</td>
                               {nutIndex === 0 && (
-                                <td rowSpan={ingredient.nutrition.length} style={{ padding: '8px', border: '1px solid #d1d5db', textAlign: 'left' }}>
+                                <td rowSpan={ingredient.nutrition.length} className="total-column">
                                   {calculateTotalNutritionForSize(currentSizeFilter, nut.nutrition_name)} gm
                                 </td>
                               )}

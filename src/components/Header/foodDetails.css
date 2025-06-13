@@ -1,3 +1,97 @@
+/* Nutrition Table */
+.nutrition-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  display: block;
+}
+
+.nutrition-table th,
+.nutrition-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.nutrition-table th {
+  /* background-color: #4a4a4a; */
+  /* color: #ffffff; */
+  font-weight: 600;
+}
+
+.nutrition-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.nutrition-table tr:hover {
+  background-color: #e6f7ff;
+}
+
+.nutrition-table .total-column {
+  font-weight: bold;
+  background-color: #e9f7ef;
+}
+
+.nutrition-table .size-column {
+  background-color: #f0f0f0;
+}
+
+.nutrition-table .main-ingredient {
+  background-color: #e3f2fd;
+}
+
+.nutrition-table .addon-ingredient {
+  background-color: #fff3e0;
+}
+
+.nutrition-table .combo-ingredient {
+  background-color: #f3e5f5;
+}
+
+/* Size Filter Buttons */
+.size-filter-buttons .btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.size-filter-buttons .btn-outline-primary {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.size-filter-buttons .btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.size-filter-buttons .btn-outline-primary.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.size-filter-buttons .btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.size-filter-buttons .btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.size-filter-buttons .btn-outline-secondary.active {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
 /* Add-ons List */
 .addons-list {
   list-style: none;
@@ -221,101 +315,6 @@
   text-align: center;
 }
 
-/* Ingredients */
-.ingredient-container {
-  margin: 20px 0;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.ingredient-title {
-  margin-bottom: 16px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 8px;
-}
-
-.ingredient-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
-}
-
-.ingredient-table th,
-.ingredient-table td {
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-}
-
-.ingredient-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-
-.ingredient-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.ingredient-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Total Info */
-.total-info {
-  margin-top: 20px;
-}
-
-.total-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.total-table td {
-  padding: 8px;
-  border: 1px solid #ddd;
-}
-
-/* Custom Fields */
-.custom-fields-container {
-  margin-top: 20px;
-}
-
-.custom-fields-title {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.custom-fields-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.custom-fields-table th,
-.custom-fields-table td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-.custom-fields-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-.custom-fields-table img {
-  display: block;
-  margin: 0 auto;
-}
-
 /* Updated Side Modal */
 .modal-side-content {
   position: fixed;
@@ -365,91 +364,6 @@
 
 .modal-side-body {
   padding: 0 5px;
-}
-
-.nutrition-info {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.section-title {
-  color: #007bff;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
-}
-
-.nutrition-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed #eee;
-  font-size: 14px;
-}
-
-.nutrition-item span:first-child {
-  color: #555;
-}
-
-.nutrition-item span:last-child {
-  font-weight: 500;
-  color: #333;
-}
-
-.ingredients-section {
-  margin-bottom: 15px;
-  max-width: 100%;
-  padding: 0 5px;
-}
-
-.ingredients-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.ingredient-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background: #fff;
-  border-radius: 6px;
-  margin-bottom: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
-}
-
-.ingredient-item span:first-child {
-  color: #444;
-}
-
-.ingredient-item span:last-child {
-  color: #666;
-  font-size: 13px;
-}
-
-.custom-fields-section {
-  margin-bottom: 15px;
-}
-
-.custom-fields-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.custom-field-item {
-  padding: 10px;
-  background: #fff;
-  border-radius: 6px;
-  margin-bottom: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
-  color: #444;
 }
 
 /* Regular Modal Overlay (for size popups) */
@@ -555,24 +469,4 @@
 /* Transition for Center Image */
 .transition-image {
   transition: opacity 0.3s ease;
-}
-
-/* Nutrition Table */
-.nutrition-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  box-sizing: border-box;
-}
-
-.nutrition-table th,
-.nutrition-table td {
-  border: 1px solid #ddd;
-  padding: 4px;
-  text-align: left;
-  overflow-wrap: break-word;
-}
-
-.nutrition-table th {
-  background-color: #f2f2f2;
 }

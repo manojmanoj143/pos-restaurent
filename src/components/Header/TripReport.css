@@ -30,10 +30,69 @@
 
 .error-message {
   background-color: #ffebee;
-  padding: 10px;
+  padding: 15px;
   margin-bottom: 20px;
   color: #c0392b;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.warning-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 400px;
+  max-width: 600px;
+}
+
+.warning-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.warning-button {
+  padding: 10px 20px;
+  border: none;
   border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.warning-button.ok {
+  background-color: #28a745;
+}
+
+.warning-button.ok:hover {
+  background-color: #218838;
+}
+
+.warning-button.cancel {
+  background-color: #dc3545;
+}
+
+.warning-button.cancel:hover {
+  background-color: #c82333;
+}
+
+.loading-message {
+  text-align: center;
+  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
 .form-container {
@@ -102,7 +161,7 @@
 
 .grand-total-item {
   background-color: #f9f9f9;
-  padding: 10px;
+  padding: 15px;
   border-radius: 5px;
   display: flex;
   flex-direction: column;

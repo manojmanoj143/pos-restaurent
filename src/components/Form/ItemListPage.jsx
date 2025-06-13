@@ -317,6 +317,24 @@ const ItemListPage = () => {
     fontSize: "1rem",
   };
 
+  // Style for the fixed back button
+  const backButtonStyle = {
+    position: "fixed",
+    top: "20px",
+    left: "20px",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    color: "#333",
+    borderRadius: "5px",
+    padding: "10px",
+    cursor: "pointer",
+    zIndex: 1000, // Ensures the button stays above other elements
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.3s ease",
+  };
+
   // Filter items based on selected category
   const filteredItems = selectedCategory === "All Items"
     ? itemList
@@ -403,16 +421,12 @@ const ItemListPage = () => {
     <div className="container-fluid mt-5">
       <button
         onClick={goBack}
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          backgroundColor: "#f0f0f0",
-          border: "1px solid #ccc",
-          color: "#333",
-          borderRadius: "5px",
-          padding: "10px",
-          cursor: "pointer",
+        style={backButtonStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#e0e0e0";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#f0f0f0";
         }}
       >
         <FaArrowLeft style={{ fontSize: "24px" }} />
@@ -421,7 +435,7 @@ const ItemListPage = () => {
       <button
         onClick={handleOfferClick}
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "20px",
           right: "20px",
           backgroundColor: "#ff4500",
@@ -433,6 +447,7 @@ const ItemListPage = () => {
           fontSize: "16px",
           fontWeight: "bold",
           transition: "all 0.3s ease",
+          zIndex: 1000,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = "#ff6347";

@@ -161,7 +161,7 @@ function EmployeePage() {
         <button
           onClick={() => navigate('/admin')}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: '20px',
             left: '270px',
             borderRadius: '50%',
@@ -174,6 +174,7 @@ function EmployeePage() {
             border: '1px solid #ccc',
             cursor: 'pointer',
             transition: 'background-color 0.3s',
+            zIndex: 1000,
           }}
           onMouseOver={(e) => (e.target.style.backgroundColor = '#3498db')}
           onMouseOut={(e) => (e.target.style.backgroundColor = '#f0f0f0')}
@@ -392,7 +393,7 @@ function EmployeePage() {
                       onClick={() => handleSelectEmployee(employee)}
                     >
                       <FaUsers style={{ marginRight: '10px', color: '#3498db' }} />
-                      <span>{employee.name} (ID: {employee.employeeId})</span>
+                      <span>{employee.name}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '5px' }}>
                       <button
@@ -453,7 +454,6 @@ function EmployeePage() {
             <h3 style={{ marginBottom: '20px', color: '#333', fontSize: '1.5rem', fontWeight: '600' }}>
               Employee Details
             </h3>
-            <p style={{ margin: '5px 0' }}><strong>ID:</strong> {selectedEmployee.employeeId}</p>
             <p style={{ margin: '5px 0' }}><strong>Name:</strong> {selectedEmployee.name}</p>
             <p style={{ margin: '5px 0' }}><strong>Phone Number:</strong> {selectedEmployee.phoneNumber}</p>
             <p style={{ margin: '5px 0' }}><strong>Vehicle Number:</strong> {selectedEmployee.vehicleNumber}</p>

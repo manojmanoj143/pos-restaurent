@@ -17,8 +17,10 @@ function TripReport() {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [warningMessage, setWarningMessage] = useState('');
   const vatRate = 0.10;
 
+  // Fetch employees on component mount
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -26,7 +28,7 @@ function TripReport() {
       const response = await axios.get('http://localhost:5000/api/employees');
       const data = Array.isArray(response.data) ? response.data : [];
       setEmployees(data);
-      setFilteredEmployees(data);
+      setFilteredEmployees(data.filter((emp) => emp.role.toLowerCase() === 'delivery boy'));
     } catch (err) {
       setError(`Failed to fetch employees: ${err.message}`);
       setEmployees([]);
@@ -36,7 +38,9 @@ function TripReport() {
     }
   };
 
-  const fetchTripReports = async (employeeId) => {
+  // Fetch trip reports for the selected employee
+  const fetchTripReports = async (employeeId, date) => {
+    if (!employeeId || !date) return;
     try {
       setLoading(true);
       setError(null);
@@ -49,7 +53,7 @@ function TripReport() {
         pickedUpTime: report.pickedUpTime || null,
       }));
       setTripReports(sanitizedReports);
-      filterReportsByDate(sanitizedReports, selectedDate);
+      filterReportsByDate(sanitizedReports, date);
     } catch (err) {
       setError(`Failed to fetch trip reports: ${err.message}`);
       setTripReports([]);
@@ -59,9 +63,10 @@ function TripReport() {
     }
   };
 
+  // Filter reports by selected date
   const filterReportsByDate = (reports, date) => {
     if (!date) {
-      setFilteredReports(reports);
+      setFilteredReports([]);
       return;
     }
     const selectedDateObj = new Date(date);
@@ -77,20 +82,24 @@ function TripReport() {
     setFilteredReports(filtered);
   };
 
+  // Load employees on component mount
   useEffect(() => {
     fetchEmployees();
   }, []);
 
+  // Handle input change for delivery person
   const handleInputChange = (e) => {
     const value = e.target.value;
     setDeliveryPerson(value);
     setSelectedEmployee(null);
     setTripReports([]);
     setFilteredReports([]);
+    setWarningMessage('');
     if (value.trim()) {
-      const filtered = employees.filter((emp) =>
-        emp.name.toLowerCase().includes(value.toLowerCase()) &&
-        emp.role.toLowerCase() === 'delivery boy'
+      const filtered = employees.filter(
+        (emp) =>
+          emp.name.toLowerCase().includes(value.toLowerCase()) &&
+          emp.role.toLowerCase() === 'delivery boy'
       );
       setFilteredEmployees(filtered);
     } else {
@@ -98,13 +107,17 @@ function TripReport() {
     }
   };
 
+  // Handle dropdown selection
   const handleSelectEmployee = (e) => {
     const employeeId = e.target.value;
     const employee = employees.find((emp) => emp.employeeId === employeeId);
     if (employee) {
       setDeliveryPerson(employee.name);
       setSelectedEmployee(employee);
-      fetchTripReports(employee.employeeId);
+      setWarningMessage('');
+      if (selectedDate) {
+        fetchTripReports(employee.employeeId, selectedDate);
+      }
     } else {
       setDeliveryPerson('');
       setSelectedEmployee(null);
@@ -113,50 +126,79 @@ function TripReport() {
     }
   };
 
+  // Handle date change
   const handleDateChange = (e) => {
     const date = e.target.value;
     setSelectedDate(date);
-    filterReportsByDate(tripReports, date);
+    setWarningMessage('');
+    if (selectedEmployee && date) {
+      fetchTripReports(selectedEmployee.employeeId, date);
+    }
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    setWarningMessage('');
     if (!deliveryPerson.trim()) {
-      alert('Please select a delivery person');
+      setWarningMessage('Please select a delivery person');
+      return;
+    }
+    if (!selectedDate) {
+      setWarningMessage('Please select a date');
       return;
     }
     const employee = employees.find((emp) => emp.name.toLowerCase() === deliveryPerson.toLowerCase());
     if (employee) {
       setSelectedEmployee(employee);
-      fetchTripReports(employee.employeeId);
-      alert(`Delivery Person Selected: ${employee.name}`);
+      fetchTripReports(employee.employeeId, selectedDate);
+      setWarningMessage(`Delivery Person Selected: ${employee.name} for date ${selectedDate}`);
     } else {
-      alert('Delivery person not found');
+      setWarningMessage('Delivery person not found');
       setSelectedEmployee(null);
       setTripReports([]);
       setFilteredReports([]);
     }
   };
 
+  // Navigate back to home
   const handleBack = () => {
     navigate('/home');
   };
 
+  // Show order details popup
   const handleShowDetails = (report) => {
     setSelectedReport(report);
     setShowPopup(true);
   };
 
+  // Close popup
   const handleClosePopup = () => {
     setShowPopup(false);
     setSelectedReport(null);
   };
 
+  // Handle payment action
   const handlePayment = (method, amount) => {
-    alert(`Payment of ₹${amount} via ${method} initiated.`);
-    // Implement payment logic here
+    setWarningMessage(`Payment of ₹${amount} via ${method} initiated.`);
   };
 
+  // Handle warning message OK button
+  const handleWarningOk = () => {
+    setWarningMessage('');
+  };
+
+  // Handle warning message Cancel button
+  const handleWarningCancel = () => {
+    setWarningMessage('');
+    setDeliveryPerson('');
+    setSelectedEmployee(null);
+    setSelectedDate('');
+    setTripReports([]);
+    setFilteredReports([]);
+  };
+
+  // Format delivery address
   const formatDeliveryAddress = (deliveryAddress) => {
     if (!deliveryAddress) return 'Not provided';
     const { building_name, flat_villa_no, location } = deliveryAddress;
@@ -164,16 +206,19 @@ function TripReport() {
     return parts.length > 0 ? parts.join(', ') : 'Not provided';
   };
 
+  // Format timestamp
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'N/A';
     return new Date(timestamp).toLocaleString();
   };
 
+  // Calculate order total
   const calculateOrderTotal = (cartItems) => {
     if (!Array.isArray(cartItems)) return '0.00';
     return cartItems.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0).toFixed(2);
   };
 
+  // Calculate grand total with VAT
   const calculateGrandTotal = (cartItems) => {
     if (!Array.isArray(cartItems)) return '0.00';
     const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0);
@@ -195,8 +240,21 @@ function TripReport() {
       </div>
 
       <div className="content-wrapper">
+        {warningMessage && (
+          <div className="warning-message">
+            <p>{warningMessage}</p>
+            <div className="warning-buttons">
+              <button className="warning-button ok" onClick={handleWarningOk}>
+                OK
+              </button>
+              <button className="warning-button cancel" onClick={handleWarningCancel}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
         {loading && (
-          <div style={{ textAlign: 'center', color: '#666', fontSize: '1.2rem' }}>
+          <div className="loading-message">
             Loading...
           </div>
         )}
@@ -219,6 +277,7 @@ function TripReport() {
                 onChange={handleInputChange}
                 placeholder="Type delivery person name"
                 autoComplete="off"
+                required
               />
               <select
                 className="form-control mt-2"
@@ -226,15 +285,15 @@ function TripReport() {
                 name="deliveryPerson"
                 value={selectedEmployee ? selectedEmployee.employeeId : ''}
                 onChange={handleSelectEmployee}
+                size={filteredEmployees.length > 0 ? Math.min(filteredEmployees.length, 5) : 1}
+                style={{ display: deliveryPerson.trim() ? 'block' : 'none' }}
               >
                 <option value="">Select a delivery person</option>
-                {filteredEmployees
-                  .filter((emp) => emp.role.toLowerCase() === 'delivery boy')
-                  .map((employee) => (
-                    <option key={employee.employeeId} value={employee.employeeId}>
-                      {employee.name} (ID: {employee.employeeId})
-                    </option>
-                  ))}
+                {filteredEmployees.map((employee) => (
+                  <option key={employee.employeeId} value={employee.employeeId}>
+                    {employee.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-3">
@@ -247,6 +306,7 @@ function TripReport() {
                 id="dateFilter"
                 value={selectedDate}
                 onChange={handleDateChange}
+                required
               />
             </div>
             <button type="submit" className="submit-button">
@@ -259,8 +319,6 @@ function TripReport() {
           <div className="employee-details">
             <h3>Selected Delivery Person</h3>
             <p><strong>Name:</strong> {selectedEmployee.name}</p>
-            <p><strong>ID:</strong> {selectedEmployee.employeeId}</p>
-            <p><strong>Role:</strong> {selectedEmployee.role}</p>
           </div>
         )}
 
@@ -268,8 +326,9 @@ function TripReport() {
           <div className="active-orders-table-wrapper">
             <h2>Assigned Delivery Orders</h2>
             <div className="grand-totals">
-              {filteredReports.map((report, index) => (
+              {filteredReports.map((report) => (
                 <div key={report.tripId} className="grand-total-item">
+                  <span>Order ID: {report.orderId}</span>
                   <span>Grand Total: ₹{calculateGrandTotal(report.cartItems)}</span>
                   <div className="payment-buttons">
                     <button
@@ -323,6 +382,7 @@ function TripReport() {
                     <th>Grand Total (₹)</th>
                     <th>Picked Up Time</th>
                     <th>Items</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -335,7 +395,14 @@ function TripReport() {
                     <td>{calculateOrderTotal(selectedReport.cartItems)}</td>
                     <td>{calculateGrandTotal(selectedReport.cartItems)}</td>
                     <td>{formatTimestamp(selectedReport.pickedUpTime)}</td>
-                    <td>{selectedReport.cartItems[0]?.name || selectedReport.cartItems[0]?.item_name || 'No items'}</td>
+                    <td>
+                      {selectedReport.cartItems.map((item, index) => (
+                        <div key={index}>
+                          {item.name || item.item_name || 'Unknown'} x {item.quantity || 1}
+                        </div>
+                      ))}
+                    </td>
+                    <td>{selectedReport.status || 'N/A'}</td>
                     <td>
                       <button className="close-popup" onClick={handleClosePopup}>
                         Close
@@ -352,4 +419,4 @@ function TripReport() {
   );
 }
 
-export default TripReport;                            
+export default TripReport;
