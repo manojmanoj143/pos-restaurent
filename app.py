@@ -139,9 +139,9 @@ except Exception as e:
     sys.exit(1)
 
 # Twilio setup
-account_sid = 'AC05480a3334e70b80d9c62f379f45a7a0'
-auth_token = '712d7f74696bef1d72f8da8d009f36b1'
-twilio_phone = '+12185304627'
+account_sid = 'ab'
+auth_token = 'ab'
+twilio_phone = 'ab'
 # twilio_messaging_sid = 'MGf5700bd791ccba00ef2084cc78d41573'  # Uncomment if needed
 
 
