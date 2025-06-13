@@ -19,7 +19,6 @@ function Kitchen() {
   const BASE_URL = "http://127.0.0.1:5000";
   const currentYear = new Date().getFullYear().toString();
 
-  // Fetch orders from activeorders_collection
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -40,11 +39,10 @@ function Kitchen() {
       }
     };
     fetchOrders();
-    const interval = setInterval(fetchOrders, 30000); // Poll every 30 seconds
+    const interval = setInterval(fetchOrders, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch picked-up items
   const fetchPickedUpItems = async () => {
     try {
       setLoading(true);
@@ -68,7 +66,6 @@ function Kitchen() {
     fetchPickedUpItems();
   }, []);
 
-  // Fetch item details for caching
   useEffect(() => {
     const fetchItemDetails = async () => {
       const itemsToFetch = savedOrders
@@ -124,7 +121,6 @@ function Kitchen() {
     }
   }, [savedOrders]);
 
-  // Extract unique kitchens
   const kitchens = [
     ...new Set(
       savedOrders
@@ -159,7 +155,6 @@ function Kitchen() {
     }
   }, [kitchens, selectedKitchen]);
 
-  // Filter orders for the selected kitchen
   const filteredOrders = savedOrders
     .map((order) => {
       const relevantItems = Array.isArray(order.cartItems)
@@ -212,7 +207,6 @@ function Kitchen() {
     })
     .filter((order) => order.cartItems.length > 0);
 
-  // Get last hour picked-up items
   const getLastHourItems = () => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     let filteredItems = (pickedUpItems || []).filter((entry) => {
@@ -236,7 +230,6 @@ function Kitchen() {
     return filteredItems.sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
   };
 
-  // Get all picked-up items
   const getAllPickedUpItems = () => {
     let sortedItems = (pickedUpItems || []).slice();
     if (allStatusSearchDate) {
@@ -255,7 +248,6 @@ function Kitchen() {
     return sortedItems.sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
   };
 
-  // Handle marking an item as prepared
   const handleMarkPrepared = async (orderId, itemId, kitchen) => {
     try {
       const response = await axios.post(
@@ -291,7 +283,6 @@ function Kitchen() {
     }
   };
 
-  // Handle single item pickup
   const handlePickUp = async (orderId, itemId) => {
     try {
       setLoading(true);
@@ -335,7 +326,6 @@ function Kitchen() {
     }
   };
 
-  // Handle bulk pickup
   const handleBulkPickUp = async () => {
     try {
       setLoading(true);
@@ -369,14 +359,12 @@ function Kitchen() {
     }
   };
 
-  // Handle checkbox change
   const handleCustomerCheckboxChange = (orderId) => {
     setSelectedCustomers((prev) =>
       prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
     );
   };
 
-  // Row styling based on status
   const getRowStyle = (status) => {
     switch (status || "Pending") {
       case "Pending":
@@ -392,7 +380,6 @@ function Kitchen() {
     }
   };
 
-  // Highlight style for search date
   const getHighlightStyle = (pickupTime, searchDate) => {
     if (searchDate) {
       const fullSearchDate = `${currentYear}-${searchDate}`;
@@ -403,10 +390,8 @@ function Kitchen() {
     return {};
   };
 
-  // Navigate back
   const handleBack = () => navigate(-1);
 
-  // Get image URLs
   const getImageUrl = (imagePath) => {
     if (!imagePath) return `${BASE_URL}/static/uploads/placeholder.png`;
     const normalizedPath = imagePath.replace(/^\/+/, "");
@@ -416,7 +401,6 @@ function Kitchen() {
     return `${BASE_URL}/static/uploads/${normalizedPath}`;
   };
 
-  // Get images for items, addons, and combos
   const getAddonComboImages = (item) => {
     const images = [];
     const itemDetails = itemDetailsCache[item.name] || {

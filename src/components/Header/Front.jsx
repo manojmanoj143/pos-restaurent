@@ -392,7 +392,7 @@ function FrontPage() {
       customVariantsDetails,
       customVariantsQuantities,
       status: "Pending",
-      image: menuItem?.image || "/static/images/default-item.jpg", // Ensure image is included
+      image: menuItem?.image || "/static/images/default-item.jpg",
     };
 
     if (existingItemIndex !== -1) {
@@ -483,6 +483,11 @@ function FrontPage() {
       const qty = item.customVariantsQuantities[variantName] || 1;
       return sum + (variant.price || 0) * qty;
     }, 0);
+  };
+
+  const getMainItemTotal = (item) => {
+    const mainItemPrice = item.basePrice + item.icePrice + item.spicyPrice + getCustomVariantsTotal(item);
+    return mainItemPrice * item.quantity;
   };
 
   const removeFromCart = (item) => {
@@ -631,7 +636,7 @@ function FrontPage() {
         selectedCustomVariants: item.selectedCustomVariants || {},
         customVariantsDetails: item.customVariantsDetails || {},
         customVariantsQuantities: item.customVariantsQuantities || {},
-        image: item.image || "/static/images/default-item.jpg", // Include image for consistency
+        image: item.image || "/static/images/default-item.jpg",
       })),
       totalAmount: Number(subtotal.toFixed(2)),
       payments: [paymentDetails],
@@ -791,7 +796,7 @@ function FrontPage() {
         selectedCustomVariants: item.selectedCustomVariants || {},
         customVariantsDetails: item.customVariantsDetails || {},
         customVariantsQuantities: item.customVariantsQuantities || {},
-        image: item.image || "/static/images/default-item.jpg", // Include image for backend consistency
+        image: item.image || "/static/images/default-item.jpg",
       })),
       total: Number(subtotal.toFixed(2)),
       payment_terms: [{ due_date: new Date().toISOString().split("T")[0], payment_terms: "Immediate" }],
@@ -820,6 +825,12 @@ function FrontPage() {
       setWarningMessage(`Failed to save sale: ${error.message}`);
       setWarningType("warning");
       throw error;
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === " " || e.keyCode === 32) {
+      e.preventDefault();
     }
   };
 
@@ -989,7 +1000,7 @@ function FrontPage() {
         id: item.id || uuidv4(),
         item_name: item.item_name || item.name,
         name: item.name || item.item_name,
-        image: item.image || "/static/images/default-item.jpg", // **FIX: Include image here**
+        image: item.image || "/static/images/default-item.jpg",
         quantity: Number(item.quantity) || 1,
         basePrice: Number(item.basePrice) || 0,
         icePreference: item.icePreference || "without_ice",
@@ -1099,7 +1110,7 @@ function FrontPage() {
   };
 
   const handleDeliveryAddressChange = (field, value) => {
-    setDeliveryAddress((prev) => ({ ...prev, [field]: value.trim() }));
+    setDeliveryAddress((prev) => ({ ...prev, [field]: value.trimStart() }));
   };
 
   const handleWhatsappNumberChange = (e) => {
@@ -1478,7 +1489,7 @@ function FrontPage() {
                           min="1"
                         />
                       </td>
-                      <td>₹{(item.basePrice * item.quantity).toFixed(2)}</td>
+                      <td>₹{getMainItemTotal(item).toFixed(2)}</td>
                       {showKitchenColumn && <td>{item.kitchen || "Main Kitchen"}</td>}
                       <td>
                         <button className="frontpage-remove-btn" onClick={() => removeFromCart(item)}>
@@ -1773,7 +1784,7 @@ function FrontPage() {
                                       min="1"
                                     />
                                   </td>
-                                  <td>₹{(variant.price * qwty).toFixed(2)}</td>
+                                  <td>₹{(variant.price * qty).toFixed(2)}</td>
                                   {showKitchenColumn && <td></td>}
                                   <td>
                                     <button

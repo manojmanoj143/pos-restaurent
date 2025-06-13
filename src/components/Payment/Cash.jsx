@@ -58,9 +58,9 @@ function Cash() {
           spicyPrice: item.isSpicy ? Number(item.spicyPrice) || 20.00 : 0,
           addonQuantities: item.addonQuantities || {},
           addonVariants: item.addonVariants || {},
-          addonPrices: item.addonPrices || {}, // Total price (size + spicy)
-          addonSizePrices: item.addonSizePrices || {}, // Size price only
-          addonSpicyPrices: item.addonSpicyPrices || {}, // Spicy price only
+          addonPrices: item.addonPrices || {},
+          addonSizePrices: item.addonSizePrices || {},
+          addonSpicyPrices: item.addonSpicyPrices || {},
           addonImages: item.addonImages || {},
           comboQuantities: item.comboQuantities || {},
           comboVariants: item.comboVariants || {},
@@ -80,8 +80,8 @@ function Cash() {
                 .map(([name, qty]) => ({
                   addon_name: name,
                   addon_quantity: Number(qty) || 0,
-                  addon_price: Number(item.addonSizePrices?.[name]) || 0, // Use size price
-                  addon_total_price: Number(item.addonPrices?.[name]) || 0, // Total price for calculations
+                  addon_price: Number(item.addonSizePrices?.[name]) || 0,
+                  addon_total_price: Number(item.addonPrices?.[name]) || 0,
                   size: item.addonVariants?.[name]?.size || "M",
                   isSpicy: item.addonVariants?.[name]?.spicy || false,
                   spicyPrice: Number(item.addonSpicyPrices?.[name]) || 0,
@@ -94,8 +94,8 @@ function Cash() {
                 .filter(([_, qty]) => Number(qty) > 0)
                 .map(([name, qty]) => ({
                   name1: name,
-                  combo_price: Number(item.comboSizePrices?.[name]) || 0, // Use size price
-                  combo_total_price: Number(item.comboPrices?.[name]) || 0, // Total price for calculations
+                  combo_price: Number(item.comboSizePrices?.[name]) || 0,
+                  combo_total_price: Number(item.comboPrices?.[name]) || 0,
                   size: item.comboVariants?.[name]?.size || "M",
                   combo_quantity: Number(qty) || 1,
                   isSpicy: item.comboVariants?.[name]?.spicy || false,
@@ -131,14 +131,14 @@ function Cash() {
     const addonTotal =
       item.addons && item.addons.length > 0
         ? item.addons.reduce(
-            (sum, addon) => sum + Number(addon.addon_total_price) * addon.addon_quantity, // Use total price (size + spicy)
+            (sum, addon) => sum + Number(addon.addon_total_price) * addon.addon_quantity,
             0
           )
         : 0;
     const comboTotal =
       item.combos && item.combos.length > 0
         ? item.combos.reduce(
-            (sum, combo) => sum + Number(combo.combo_total_price) * combo.combo_quantity, // Use total price (size + spicy)
+            (sum, combo) => sum + Number(combo.combo_total_price) * combo.combo_quantity,
             0
           )
         : 0;
@@ -321,7 +321,7 @@ function Cash() {
             <tr style="margin-bottom: 5px;">
               <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Date</td>
               <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-              <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap;">${billDetails.date}</td>
+              <td style="text-align: right; padding: 2px; border \n"none; line-height: 1.5; white-space: nowrap;">${billDetails.date}</td>
             </tr>
             <tr style="margin-bottom: 5px;">
               <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Time</td>
@@ -433,7 +433,7 @@ function Cash() {
                                     <td style="text-align: right; padding: 4px;">₹${formatTotal(combo.combo_price * combo.combo_quantity)}</td>
                                   </tr>
                                   ${
-                                    combo.isSpicy && combo.spicyPrice > 0
+                                    combo.isSpicy && deelspicyPrice > 0
                                       ? `
                                         <tr>
                                           <td style="text-align: left; padding-left: 15px; padding: 4px;">+ Spicy</td>
@@ -578,6 +578,12 @@ function Cash() {
 
   // Navigate back to main page
   const handleBack = () => {
+    navigate("/frontpage");
+  };
+
+  // Handle modal close with navigation to frontpage
+  const handleModalClose = () => {
+    setShowModal(false);
     navigate("/frontpage");
   };
 
@@ -817,7 +823,7 @@ function Cash() {
       </div>
 
       {/* Modal for bill details and actions */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+      <Modal show={showModal} onHide={handleModalClose} size="lg" centered>
         <Modal.Header closeButton className="cash-modal-header">
           <Modal.Title>Bill Details</Modal.Title>
         </Modal.Header>
@@ -1045,7 +1051,7 @@ function Cash() {
           )}
         </Modal.Body>
         <Modal.Footer className="cash-modal-footer">
-          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleModalClose} disabled={isLoading}>
             Close
           </Button>
           <Button variant="info" onClick={handleEmail} disabled={isLoading}>

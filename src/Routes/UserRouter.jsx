@@ -34,8 +34,9 @@ import AddItemGroupPage from "../components/Form/AddItemGroupPage";
 import AddingirdientAndNurion from "../components/Form/AddingirdientAndNurion";
 import SalesReport from "../components/Navbar/SalesReport";
 import Booking from "../components/Table/Booking";
-import CreateVariant from "../components/Form/CreateVariant"; // New import
-import Employee from "../components/Form/Employee"; // New import
+import CreateVariant from "../components/Form/CreateVariant";
+import Employee from "../components/Form/Employee";
+import TripReport from "../components/Header/TripReport";
 
 const UserRouter = () => {
   return (
@@ -70,8 +71,9 @@ const UserRouter = () => {
       <Route path="/add-ingredients-nutrition" element={<AddingirdientAndNurion />} />
       <Route path="/sales-reports" element={<SalesReport />} />
       <Route path="/booking" element={<Booking />} />
-      <Route path="/create-variant" element={<CreateVariant />} /> {/* New route */}
-      <Route path="/employees" element={<Employee />} /> {/* New route */}
+      <Route path="/create-variant" element={<CreateVariant />} />
+      <Route path="/employees" element={<Employee />} />
+      <Route path="/trip-report" element={<TripReport />} />
     </Routes>
   );
 };

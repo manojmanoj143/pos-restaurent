@@ -356,105 +356,131 @@
 
 /* Warning and Success Alerts */
 .alert {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1050;
-    min-width: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    font-size: 1rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  min-width: 400px; /* Larger width */
+  min-height: 150px; /* Larger height */
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-size: 1.2rem; /* Larger font size */
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.alert-warning {
+  border: 2px solid #e74c3c;
+  background: #fef1f1;
+  color: #e74c3c;
+}
+
+.alert-success {
+  border: 2px solid #27ae60;
+  background: #e8f5e9;
+  color: #27ae60;
 }
 
 .alert .btn {
-    margin-left: 15px;
-    padding: 5px 20px;
-    font-size: 0.9rem;
+  margin-top: 15px;
+  padding: 8px 30px;
+  font-size: 1rem;
+  border-radius: 10px;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 991px) {
   .cash-card {
-      max-width: 100%;
+    max-width: 100%;
   }
 
   .cash-table th,
   .cash-table td {
-      font-size: 13px;
-      padding: 10px;
+    font-size: 13px;
+    padding: 10px;
   }
 
   .cash-header h3 {
-      font-size: 20px;
+    font-size: 20px;
   }
 
   .cash-back-btn {
-      padding: 8px 16px;
-      font-size: 14px;
+    padding: 8px 16px;
+    font-size: 14px;
   }
 
   .alert {
-      min-width: 80%;
+    min-width: 80%;
+    max-width: 90%;
+    min-height: 120px;
+    font-size: 1.1rem;
   }
 }
 
 @media (max-width: 576px) {
   .cash-container {
-      padding: 15px;
+    padding: 15px;
   }
 
   .cash-card {
-      border-radius: 15px;
+    border-radius: 15px;
   }
 
   .cash-table th,
   .cash-table td {
-      font-size: 12px;
-      padding: 8px;
+    font-size: 12px;
+    padding: 8px;
   }
 
   .cash-input {
-      padding: 10px;
+    padding: 10px;
   }
 
   .cash-confirm-btn {
-      padding: 12px;
-      font-size: 14px;
+    padding: 12px;
+    font-size: 14px;
   }
 
   .cash-return-btn {
-      padding: 10px 20px;
-      font-size: 13px;
+    padding: 10px 20px;
+    font-size: 13px;
   }
 
   .cash-totals p,
   .cash-customer-info p {
-      font-size: 13px;
+    font-size: 13px;
   }
 
   .cash-change {
-      font-size: 14px;
+    font-size: 14px;
   }
 
   .cash-header h3 {
-      font-size: 18px;
+    font-size: 18px;
   }
 
   .cash-back-btn {
-      top: 15px;
-      left: 15px;
+    top: 15px;
+    left: 15px;
   }
 
   .alert {
-      min-width: 90%;
-      font-size: 0.9rem;
+    min-width: 90%;
+    max-width: 95%;
+    min-height: 100px;
+    font-size: 1rem;
   }
 
   .alert .btn {
-      padding: 4px 15px;
-      font-size: 0.8rem;
+    padding: 6px 20px;
+    font-size: 0.9rem;
   }
 }

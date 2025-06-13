@@ -18,6 +18,7 @@ function ActiveOrders() {
   const [selectedDeliveryPersonId, setSelectedDeliveryPersonId] = useState(null);
   const [filterType, setFilterType] = useState("Dine In");
   const navigate = useNavigate();
+  const vatRate = 0.10; // VAT rate as per FrontPage.jsx
 
   const fetchData = async () => {
     try {
@@ -289,6 +290,13 @@ function ActiveOrders() {
     return cartItems.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0).toFixed(2);
   };
 
+  const calculateGrandTotal = (cartItems) => {
+    if (!Array.isArray(cartItems)) return "0.00";
+    const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0);
+    const vat = subtotal * vatRate;
+    return (subtotal + vat).toFixed(2);
+  };
+
   const getItemStatus = (item) => {
     if (!item.kitchenStatuses) return item.status || "Pending";
     const statuses = Object.values(item.kitchenStatuses);
@@ -362,6 +370,7 @@ function ActiveOrders() {
                     <th>Delivery Address</th>
                     <th>Timestamp</th>
                     <th>Total (₹)</th>
+                    <th>Grand Total (₹)</th>
                     <th>Delivery Person</th>
                     <th>Picked Up Time</th>
                     <th>Items</th>
@@ -376,6 +385,7 @@ function ActiveOrders() {
                     <th>Chairs</th>
                     <th>Timestamp</th>
                     <th>Total (₹)</th>
+                    <th>Grand Total (₹)</th>
                     <th>Items</th>
                     <th>Actions</th>
                   </>
@@ -393,6 +403,7 @@ function ActiveOrders() {
                       <td>{formatDeliveryAddress(order.deliveryAddress)}</td>
                       <td>{formatTimestamp(order.timestamp)}</td>
                       <td>{calculateOrderTotal(order.cartItems)}</td>
+                      <td>{calculateGrandTotal(order.cartItems)}</td>
                       <td>
                         {order.deliveryPersonId ? (
                           <span>{getDeliveryPersonName(order.deliveryPersonId)}</span>
@@ -424,6 +435,7 @@ function ActiveOrders() {
                       <td>{formatChairsBooked(order.chairsBooked)}</td>
                       <td>{formatTimestamp(order.timestamp)}</td>
                       <td>{calculateOrderTotal(order.cartItems)}</td>
+                      <td>{calculateGrandTotal(order.cartItems)}</td>
                     </>
                   )}
                   <td>
@@ -451,7 +463,7 @@ function ActiveOrders() {
                                   <div>Ice: {item.icePreference || "without_ice"}</div>
                                   <div>Spicy: {item.isSpicy ? "Yes" : "No"}</div>
                                   <div>Kitchen: {item.kitchen || "Main Kitchen"}</div>
-                                  <div>Status: {itemStatus}</div>
+                                  <div>Status: {itemStatus}{itemStatus === "PickedUp" ? " (All Done)" : ""}</div>
                                   {renderAddons(item.addonQuantities, item.addonVariants)}
                                   {renderCombos(item.comboQuantities, item.comboVariants)}
                                   <div>

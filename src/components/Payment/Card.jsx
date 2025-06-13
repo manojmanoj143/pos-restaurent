@@ -736,6 +736,12 @@ function Card() {
         }
     };
 
+    // Handle modal close with navigation
+    const handleModalClose = () => {
+        setShowModal(false);
+        navigate("/frontpage");
+    };
+
     // Check if delivery address is available
     const hasDeliveryAddress =
         billDetails?.deliveryAddress &&
@@ -983,7 +989,7 @@ function Card() {
                     </div>
                 </div>
             </div>
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+            <Modal show={showModal} onHide={handleModalClose} size="lg" centered>
                 <Modal.Header closeButton className="cash-modal-header">
                     <Modal.Title>Bill Details</Modal.Title>
                 </Modal.Header>
@@ -1059,7 +1065,7 @@ function Card() {
                                         <td style={{ textAlign: "left" }}>
                                             <strong>Payment Mode:</strong>
                                         </td>
-                                        <td style={{ textAlign: "right" }}>
+                                        <td style={ { textAlign: "right" }}>
                                             {billDetails.payments?.[0]?.mode_of_payment || "CARD"}
                                         </td>
                                     </tr>
@@ -1225,7 +1231,7 @@ function Card() {
                     )}
                 </Modal.Body>
                 <Modal.Footer className="cash-modal-footer">
-                    <Button variant="secondary" onClick={() => setShowModal(false)} disabled={isLoading}>
+                    <Button variant="secondary" onClick={handleModalClose} disabled={isLoading}>
                         Close
                     </Button>
                     <Button variant="info" onClick={handleEmail} disabled={isLoading}>
