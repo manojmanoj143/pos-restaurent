@@ -17,8 +17,8 @@ const AddIngredientAndNutrition = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [saveLoading, setSaveLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [saveLoading, setSaveLoading] = useState(false);
   const [hasExistingData, setHasExistingData] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -344,7 +344,7 @@ const AddIngredientAndNutrition = () => {
         setHasExistingData(true);
         setTimeout(() => {
           try {
-            navigate(-1);
+            navigate();
           } catch (error) {
             navigate('/create-item');
           }
@@ -435,6 +435,12 @@ const AddIngredientAndNutrition = () => {
     setIsMessageBoxVisible(false);
   };
 
+  // Close warning or error message box
+  const handleCloseWarning = () => {
+    setSaveMessage('');
+    setError(null);
+  };
+
   // Styles object
   const styles = {
     container: {
@@ -458,27 +464,6 @@ const AddIngredientAndNutrition = () => {
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-    },
-    warningBox: {
-      backgroundColor: '#fff3cd',
-      border: '1px solid #ffeeba',
-      color: '#856404',
-      padding: '15px',
-      marginBottom: '20px',
-      borderRadius: '8px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-      maxWidth: '1000px',
-    },
-    warningText: { margin: 0, fontSize: '14px' },
-    closeWarning: {
-      background: 'none',
-      border: 'none',
-      color: '#856404',
-      cursor: 'pointer',
-      fontSize: '16px',
     },
     formContainer: {
       backgroundColor: '#ffffff',
@@ -592,10 +577,32 @@ const AddIngredientAndNutrition = () => {
       textAlign: 'center',
       border: '1px solid #3498db',
     },
+    errorMessageBox: {
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#ffffff',
+      padding: '20px',
+      borderRadius: '10px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+      zIndex: 1000,
+      maxWidth: '400px',
+      width: '90%',
+      textAlign: 'center',
+      border: '1px solid #dc2626',
+    },
     messageBoxHeader: {
       fontSize: '16px',
       fontWeight: '600',
       color: '#2c3e50',
+boj: '#2c3e50',
+      marginBottom: '10px',
+    },
+    errorMessageBoxHeader: {
+      fontSize: '16px',
+      fontWeight: '600',
+      color: '#dc2626',
       marginBottom: '10px',
     },
     messageBoxText: {
@@ -606,6 +613,16 @@ const AddIngredientAndNutrition = () => {
     messageBoxClose: {
       padding: '8px 16px',
       backgroundColor: '#3498db',
+      color: '#ffffff',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      fontWeight: '600',
+      transition: 'background-color 0.3s ease',
+    },
+    errorMessageBoxClose: {
+      padding: '8px 16px',
+      backgroundColor: '#dc2626',
       color: '#ffffff',
       border: 'none',
       borderRadius: '5px',
@@ -629,15 +646,6 @@ const AddIngredientAndNutrition = () => {
         <h2 style={{ ...styles.title, margin: '0 auto' }}>Add Ingredients and Nutrition</h2>
       </div>
 
-      {saveMessage && (
-        <div style={styles.warningBox}>
-          <p style={styles.warningText}>{saveMessage}</p>
-          <button style={styles.closeWarning} onClick={() => setSaveMessage('')}>
-            ×
-          </button>
-        </div>
-      )}
-
       {loading && <div style={{ textAlign: 'center', color: '#2c3e50' }}>Loading...</div>}
 
       {!loading && (
@@ -645,14 +653,6 @@ const AddIngredientAndNutrition = () => {
           {/* Item Selection */}
           <div style={{ marginBottom: '24px', position: 'relative' }} ref={dropdownRef}>
             <h5 style={styles.title}>Select Item, Addon, or Combo</h5>
-            {error && (
-              <div style={{ ...styles.warningBox, backgroundColor: '#fee2e2', borderColor: '#f5c6cb', color: '#dc2626' }}>
-                <p style={styles.warningText}>{error}</p>
-                <button style={{ ...styles.closeWarning, color: '#dc2626' }} onClick={() => setError(null)}>
-                  ×
-                </button>
-              </div>
-            )}
             <input
               type="text"
               value={searchTerm}
@@ -678,6 +678,40 @@ const AddIngredientAndNutrition = () => {
               </div>
             )}
           </div>
+
+          {/* Error Message Box */}
+          {error && (
+            <div style={styles.errorMessageBox}>
+              <h6 style={styles.errorMessageBoxHeader}>Error</h6>
+              <p style={styles.messageBoxText}>{error}</p>
+              <button
+                style={styles.errorMessageBoxClose}
+                onClick={handleCloseWarning}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = '#b91c1c')}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = '#dc2626')}
+              >
+                Close
+              </button>
+            </div>
+          )}
+
+          {/* Save Message Box */}
+          {saveMessage && (
+            <div style={styles.messageBox}>
+              <h6 style={styles.messageBoxHeader}>
+                {saveMessage.includes('successfully') ? 'Success' : 'Warning'}
+              </h6>
+              <p style={styles.messageBoxText}>{saveMessage}</p>
+              <button
+                style={styles.messageBoxClose}
+                onClick={handleCloseWarning}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = '#2980b9')}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = '#3498db')}
+              >
+                Close
+              </button>
+            </div>
+          )}
 
           {selectedItem && (
             <>
@@ -929,10 +963,10 @@ const AddIngredientAndNutrition = () => {
                     backgroundColor: saveLoading || !selectedItem || !hasExistingData ? '#95a5a6' : '#e74c3c',
                   }}
                   onMouseEnter={(e) => {
-                    if (!(saveLoading || !selectedItem || !hasExistingData)) e.target.style.backgroundColor = '#c0392b';
+                    if (!saveLoading && selectedItem && hasExistingData) e.target.style.backgroundColor = '#c0392b';
                   }}
                   onMouseLeave={(e) => {
-                    if (!(saveLoading || !selectedItem || !hasExistingData)) e.target.style.backgroundColor = '#e74c3c';
+                    if (!saveLoading && selectedItem && hasExistingData) e.target.style.backgroundColor = '#e74c3c';
                   }}
                 >
                   {saveLoading ? 'Clearing...' : 'Clear Data'}

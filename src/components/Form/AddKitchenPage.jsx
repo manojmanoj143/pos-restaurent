@@ -10,6 +10,8 @@ function AddKitchenPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [kitchenToDelete, setKitchenToDelete] = useState(null);
 
   // Fetch existing kitchens on component mount
   const fetchKitchens = async () => {
@@ -53,8 +55,6 @@ function AddKitchenPage() {
 
   // Handle kitchen deletion
   const handleDeleteKitchen = async (kitchenId) => {
-    if (!window.confirm('Are you sure you want to delete this kitchen?')) return;
-
     try {
       setLoading(true);
       setError(null);
@@ -66,7 +66,21 @@ function AddKitchenPage() {
       setError(`Failed to delete kitchen: ${err.response?.data?.error || err.message}`);
     } finally {
       setLoading(false);
+      setShowDeleteModal(false);
+      setKitchenToDelete(null);
     }
+  };
+
+  // Open delete confirmation modal
+  const openDeleteModal = (kitchenId) => {
+    setKitchenToDelete(kitchenId);
+    setShowDeleteModal(true);
+  };
+
+  // Close delete confirmation modal
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setKitchenToDelete(null);
   };
 
   // Navigation handler
@@ -176,7 +190,7 @@ function AddKitchenPage() {
                     Added on: {new Date(kitchen.created_at).toLocaleString()}
                   </span>
                   <button
-                    onClick={() => handleDeleteKitchen(kitchen._id)}
+                    onClick={() => openDeleteModal(kitchen._id)}
                     disabled={loading}
                     style={{
                       padding: '5px 10px',
@@ -197,6 +211,74 @@ function AddKitchenPage() {
             </ul>
           )}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#fff',
+                padding: '30px',
+                borderRadius: '10px',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                width: '400px',
+                textAlign: 'center',
+              }}
+            >
+              <h3 style={{ marginBottom: '20px', color: '#333' }}>Confirm Deletion</h3>
+              <p style={{ marginBottom: '20px', color: '#666' }}>
+                Are you sure you want to delete this kitchen?
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                <button
+                  onClick={() => handleDeleteKitchen(kitchenToDelete)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#e74c3c',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s',
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#c0392b')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#e74c3c')}
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={closeDeleteModal}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#3498db',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s',
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#2980b9')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#3498db')}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

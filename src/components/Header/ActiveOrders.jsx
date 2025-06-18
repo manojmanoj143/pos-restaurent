@@ -18,7 +18,7 @@ function ActiveOrders() {
   const [selectedDeliveryPersonId, setSelectedDeliveryPersonId] = useState(null);
   const [filterType, setFilterType] = useState("Dine In");
   const navigate = useNavigate();
-  const vatRate = 0.10; // VAT rate as per FrontPage.jsx
+  const vatRate = 0.10;
 
   const fetchData = async () => {
     try {
@@ -26,6 +26,7 @@ function ActiveOrders() {
       const orders = Array.isArray(ordersResponse.data) ? ordersResponse.data : [];
       const sanitizedOrders = orders.map((order) => ({
         ...order,
+        orderNo: order.orderNo || "N/A",
         chairsBooked: Array.isArray(order.chairsBooked) ? order.chairsBooked : [],
         cartItems: Array.isArray(order.cartItems) ? order.cartItems : [],
         pickedUpTime: order.pickedUpTime || null,
@@ -81,8 +82,8 @@ function ActiveOrders() {
     setIsConfirmation(false);
   };
 
-  const handleDeleteOrder = (orderId, tableNumber) => {
-    setWarningMessage("Are you sure you want to delete this order?");
+  const handleDeleteOrder = (orderId, tableNumber, orderNo) => {
+    setWarningMessage(`Are you sure you want to delete order ${orderNo}?`);
     setWarningType("warning");
     setIsConfirmation(true);
     setPendingAction(() => async () => {
@@ -100,7 +101,7 @@ function ActiveOrders() {
         const updatedOrders = savedOrders.filter((order) => order.orderId !== orderId);
         setSavedOrders(updatedOrders);
         localStorage.setItem("savedOrders", JSON.stringify(updatedOrders));
-        setWarningMessage(`Order for Table ${tableNumber || "N/A"} deleted successfully!`);
+        setWarningMessage(`Order ${orderNo} deleted successfully!`);
         setWarningType("success");
       } catch (err) {
         setWarningMessage(`Failed to delete order: ${err.message}`);
@@ -109,7 +110,32 @@ function ActiveOrders() {
     });
   };
 
+  const checkAllItemsPickedUp = (order) => {
+    if (!order.cartItems || order.cartItems.length === 0) return false;
+    return order.cartItems.every((item) => {
+      const requiredKitchens = item.requiredKitchens || [];
+      if (!item.kitchenStatuses) return false;
+      return requiredKitchens.every((kitchen) => item.kitchenStatuses[kitchen] === "PickedUp");
+    });
+  };
+
   const handleAssignDeliveryPerson = (orderId, deliveryPersonId) => {
+    const order = savedOrders.find((o) => o.orderId === orderId);
+    if (!order) {
+      setWarningMessage("Order not found.");
+      setWarningType("warning");
+      return;
+    }
+    if (order.orderType !== "Online Delivery") {
+      setWarningMessage("Delivery person can only be assigned to Online Delivery orders.");
+      setWarningType("warning");
+      return;
+    }
+    if (!checkAllItemsPickedUp(order)) {
+      setWarningMessage(`Cannot assign delivery person to order ${order.orderNo}. All items, addons, and combos must be marked as Picked Up in the Kitchen page.`);
+      setWarningType("warning");
+      return;
+    }
     setSelectedOrderId(orderId);
     setSelectedDeliveryPersonId(deliveryPersonId);
     setShowDeliveryPopup(true);
@@ -117,6 +143,13 @@ function ActiveOrders() {
 
   const confirmDeliveryAssignment = async () => {
     try {
+      const order = savedOrders.find((o) => o.orderId === selectedOrderId);
+      if (!checkAllItemsPickedUp(order)) {
+        setWarningMessage(`Cannot assign delivery person to order ${order.orderNo}. All items, addons, and combos must be marked as Picked Up in the Kitchen page.`);
+        setWarningType("warning");
+        setShowDeliveryPopup(false);
+        return;
+      }
       const response = await axios.put(`http://localhost:5000/api/activeorders/${selectedOrderId}`, {
         deliveryPersonId: selectedDeliveryPersonId,
       });
@@ -178,35 +211,55 @@ function ActiveOrders() {
       return;
     }
 
-    const formattedCartItems = order.cartItems.map((item) => ({
-      ...item,
-      id: item.id || uuidv4(),
-      item_name: item.item_name || item.name,
-      name: item.name || item.item_name,
-      quantity: Number(item.quantity) || 1,
-      basePrice: Number(item.basePrice) || (Number(item.totalPrice) / (Number(item.quantity) || 1)) || 0,
-      totalPrice: Number(item.totalPrice) || (Number(item.basePrice) * (Number(item.quantity) || 1)) || 0,
-      selectedSize: item.selectedSize || "M",
-      icePreference: item.icePreference || "without_ice",
-      icePrice: Number(item.icePrice) || 0,
-      isSpicy: item.isSpicy || false,
-      spicyPrice: Number(item.spicyPrice) || 0,
-      kitchen: item.kitchen || "Main Kitchen",
-      addonQuantities: item.addonQuantities || {},
-      addonVariants: item.addonVariants || {},
-      addonPrices: item.addonPrices || {},
-      comboQuantities: item.comboQuantities || {},
-      comboVariants: item.comboVariants || {},
-      comboPrices: item.comboPrices || {},
-      selectedCombos: item.selectedCombos || [],
-      ingredients: item.ingredients || [],
-      kitchenStatuses: item.kitchenStatuses || { [item.kitchen || "Main Kitchen"]: "Pending" },
-    }));
+    const formattedCartItems = order.cartItems.map((item) => {
+      const requiredKitchens = new Set();
+      if (item.kitchen) requiredKitchens.add(item.kitchen);
+      if (item.addonVariants) {
+        Object.values(item.addonVariants).forEach((addon) => {
+          if (addon.kitchen) requiredKitchens.add(addon.kitchen);
+        });
+      }
+      if (item.comboVariants) {
+        Object.values(item.comboVariants).forEach((combo) => {
+          if (combo.kitchen) requiredKitchens.add(combo.kitchen);
+        });
+      }
+      const kitchenStatuses = {};
+      requiredKitchens.forEach((kitchen) => {
+        kitchenStatuses[kitchen] = item.kitchenStatuses?.[kitchen] || "Pending";
+      });
+
+      return {
+        ...item,
+        id: item.id || uuidv4(),
+        item_name: item.item_name || item.name,
+        name: item.name || item.item_name,
+        quantity: Number(item.quantity) || 1,
+        basePrice: Number(item.basePrice) || (Number(item.totalPrice) / (Number(item.quantity) || 1)) || 0,
+        totalPrice: Number(item.totalPrice) || (Number(item.basePrice) * (Number(item.quantity) || 1)) || 0,
+        selectedSize: item.selectedSize || "M",
+        icePreference: item.icePreference || "without_ice",
+        icePrice: Number(item.icePrice) || 0,
+        isSpicy: item.isSpicy || false,
+        spicyPrice: Number(item.spicyPrice) || 0,
+        kitchen: item.kitchen || "Main Kitchen",
+        addonQuantities: item.addonQuantities || {},
+        addonVariants: item.addonVariants || {},
+        addonPrices: item.addonPrices || {},
+        comboQuantities: item.comboQuantities || {},
+        comboVariants: item.comboVariants || {},
+        comboPrices: item.comboPrices || {},
+        selectedCombos: item.selectedCombos || [],
+        ingredients: item.ingredients || [],
+        requiredKitchens: Array.from(requiredKitchens),
+        kitchenStatuses,
+      };
+    });
 
     const orderType = order.orderType || inferOrderType(order);
     const phoneNumber = order.phoneNumber?.replace(/^\+\d+/, "") || "";
 
-    setWarningMessage(`You selected ${orderType === "Online Delivery" ? "Order for " + order.customerName : "Table " + (order.tableNumber || "N/A")}`);
+    setWarningMessage(`You selected order ${order.orderNo} for ${orderType === "Online Delivery" ? "Customer " + order.customerName : "Table " + (order.tableNumber || "N/A")}`);
     setWarningType("success");
     setPendingAction(() => () => {
       navigate("/frontpage", {
@@ -217,12 +270,14 @@ function ActiveOrders() {
           existingOrder: { ...order, cartItems: formattedCartItems },
           cartItems: formattedCartItems,
           deliveryAddress: order.deliveryAddress || { building_name: "", flat_villa_no: "", location: "" },
-          whatsappNumber: order.whatsappNumber || "",
-          email: order.email || "",
+          whatsappNumber: "",
+          email: "",
           orderType: orderType,
           bookedChairs: Array.isArray(order.chairsBooked) ? order.chairsBooked : [],
           deliveryPersonId: order.deliveryPersonId || "",
           pickedUpTime: order.pickedUpTime || null,
+          orderId: order.orderId,
+          orderNo: order.orderNo,
         },
       });
     });
@@ -249,7 +304,7 @@ function ActiveOrders() {
     );
   };
 
-  const renderAddons = (addonQuantities, addonVariants) => {
+  const renderAddons = (addonQuantities, addonVariants, addonPrices) => {
     if (!addonQuantities || Object.keys(addonQuantities).length === 0) return null;
     return (
       <ul className="active-orders-addons-list">
@@ -257,9 +312,10 @@ function ActiveOrders() {
           .filter(([_, qty]) => qty > 0)
           .map(([addonName, qty], idx) => {
             const addon = addonVariants?.[addonName] || {};
+            const price = addonPrices?.[addonName] || 0;
             return (
               <li key={idx}>
-                + Addon: {addonName} x{qty} (Kitchen: {addon.kitchen || "Unknown"})
+                + Addon: {addonName} x{qty} (₹{price.toFixed(2)}, Kitchen: {addon.kitchen || "Unknown"})
               </li>
             );
           })}
@@ -267,7 +323,7 @@ function ActiveOrders() {
     );
   };
 
-  const renderCombos = (comboQuantities, comboVariants) => {
+  const renderCombos = (comboQuantities, comboVariants, comboPrices) => {
     if (!comboQuantities || Object.keys(comboQuantities).length === 0) return null;
     return (
       <ul className="active-orders-combos-list">
@@ -275,9 +331,10 @@ function ActiveOrders() {
           .filter(([_, qty]) => qty > 0)
           .map(([comboName, qty], idx) => {
             const combo = comboVariants?.[comboName] || {};
+            const price = comboPrices?.[comboName] || 0;
             return (
               <li key={idx}>
-                + Combo: {comboName} ({combo.size || "M"}) x{qty} {combo.spicy && " (Spicy)"} (Kitchen: {combo.kitchen || "Unknown"})
+                + Combo: {comboName} ({combo.size || "M"}) x{qty} (₹{price.toFixed(2)}{combo.spicy ? " (Spicy)" : ""}, Kitchen: {combo.kitchen || "Unknown"})
               </li>
             );
           })}
@@ -362,6 +419,7 @@ function ActiveOrders() {
           <table className="active-orders-table active-orders-table-striped active-orders-table-bordered">
             <thead>
               <tr>
+                <th>Order No</th>
                 {filterType === "Online Delivery" ? (
                   <>
                     <th>Customer</th>
@@ -393,120 +451,126 @@ function ActiveOrders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, index) => (
-                <tr key={order.orderId}>
-                  {filterType === "Online Delivery" ? (
-                    <>
-                      <td>{order.customerName || "Guest"}</td>
-                      <td>{order.orderType || inferOrderType(order)}</td>
-                      <td>{order.phoneNumber || "Not provided"}</td>
-                      <td>{formatDeliveryAddress(order.deliveryAddress)}</td>
-                      <td>{formatTimestamp(order.timestamp)}</td>
-                      <td>{calculateOrderTotal(order.cartItems)}</td>
-                      <td>{calculateGrandTotal(order.cartItems)}</td>
-                      <td>
-                        {order.deliveryPersonId ? (
-                          <span>{getDeliveryPersonName(order.deliveryPersonId)}</span>
-                        ) : (
-                          <select
-                            className="active-orders-select"
-                            value={order.deliveryPersonId || ""}
-                            onChange={(e) => handleAssignDeliveryPerson(order.orderId, e.target.value)}
-                          >
-                            <option value="">Select Delivery Person</option>
-                            {employees
-                              .filter((emp) => emp.role.toLowerCase() === "delivery boy")
-                              .map((employee) => (
-                                <option key={employee.employeeId} value={employee.employeeId}>
-                                  {employee.name} (ID: {employee.employeeId})
-                                </option>
-                              ))}
-                          </select>
-                        )}
-                      </td>
-                      <td>{formatTimestamp(order.pickedUpTime)}</td>
-                    </>
-                  ) : (
-                    <>
-                      <td>{order.tableNumber || "N/A"}</td>
-                      <td>{order.customerName || "Guest"}</td>
-                      <td>{order.orderType || inferOrderType(order)}</td>
-                      <td>{order.phoneNumber || "Not provided"}</td>
-                      <td>{formatChairsBooked(order.chairsBooked)}</td>
-                      <td>{formatTimestamp(order.timestamp)}</td>
-                      <td>{calculateOrderTotal(order.cartItems)}</td>
-                      <td>{calculateGrandTotal(order.cartItems)}</td>
-                    </>
-                  )}
-                  <td>
-                    {order.cartItems && order.cartItems.length > 0 ? (
-                      <div>
-                        <div
-                          className="active-orders-item-header"
-                          onClick={() => toggleItems(`${filterType}-${index}`)}
-                        >
-                          <strong>{order.cartItems[0].name || order.cartItems[0].item_name}</strong>
-                          <span>{expandedItems[`${filterType}-${index}`] ? "▼" : "▶"}</span>
-                        </div>
-                        {expandedItems[`${filterType}-${index}`] && (
-                          <ul className="active-orders-list-group">
-                            {order.cartItems.map((item, itemIndex) => {
-                              const itemStatus = getItemStatus(item);
-                              return (
-                                <li
-                                  key={itemIndex}
-                                  className={`active-orders-list-group-item status-${itemStatus.toLowerCase()}`}
-                                >
-                                  <strong>{item.name || item.item_name}</strong> x{item.quantity}
-                                  <div>Price: ₹{item.totalPrice.toFixed(2)}</div>
-                                  <div>Size: {item.selectedSize || "M"}</div>
-                                  <div>Ice: {item.icePreference || "without_ice"}</div>
-                                  <div>Spicy: {item.isSpicy ? "Yes" : "No"}</div>
-                                  <div>Kitchen: {item.kitchen || "Main Kitchen"}</div>
-                                  <div>Status: {itemStatus}{itemStatus === "PickedUp" ? " (All Done)" : ""}</div>
-                                  {renderAddons(item.addonQuantities, item.addonVariants)}
-                                  {renderCombos(item.comboQuantities, item.comboVariants)}
-                                  <div>
-                                    <strong>Ingredients:</strong> {renderIngredients(item.ingredients)}
-                                  </div>
-                                  {item.kitchenStatuses && (
-                                    <div>
-                                      <strong>Kitchen Statuses:</strong>
-                                      <ul className="active-orders-kitchen-statuses">
-                                        {Object.entries(item.kitchenStatuses).map(([kitchen, status], idx) => (
-                                          <li key={idx}>
-                                            {kitchen}: {status}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-                      </div>
+              {orders.map((order, index) => {
+                const isAllPickedUp = checkAllItemsPickedUp(order);
+                return (
+                  <tr key={order.orderId}>
+                    <td style={isAllPickedUp ? { color: "green", fontWeight: "bold" } : {}}>
+                      {order.orderNo || "N/A"}
+                    </td>
+                    {filterType === "Online Delivery" ? (
+                      <>
+                        <td>{order.customerName || "Guest"}</td>
+                        <td>{order.orderType || inferOrderType(order)}</td>
+                        <td>{order.phoneNumber || "Not provided"}</td>
+                        <td>{formatDeliveryAddress(order.deliveryAddress)}</td>
+                        <td>{formatTimestamp(order.timestamp)}</td>
+                        <td>{calculateOrderTotal(order.cartItems)}</td>
+                        <td>{calculateGrandTotal(order.cartItems)}</td>
+                        <td>
+                          {order.deliveryPersonId ? (
+                            <span>{getDeliveryPersonName(order.deliveryPersonId)}</span>
+                          ) : (
+                            <select
+                              className="active-orders-select"
+                              value={order.deliveryPersonId || ""}
+                              onChange={(e) => handleAssignDeliveryPerson(order.orderId, e.target.value)}
+                            >
+                              <option value="">Select Delivery Person</option>
+                              {employees
+                                .filter((emp) => emp.role.toLowerCase() === "delivery boy")
+                                .map((employee) => (
+                                  <option key={employee.employeeId} value={employee.employeeId}>
+                                    {employee.name} (ID: {employee.employeeId})
+                                  </option>
+                                ))}
+                            </select>
+                          )}
+                        </td>
+                        <td>{formatTimestamp(order.pickedUpTime)}</td>
+                      </>
                     ) : (
-                      <div>No items</div>
+                      <>
+                        <td>{order.tableNumber || "N/A"}</td>
+                        <td>{order.customerName || "Guest"}</td>
+                        <td>{order.orderType || inferOrderType(order)}</td>
+                        <td>{order.phoneNumber || "Not provided"}</td>
+                        <td>{formatChairsBooked(order.chairsBooked)}</td>
+                        <td>{formatTimestamp(order.timestamp)}</td>
+                        <td>{calculateOrderTotal(order.cartItems)}</td>
+                        <td>{calculateGrandTotal(order.cartItems)}</td>
+                      </>
                     )}
-                  </td>
-                  <td>
-                    <button
-                      className="active-orders-btn active-orders-btn-primary active-orders-btn-sm"
-                      onClick={() => handleSelectOrder(order)}
-                    >
-                      Select
-                    </button>
-                    <button
-                      className="active-orders-btn active-orders-btn-danger active-orders-btn-sm"
-                      onClick={() => handleDeleteOrder(order.orderId, order.tableNumber)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    <td>
+                      {order.cartItems && order.cartItems.length > 0 ? (
+                        <div>
+                          <div
+                            className="active-orders-item-header"
+                            onClick={() => toggleItems(`${filterType}-${index}`)}
+                          >
+                            <strong>{order.cartItems[0].name || order.cartItems[0].item_name}</strong>
+                            <span>{expandedItems[`${filterType}-${index}`] ? "▼" : "▶"}</span>
+                          </div>
+                          {expandedItems[`${filterType}-${index}`] && (
+                            <ul className="active-orders-list-group">
+                              {order.cartItems.map((item, itemIndex) => {
+                                const itemStatus = getItemStatus(item);
+                                return (
+                                  <li
+                                    key={itemIndex}
+                                    className={`active-orders-list-group-item status-${itemStatus.toLowerCase()}`}
+                                  >
+                                    <strong>{item.name || item.item_name}</strong> x{item.quantity}
+                                    <div>Price: ₹{item.basePrice.toFixed(2)}</div>
+                                    <div>Size: {item.selectedSize || "M"}</div>
+                                    <div>Ice: {item.icePreference || "without_ice"}</div>
+                                    <div>Spicy: {item.isSpicy ? "Yes" : "No"}</div>
+                                    <div>Kitchen: {item.kitchen || "Main Kitchen"}</div>
+                                    <div>Status: {itemStatus}{itemStatus === "PickedUp" ? " (All Done)" : ""}</div>
+                                    {renderAddons(item.addonQuantities, item.addonVariants, item.addonPrices)}
+                                    {renderCombos(item.comboQuantities, item.comboVariants, item.comboPrices)}
+                                    <div>
+                                      <strong>Ingredients:</strong> {renderIngredients(item.ingredients)}
+                                    </div>
+                                    {item.kitchenStatuses && (
+                                      <div>
+                                        <strong>Kitchen Statuses:</strong>
+                                        <ul className="active-orders-kitchen-statuses">
+                                          {Object.entries(item.kitchenStatuses).map(([kitchen, status], idx) => (
+                                            <li key={idx}>
+                                              {kitchen}: {status}
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      ) : (
+                        <div>No items</div>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="active-orders-btn active-orders-btn-primary active-orders-btn-sm"
+                        onClick={() => handleSelectOrder(order)}
+                      >
+                        Select
+                      </button>
+                      <button
+                        className="active-orders-btn active-orders-btn-danger active-orders-btn-sm"
+                        onClick={() => handleDeleteOrder(order.orderId, order.tableNumber, order.orderNo)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

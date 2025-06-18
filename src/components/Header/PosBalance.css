@@ -1,0 +1,334 @@
+.pos-balance-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e6f0fa, #b8c8e8);
+    padding: 2.5rem;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+}
+
+.pos-balance-container .back-button {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 2.2rem;
+    color: #2d3748;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.pos-balance-container .back-button:hover {
+    color: #3182ce;
+    transform: scale(1.1);
+}
+
+.pos-balance-container .content-wrapper {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.pos-balance-container .title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pos-balance-container .filter-section {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    transition: transform 0.3s ease;
+}
+
+.pos-balance-container .filter-section:hover {
+    transform: translateY(-3px);
+}
+
+.pos-balance-container .filter-title {
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1.8rem;
+}
+
+.pos-balance-container .filter-item {
+    width: 100%;
+}
+
+.pos-balance-container .filter-item .form-control,
+.pos-balance-container .filter-item .react-datepicker-wrapper,
+.pos-balance-container .filter-item .react-datepicker__input-container input {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.pos-balance-container .filter-item .form-control:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.pos-balance-container .list-button {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.8rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pos-balance-container .list-button:hover {
+    background-color: #2b6cb0;
+    transform: translateY(-2px);
+}
+
+.pos-balance-container .balance-card {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    padding: 1.8rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pos-balance-container .balance-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.pos-balance-container .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding: 1.2rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.pos-balance-container .card-title {
+    font-size: 1.9rem;
+    font-weight: 600;
+    margin: 0;
+    color: #2d3748;
+}
+
+.pos-balance-container .card-icon {
+    font-size: 2.2rem;
+}
+
+.pos-balance-container .card-body {
+    text-align: left;
+}
+
+.pos-balance-container .balance-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+}
+
+.pos-balance-container .balance-label {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.pos-balance-container .balance-value {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.pos-balance-container .dinein .card-header {
+    background: #e6f3ff;
+}
+
+.pos-balance-container .delivery .card-header {
+    background: #fef7e6;
+}
+
+.pos-balance-container .takeaway .card-header {
+    background: #e8f7e9;
+}
+
+.pos-balance-container .sales-graph {
+    margin-top: 3.5rem;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.pos-balance-container .graph-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 2rem;
+}
+
+.pos-balance-container .chart-container {
+    position: relative;
+    height: 450px;
+    width: 100%;
+}
+
+.pos-balance-container #salesChart {
+    max-height: 450px;
+    width: 100%;
+}
+
+.pos-balance-container .hourly-breakdown {
+    margin-top: 3.5rem;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.pos-balance-container .hourly-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 2rem;
+}
+
+.pos-balance-container .hourly-table {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 10px;
+    border-collapse: collapse;
+}
+
+.pos-balance-container .hourly-table th,
+.pos-balance-container .hourly-table td {
+    padding: 1.2rem;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.pos-balance-container .hourly-table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+.pos-balance-container .hourly-table td {
+    font-size: 1rem;
+    color: #4a5568;
+}
+
+.pos-balance-container .hourly-table tr:hover {
+    background: #f7fafc;
+}
+
+.pos-balance-container .hourly-table tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 992px) {
+    .pos-balance-container .filter-section {
+        width: 100%;
+        margin-bottom: 2.5rem;
+    }
+
+    .pos-balance-container .title {
+        font-size: 2.3rem;
+    }
+
+    .pos-balance-container .balance-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .pos-balance-container .card-title {
+        font-size: 1.7rem;
+    }
+
+    .pos-balance-container .card-icon {
+        font-size: 1.8rem;
+    }
+
+    .pos-balance-container .chart-container {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pos-balance-container {
+        padding: 1.5rem;
+    }
+
+    .pos-balance-container .title {
+        font-size: 2rem;
+    }
+
+    .pos-balance-container .filter-title,
+    .pos-balance-container .hourly-title,
+    .pos-balance-container .graph-title {
+        font-size: 1.8rem;
+    }
+
+    .pos-balance-container .filter-section {
+        padding: 1.5rem;
+    }
+
+    .pos-balance-container .hourly-table th,
+    .pos-balance-container .hourly-table td {
+        font-size: 0.95rem;
+        padding: 0.9rem;
+    }
+
+    .pos-balance-container .list-button {
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+    }
+
+    .pos-balance-container .chart-container {
+        height: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pos-balance-container .back-button {
+        font-size: 1.8rem;
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .pos-balance-container .title {
+        font-size: 1.8rem;
+    }
+
+    .pos-balance-container .filter-title,
+    .pos-balance-container .hourly-title,
+    .pos-balance-container .graph-title {
+        font-size: 1.6rem;
+    }
+
+    .pos-balance-container .balance-card {
+        padding: 1.2rem;
+    }
+
+    .pos-balance-container .card-title {
+        font-size: 1.5rem;
+    }
+
+    .pos-balance-container .card-icon {
+        font-size: 1.6rem;
+    }
+
+    .pos-balance-container .balance-item {
+        font-size: 1rem;
+    }
+
+    .pos-balance-container .chart-container {
+        height: 300px;
+    }
+}

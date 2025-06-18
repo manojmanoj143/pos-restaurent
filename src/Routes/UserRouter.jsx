@@ -37,6 +37,7 @@ import Booking from "../components/Table/Booking";
 import CreateVariant from "../components/Form/CreateVariant";
 import Employee from "../components/Form/Employee";
 import TripReport from "../components/Header/TripReport";
+import PosBalance from "../components/Header/PosBalance";
 
 const UserRouter = () => {
   return (
@@ -74,6 +75,7 @@ const UserRouter = () => {
       <Route path="/create-variant" element={<CreateVariant />} />
       <Route path="/employees" element={<Employee />} />
       <Route path="/trip-report" element={<TripReport />} />
+      <Route path="/pos-balance" element={<PosBalance />} />
     </Routes>
   );
 };

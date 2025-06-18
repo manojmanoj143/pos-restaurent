@@ -67,7 +67,8 @@ const SalesReport = () => {
             !isNaN(sale.grand_total) &&
             sale.grand_total !== null &&
             !isNaN(sale.total) &&
-            sale.total !== null
+            sale.total !== null &&
+            sale.invoice_no
         )
       : [];
   };
@@ -301,7 +302,7 @@ const SalesReport = () => {
               <th style="text-align: left; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Customer</th>
               <th style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Date</th>
               <th style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Time</th>
-              <th style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Phone Number</th>
+              <th style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Mode of Payment</th>
               <th style="text-align: right; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">Total</th>
               <th style="text-align: right; padding: 8px; font-size: 12px; border-right: 1px solid #000000;">VAT (10%)</th>
               <th style="text-align: right; padding: 8px; font-size: 12px;">Grand Total</th>
@@ -316,7 +317,7 @@ const SalesReport = () => {
                     <td style="text-align: left; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">${sale.customer || "N/A"}</td>
                     <td style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">${sale.date}</td>
                     <td style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">${sale.time}</td>
-                    <td style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">${sale.phoneNumber || "N/A"}</td>
+                    <td style="text-align: center; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">${sale.payments?.[0]?.mode_of_payment || "CASH"}</td>
                     <td style="text-align: right; padding: 8px; font-size: 12px; border-right: 1px solid #d3d3d3;">₹${formatTotal(
                       calculateSubtotal(sale)
                     )}</td>
@@ -400,7 +401,7 @@ const SalesReport = () => {
     `);
     win.document.close();
     win.focus();
-    win.print(); // User can save as PDF from the print dialog
+    win.print();
     win.close();
   };
 
@@ -416,7 +417,7 @@ const SalesReport = () => {
         Customer: sale.customer || "N/A",
         Date: sale.date,
         Time: sale.time,
-        "Phone Number": sale.phoneNumber || "N/A",
+        "Mode of Payment": sale.payments?.[0]?.mode_of_payment || "CASH",
         Total: `₹${formatTotal(calculateSubtotal(sale))}`,
         "VAT (10%)": `₹${formatTotal(calculateVAT(sale))}`,
         "Grand Total": `₹${formatTotal(calculateGrandTotal(sale))}`,
@@ -428,7 +429,7 @@ const SalesReport = () => {
         Customer: "",
         Date: "",
         Time: "",
-        "Phone Number": "",
+        "Mode of Payment": "",
         Total: "",
         "VAT (10%)": "Total Grand Total:",
         "Grand Total": `₹${formatTotal(totalGrandTotal)}`,
@@ -764,98 +765,104 @@ const SalesReport = () => {
                   ? `Year-wise Sales Report: ${filterYear}`
                   : "All Sales Report"}
               </Card.Title>
-              <Table
-                responsive
-                striped
-                hover
-                className="sales-table"
-                style={{ borderRadius: "8px", overflow: "hidden" }}
-              >
-                <thead
-                  className="table-header"
-                  style={{ backgroundColor: "#3498db", color: "#ffffff" }}
+              {filteredSales.length === 0 ? (
+                <div className="text-center" style={{ color: "#000000" }}>
+                  No sales match the selected filters.
+                </div>
+              ) : (
+                <Table
+                  responsive
+                  striped
+                  hover
+                  className="sales-table"
+                  style={{ borderRadius: "8px", overflow: "hidden" }}
                 >
-                  <tr>
-                    <th style={{ textAlign: "left", padding: "12px" }}>
-                      Invoice No
-                    </th>
-                    <th style={{ textAlign: "left", padding: "12px" }}>
-                      Customer
-                    </th>
-                    <th style={{ textAlign: "center", padding: "12px" }}>Date</th>
-                    <th style={{ textAlign: "center", padding: "12px" }}>Time</th>
-                    <th style={{ textAlign: "center", padding: "12px" }}>
-                      Phone Number
-                    </th>
-                    <th style={{ textAlign: "right", padding: "12px" }}>
-                      Total
-                    </th>
-                    <th style={{ textAlign: "right", padding: "12px" }}>
-                      VAT (10%)
-                    </th>
-                    <th style={{ textAlign: "right", padding: "12px" }}>
-                      Grand Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSales.map((sale) => (
-                    <tr
-                      key={sale.invoice_no}
-                      className="table-row"
-                      style={{ transition: "background-color 0.2s" }}
-                    >
-                      <td style={{ textAlign: "left", padding: "12px" }}>
-                        {sale.invoice_no}
+                  <thead
+                    className="table-header"
+                    style={{ backgroundColor: "#3498db", color: "#ffffff" }}
+                  >
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "12px" }}>
+                        Invoice No
+                      </th>
+                      <th style={{ textAlign: "left", padding: "12px" }}>
+                        Customer
+                      </th>
+                      <th style={{ textAlign: "center", padding: "12px" }}>Date</th>
+                      <th style={{ textAlign: "center", padding: "12px" }}>Time</th>
+                      <th style={{ textAlign: "center", padding: "12px" }}>
+                        Mode of Payment
+                      </th>
+                      <th style={{ textAlign: "right", padding: "12px" }}>
+                        Total
+                      </th>
+                      <th style={{ textAlign: "right", padding: "12px" }}>
+                        VAT (10%)
+                      </th>
+                      <th style={{ textAlign: "right", padding: "12px" }}>
+                        Grand Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSales.map((sale) => (
+                      <tr
+                        key={sale.invoice_no}
+                        className="table-row"
+                        style={{ transition: "background-color 0.2s" }}
+                      >
+                        <td style={{ textAlign: "left", padding: "12px" }}>
+                          {sale.invoice_no}
+                        </td>
+                        <td style={{ textAlign: "left", padding: "12px" }}>
+                          {sale.customer || "N/A"}
+                        </td>
+                        <td style={{ textAlign: "center", padding: "12px" }}>
+                          {sale.date}
+                        </td>
+                        <td style={{ textAlign: "center", padding: "12px" }}>
+                          {sale.time}
+                        </td>
+                        <td style={{ textAlign: "center", padding: "12px" }}>
+                          {sale.payments?.[0]?.mode_of_payment || "CASH"}
+                        </td>
+                        <td style={{ textAlign: "right", padding: "12px" }}>
+                          ₹{formatTotal(calculateSubtotal(sale))}
+                        </td>
+                        <td style={{ textAlign: "right", padding: "12px" }}>
+                          ₹{formatTotal(calculateVAT(sale))}
+                        </td>
+                        <td style={{ textAlign: "right", padding: "12px" }}>
+                          ₹{formatTotal(calculateGrandTotal(sale))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td
+                        colSpan="7"
+                        style={{
+                          textAlign: "right",
+                          padding: "12px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total Grand Total:
                       </td>
-                      <td style={{ textAlign: "left", padding: "12px" }}>
-                        {sale.customer || "N/A"}
-                      </td>
-                      <td style={{ textAlign: "center", padding: "12px" }}>
-                        {sale.date}
-                      </td>
-                      <td style={{ textAlign: "center", padding: "12px" }}>
-                        {sale.time}
-                      </td>
-                      <td style={{ textAlign: "center", padding: "12px" }}>
-                        {sale.phoneNumber || "N/A"}
-                      </td>
-                      <td style={{ textAlign: "right", padding: "12px" }}>
-                        ₹{formatTotal(calculateSubtotal(sale))}
-                      </td>
-                      <td style={{ textAlign: "right", padding: "12px" }}>
-                        ₹{formatTotal(calculateVAT(sale))}
-                      </td>
-                      <td style={{ textAlign: "right", padding: "12px" }}>
-                        ₹{formatTotal(calculateGrandTotal(sale))}
+                      <td
+                        style={{
+                          textAlign: "right",
+                          padding: "12px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        ₹{formatTotal(totalGrandTotal)}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td
-                      colSpan="7"
-                      style={{
-                        textAlign: "right",
-                        padding: "12px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Total Grand Total:
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "right",
-                        padding: "12px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ₹{formatTotal(totalGrandTotal)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </Table>
+                  </tfoot>
+                </Table>
+              )}
             </Card.Body>
           </Card>
         </Col>

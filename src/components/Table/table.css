@@ -31,10 +31,10 @@
 /* Chair Styling */
 .chair {
   position: absolute;
-  font-size: 24px;
-  color: #6c757d; /* Bootstrap secondary color for unknown status */
+  width: 24px;
+  height: 24px;
   cursor: pointer;
-  transition: color 0.3s, transform 0.2s;
+  transition: filter 0.3s, transform 0.2s;
 }
 
 .chair:hover {
@@ -42,19 +42,19 @@
 }
 
 .chair.booked {
-  color: #dc3545; /* Bootstrap danger color */
+  filter: invert(21%) sepia(98%) saturate(7500%) hue-rotate(339deg) brightness(92%) contrast(94%); /* Matches #dc3545 */
 }
 
 .chair.reserved {
-  color: #ff69b4; /* Custom pink for reserved */
+  filter: invert(65%) sepia(91%) saturate(1352%) hue-rotate(296deg) brightness(101%) contrast(101%); /* Matches #ff69b4 */
 }
 
 .chair.available {
-  color: #28a745; /* Bootstrap success color */
+  filter: invert(44%) sepia(91%) saturate(438%) hue-rotate(81deg) brightness(97%) contrast(92%); /* Matches #28a745 */
 }
 
 .chair.selected {
-  color: #007bff; /* Bootstrap primary color for selected */
+  filter: invert(26%) sepia(98%) saturate(3500%) hue-rotate(195deg) brightness(92%) contrast(90%); /* Matches #007bff */
   border: 2px solid #007bff;
   border-radius: 50%;
   padding: 2px;

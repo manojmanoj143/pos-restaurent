@@ -343,15 +343,17 @@ function Table() {
       const status = getChairStatus(table, chairNumber, date);
       const isSelected = selectedChairs[table.table_number]?.includes(chairNumber);
       chairs.push(
-        <i
+        <img
           key={i}
-          className={`fas fa-chair chair ${status} ${isSelected ? "selected" : ""}`}
+          src="/menuIcons/chair.svg"
+          alt="Chair"
+          className={`chair ${status} ${isSelected ? "selected" : ""}`}
           style={style}
           onClick={(e) => {
             e.stopPropagation();
             handleChairClick(table.table_number, chairNumber, status);
           }}
-        ></i>
+        />
       );
     }
     return chairs;

@@ -11,8 +11,8 @@ const CustomerListPage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [warningMessage, setWarningMessage] = useState("");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // New state for delete confirmation
-  const [customerToDelete, setCustomerToDelete] = useState(null); // Store customer to delete
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
   const navigate = useNavigate();
 
   // Fetch all customers from the backend
@@ -58,7 +58,6 @@ const CustomerListPage = () => {
       setWarningMessage("Invalid customer ID. Please try again.");
       return;
     }
-    // Show confirmation modal instead of window.confirm
     setCustomerToDelete(customerId);
     setShowDeleteConfirm(true);
   };
@@ -129,7 +128,7 @@ const CustomerListPage = () => {
     }
   };
 
-  // Styles (updated with confirmation modal styles)
+  // Styles (updated warning box for centering and larger size)
   const styles = {
     container: {
       minHeight: "100vh",
@@ -140,25 +139,31 @@ const CustomerListPage = () => {
     },
     warningBox: {
       backgroundColor: "#fff3cd",
-      border: "1px solid #ffeeba",
+      border: "2px solid #ffeeba",
       color: "#856404",
-      padding: "15px",
-      marginBottom: "20px",
-      borderRadius: "8px",
+      padding: "20px",
+      marginBottom: "30px",
+      borderRadius: "12px",
       display: "flex",
-      justifyContent: "space-between",
+      justifyContent: "center",
       alignItems: "center",
+      maxWidth: "600px",
+      margin: "20px auto",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
     },
     warningText: {
       margin: 0,
-      fontSize: "14px",
+      fontSize: "18px",
+      fontWeight: "500",
+      textAlign: "center",
     },
     closeWarning: {
       background: "none",
       border: "none",
       color: "#856404",
       cursor: "pointer",
-      fontSize: "16px",
+      fontSize: "20px",
+      marginLeft: "20px",
     },
     backButton: {
       display: "flex",
@@ -341,13 +346,35 @@ const CustomerListPage = () => {
         <div
           style={{
             backgroundColor: "#ffebee",
-            padding: "15px",
-            borderRadius: "8px",
+            border: "2px solid #ef9a9a",
             color: "#c0392b",
-            marginBottom: "20px",
+            padding: "20px",
+            borderRadius: "12px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            maxWidth: "600px",
+            margin: "20px auto",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            fontSize: "18px",
+            fontWeight: "500",
+            textAlign: "center",
           }}
         >
-          {error}
+          <p style={{ margin: 0 }}>{error}</p>
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              color: "#c0392b",
+              cursor: "pointer",
+              fontSize: "20px",
+              marginLeft: "20px",
+            }}
+            onClick={() => setError("")}
+          >
+            ×
+          </button>
         </div>
       )}
       {!loading && !error && filteredCustomers.length === 0 && (
@@ -359,6 +386,10 @@ const CustomerListPage = () => {
             textAlign: "center",
             color: "#7f8c8d",
             boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
+            maxWidth: "600px",
+            margin: "20px auto",
+            fontSize: "18px",
+            fontWeight: "500",
           }}
         >
           No customers found

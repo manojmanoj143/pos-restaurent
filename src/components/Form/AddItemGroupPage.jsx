@@ -1,4 +1,3 @@
-// src/components/Form/AddItemGroupPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,6 +10,8 @@ function AddItemGroupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState(null);
 
   // Fetch existing item groups
   const fetchGroups = async () => {
@@ -54,8 +55,6 @@ function AddItemGroupPage() {
   };
 
   const handleDelete = async (groupId) => {
-    if (!window.confirm('Are you sure you want to delete this item group?')) return;
-
     try {
       setLoading(true);
       setError(null);
@@ -66,7 +65,19 @@ function AddItemGroupPage() {
       setError(err.response?.data?.error || 'Failed to delete item group');
     } finally {
       setLoading(false);
+      setShowDeleteModal(false);
+      setGroupToDelete(null);
     }
+  };
+
+  const openDeleteModal = (groupId) => {
+    setGroupToDelete(groupId);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setGroupToDelete(null);
   };
 
   return (
@@ -182,7 +193,7 @@ function AddItemGroupPage() {
               >
                 <span>{group.group_name}</span>
                 <button
-                  onClick={() => handleDelete(group._id)}
+                  onClick={() => openDeleteModal(group._id)}
                   style={{
                     backgroundColor: '#e74c3c',
                     color: '#fff',
@@ -202,6 +213,74 @@ function AddItemGroupPage() {
           </ul>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              padding: '30px',
+              borderRadius: '10px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              width: '400px',
+              textAlign: 'center',
+            }}
+          >
+            <h3 style={{ marginBottom: '20px', color: '#333' }}>Confirm Deletion</h3>
+            <p style={{ marginBottom: '20px', color: '#666' }}>
+              Are you sure you want to delete this item group?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+              <button
+                onClick={() => handleDelete(groupToDelete)}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#e74c3c',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s',
+                }}
+                onMouseOver={(e) => (e.target.style.backgroundColor = '#c0392b')}
+                onMouseOut={(e) => (e.target.style.backgroundColor = '#e74c3c')}
+              >
+                Delete
+              </button>
+              <button
+                onClick={closeDeleteModal}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#3498db',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s',
+                }}
+                onMouseOver={(e) => (e.target.style.backgroundColor = '#2980b9')}
+                onMouseOut={(e) => (e.target.style.backgroundColor = '#3498db')}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

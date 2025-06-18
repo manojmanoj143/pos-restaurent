@@ -133,15 +133,16 @@ try:
     employees_collection = db['employees']
     activeorders_collection = db['activeorders']
     tripreports_collection = db['tripreports']  # New collection for trip reports
+    order_counters_collection = db['order_counters']
     
 except Exception as e:
     logger.critical(f"Could not establish MongoDB connection: {str(e)}")
     sys.exit(1)
 
 # Twilio setup
-account_sid = ''
-auth_token = ''
-twilio_phone = ''
+account_sid = 'AC05480a3334e70b80d9c62f379f45a7a0'
+auth_token = '5c0f80b5626a34474c58da9ce4b1357c'
+twilio_phone = '+12185304627'
 # twilio_messaging_sid = 'MGf5700bd791ccba00ef2084cc78d41573'  # Uncomment if needed
 
 
@@ -2072,29 +2073,14 @@ def handle_item_nutrition(item_name):
 def save_kitchen_order():
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'error': 'No data provided'}), 400
+        if not data or 'orderId' not in data:
+            return jsonify({'success': False, 'error': 'No data or orderId provided'}), 400
 
-        required_fields = ['customerName', 'phoneNumber', 'cartItems', 'timestamp', 'orderType']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
-
-        order = {
-            'customerName': data['customerName'],
-            'tableNumber': data.get('tableNumber', 'N/A') if data['orderType'] == 'Dine In' else 'N/A',
-            'chairsBooked': data.get('chairsBooked', []) if data['orderType'] == 'Dine In' else [],
-            'phoneNumber': data['phoneNumber'],
-            'deliveryAddress': data.get('deliveryAddress', {}),
-            'whatsappNumber': data.get('whatsappNumber', ''),
-            'email': data.get('email', ''),
-            'cartItems': [],
-            'timestamp': data['timestamp'],
-            'orderType': data['orderType'],
-            'createdAt': datetime.utcnow()
-        }
-
-        for item in data['cartItems']:
+        order_id = data['orderId']
+        existing_order = kitchen_saved_collection.find_one({'orderId': order_id})
+        
+        cart_items = data.get('cartItems', [])
+        for item in cart_items:
             required_kitchens = set()
             if 'kitchen' in item:
                 required_kitchens.add(item['kitchen'])
@@ -2109,14 +2095,36 @@ def save_kitchen_order():
                     if 'kitchen' in combo:
                         required_kitchens.add(combo['kitchen'])
             item['requiredKitchens'] = list(required_kitchens)
-            item['kitchenStatuses'] = {kitchen: 'Pending' for kitchen in required_kitchens}
-            order['cartItems'].append(item)
+            item['kitchenStatuses'] = item.get('kitchenStatuses', {kitchen: 'Pending' for kitchen in required_kitchens})
 
-        result = kitchen_saved_collection.insert_one(order)
-        order['_id'] = str(result.inserted_id)
+        order = {
+            'orderId': order_id,
+            'customerName': data.get('customerName', 'N/A'),
+            'tableNumber': data.get('tableNumber', 'N/A'),
+            'chairsBooked': data.get('chairsBooked', []),
+            'phoneNumber': data.get('phoneNumber', ''),
+            'deliveryAddress': data.get('deliveryAddress', {}),
+            'whatsappNumber': data.get('whatsappNumber', ''),
+            'email': data.get('email', ''),
+            'cartItems': cart_items,
+            'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
+            'orderType': data.get('orderType', 'Dine In'),
+            'createdAt': datetime.utcnow(),
+            'status': data.get('status', 'Pending'),
+            'pickedUpTime': data.get('pickedUpTime', None)
+        }
 
-        return jsonify({'success': True, 'order_id': order['_id'], 'order': order}), 201
+        if existing_order:
+            kitchen_saved_collection.update_one(
+                {'orderId': order_id},
+                {'$set': order}
+            )
+            logger.info(f"Updated kitchen order: {order_id}")
+        else:
+            kitchen_saved_collection.insert_one(order)
+            logger.info(f"Created kitchen order: {order_id}")
 
+        return jsonify({'success': True, 'order_id': order_id}), 201
     except Exception as e:
         logger.error(f"Error in /api/kitchen-saved POST: {str(e)}")
         logger.error(traceback.format_exc())
@@ -2125,16 +2133,8 @@ def save_kitchen_order():
 @app.route('/api/kitchen-saved', methods=['GET'])
 def get_kitchen_orders():
     try:
-        orders = list(kitchen_saved_collection.find())
-        for order in orders:
-            order['_id'] = str(order['_id'])
-            order['cartItems'] = order.get('cartItems', [])
-            for item in order['cartItems']:
-                item['kitchenStatuses'] = item.get('kitchenStatuses', {})
-                item['requiredKitchens'] = item.get('requiredKitchens', [])
-
+        orders = list(kitchen_saved_collection.find({}, {'_id': 0}))
         return jsonify({'success': True, 'orders': orders}), 200
-
     except Exception as e:
         logger.error(f"Error in /api/kitchen-saved GET: {str(e)}")
         logger.error(traceback.format_exc())
@@ -2143,7 +2143,7 @@ def get_kitchen_orders():
 @app.route('/api/kitchen-saved/<order_id>', methods=['DELETE'])
 def delete_kitchen_order(order_id):
     try:
-        result = kitchen_saved_collection.delete_one({'_id': ObjectId(order_id)})
+        result = kitchen_saved_collection.delete_one({'orderId': order_id})
         if result.deleted_count == 0:
             logger.warning(f"Order not found: {order_id}")
             return jsonify({'success': False, 'error': 'Order not found'}), 404
@@ -2151,57 +2151,6 @@ def delete_kitchen_order(order_id):
         return jsonify({'success': True, 'message': 'Order deleted successfully'}), 200
     except Exception as e:
         logger.error(f"Error deleting order {order_id}: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/kitchen-saved/<order_id>/status', methods=['PATCH'])
-def update_item_status(order_id):
-    try:
-        data = request.get_json()
-        if not data or 'itemId' not in data or 'status' not in data or 'kitchen' not in data:
-            return jsonify({'success': False, 'error': 'Missing itemId, status, or kitchen'}), 400
-
-        item_id = data['itemId']
-        new_status = data['status']
-        kitchen = data['kitchen']
-
-        order = kitchen_saved_collection.find_one({'_id': ObjectId(order_id)})
-        if not order:
-            return jsonify({'success': False, 'error': 'Order not found'}), 404
-
-        item = next((item for item in order['cartItems'] if item['id'] == item_id), None)
-        if not item:
-            return jsonify({'success': False, 'error': 'Item not found'}), 404
-
-        if kitchen not in item['requiredKitchens']:
-            return jsonify({'success': False, 'error': 'Kitchen not required for this item'}), 400
-
-        item['kitchenStatuses'][kitchen] = new_status
-
-        all_picked_up = all(status == 'PickedUp' for status in item['kitchenStatuses'].values())
-
-        if all_picked_up:
-            result = kitchen_saved_collection.update_one(
-                {'_id': ObjectId(order_id)},
-                {'$pull': {'cartItems': {'id': item_id}}}
-            )
-        else:
-            result = kitchen_saved_collection.update_one(
-                {'_id': ObjectId(order_id), 'cartItems.id': item_id},
-                {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
-            )
-
-        if result.modified_count == 0:
-            return jsonify({'success': False, 'error': 'Item not found or status not updated'}), 404
-
-        updated_order = kitchen_saved_collection.find_one({'_id': ObjectId(order_id)})
-        if updated_order and len(updated_order.get('cartItems', [])) == 0:
-            kitchen_saved_collection.delete_one({'_id': ObjectId(order_id)})
-
-        return jsonify({'success': True}), 200
-
-    except Exception as e:
-        logger.error(f"Error in /api/kitchen-saved/{order_id}/status: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -2213,7 +2162,7 @@ def mark_item_prepared(order_id, item_id):
         if not kitchen:
             return jsonify({'success': False, 'error': 'Kitchen not provided'}), 400
 
-        order = kitchen_saved_collection.find_one({'_id': ObjectId(order_id)})
+        order = kitchen_saved_collection.find_one({'orderId': order_id})
         if not order:
             return jsonify({'success': False, 'error': 'Order not found'}), 404
 
@@ -2221,8 +2170,11 @@ def mark_item_prepared(order_id, item_id):
         if not item:
             return jsonify({'success': False, 'error': 'Item not found'}), 404
 
-        if kitchen not in item['requiredKitchens']:
+        if not item.get('requiredKitchens') or kitchen not in item['requiredKitchens']:
             return jsonify({'success': False, 'error': 'Kitchen not required for this item'}), 400
+
+        if not item.get('kitchenStatuses'):
+            item['kitchenStatuses'] = {k: 'Pending' for k in item['requiredKitchens']}
 
         if item['kitchenStatuses'][kitchen] in ['Prepared', 'PickedUp']:
             return jsonify({'success': False, 'error': 'Kitchen already marked as prepared or picked up'}), 400
@@ -2230,12 +2182,15 @@ def mark_item_prepared(order_id, item_id):
         item['kitchenStatuses'][kitchen] = 'Prepared'
 
         kitchen_saved_collection.update_one(
-            {'_id': ObjectId(order_id), 'cartItems.id': item_id},
+            {'orderId': order_id, 'cartItems.id': item_id},
+            {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
+        )
+        activeorders_collection.update_one(
+            {'orderId': order_id, 'cartItems.id': item_id},
             {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
         )
 
         return jsonify({'success': True, 'status': 'Prepared'}), 200
-
     except Exception as e:
         logger.error(f"Error in /api/kitchen-saved/{order_id}/items/{item_id}/mark-prepared: {str(e)}")
         logger.error(traceback.format_exc())
@@ -2554,11 +2509,27 @@ def delete_employee(employee_id):
 def generate_unique_id():
     return str(uuid.uuid4())
 
+def generate_order_number(order_type):
+    """Generate order number based on order type (e.g., T0001, D0001, ON001)."""
+    prefix = {'Dine In': 'D', 'Take Away': 'T', 'Online Delivery': 'ON'}.get(order_type, 'D')
+    counter = order_counters_collection.find_one_and_update(
+        {'order_type': order_type},
+        {'$inc': {'counter': 1}},
+        upsert=True,
+        return_document=True
+    )
+    number = counter['counter']
+    if prefix == 'ON':
+        return f'{prefix}{number:03d}'  # e.g., ON001
+    return f'{prefix}{number:04d}'  # e.g., D0001, T0001
+
 @app.route('/api/activeorders', methods=['POST'])
 def save_active_order():
     try:
         data = request.get_json()
         order_id = generate_unique_id()
+        order_type = data.get('orderType', 'Dine In')
+        order_no = generate_order_number(order_type)  # Generate order number
         
         cart_items = data.get('cartItems', [])
         for item in cart_items:
@@ -2580,6 +2551,7 @@ def save_active_order():
 
         active_order = {
             'orderId': order_id,
+            'orderNo': order_no,  # Add order number
             'customerName': data.get('customerName', 'N/A'),
             'tableNumber': data.get('tableNumber', 'N/A'),
             'chairsBooked': data.get('chairsBooked', []),
@@ -2589,7 +2561,7 @@ def save_active_order():
             'email': data.get('email', ''),
             'cartItems': cart_items,
             'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
-            'orderType': data.get('orderType', 'Dine In'),
+            'orderType': order_type,
             'status': data.get('status', 'Pending'),
             'created_at': datetime.utcnow(),
             'deliveryPersonId': data.get('deliveryPersonId', ''),
@@ -2597,8 +2569,15 @@ def save_active_order():
         }
         
         result = activeorders_collection.insert_one(active_order)
-        logger.info(f"Created order: {order_id}")
-        return jsonify({'success': True, 'orderId': order_id}), 201
+        
+        # Save to kitchen_saved_collection with orderId and orderNo
+        kitchen_order = active_order.copy()
+        kitchen_order['orderId'] = order_id
+        kitchen_order['orderNo'] = order_no
+        kitchen_saved_collection.insert_one(kitchen_order)
+        
+        logger.info(f"Created order: {order_id} with order number: {order_no}")
+        return jsonify({'success': True, 'orderId': order_id, 'orderNo': order_no}), 201
     except Exception as e:
         logger.error(f"Error saving active order: {str(e)}")
         logger.error(traceback.format_exc())
@@ -2631,15 +2610,23 @@ def mark_item_prepared_active(order_id, item_id):
         if not item:
             return jsonify({'success': False, 'error': 'Item not found'}), 404
 
-        if kitchen not in item.get('requiredKitchens', []):
+        if not item.get('requiredKitchens') or kitchen not in item['requiredKitchens']:
             return jsonify({'success': False, 'error': 'Kitchen not required for this item'}), 400
 
-        if item.get('kitchenStatuses', {}).get(kitchen) in ['Prepared', 'PickedUp']:
+        if not item.get('kitchenStatuses'):
+            item['kitchenStatuses'] = {k: 'Pending' for k in item['requiredKitchens']}
+
+        if item['kitchenStatuses'].get(kitchen) in ['Prepared', 'PickedUp']:
             return jsonify({'success': False, 'error': 'Kitchen already marked as prepared or picked up'}), 400
 
         item['kitchenStatuses'][kitchen] = 'Prepared'
 
+        # Update both collections
         activeorders_collection.update_one(
+            {'orderId': order_id, 'cartItems.id': item_id},
+            {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
+        )
+        kitchen_saved_collection.update_one(
             {'orderId': order_id, 'cartItems.id': item_id},
             {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
         )
@@ -2666,17 +2653,25 @@ def mark_item_pickedup_active(order_id, item_id):
         if not item:
             return jsonify({'success': False, 'error': 'Item not found'}), 404
 
-        if kitchen not in item.get('requiredKitchens', []):
+        if not item.get('requiredKitchens') or kitchen not in item['requiredKitchens']:
             return jsonify({'success': False, 'error': 'Kitchen not required for this item'}), 400
 
-        if item.get('kitchenStatuses', {}).get(kitchen) != 'Prepared':
+        if not item.get('kitchenStatuses'):
+            item['kitchenStatuses'] = {k: 'Pending' for k in item['requiredKitchens']}
+
+        if item['kitchenStatuses'].get(kitchen) != 'Prepared':
             return jsonify({'success': False, 'error': 'Item must be prepared before picking up'}), 400
 
         item['kitchenStatuses'][kitchen] = 'PickedUp'
 
         all_picked_up = all(status == 'PickedUp' for status in item['kitchenStatuses'].values()) if item.get('kitchenStatuses') else False
 
+        # Update both collections
         activeorders_collection.update_one(
+            {'orderId': order_id, 'cartItems.id': item_id},
+            {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
+        )
+        kitchen_saved_collection.update_one(
             {'orderId': order_id, 'cartItems.id': item_id},
             {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
         )
@@ -2722,6 +2717,30 @@ def update_active_order(order_id):
         if '_id' in data:
             del data['_id']
 
+        # Process cartItems to ensure requiredKitchens and kitchenStatuses are set
+        if 'cartItems' in data:
+            for item in data['cartItems']:
+                required_kitchens = set()
+                if 'kitchen' in item:
+                    required_kitchens.add(item['kitchen'])
+                for addon_name, qty in item.get('addonQuantities', {}).items():
+                    if qty > 0 and 'addonVariants' in item and addon_name in item['addonVariants']:
+                        addon = item['addonVariants'][addon_name]
+                        if 'kitchen' in addon:
+                            required_kitchens.add(addon['kitchen'])
+                for combo_name, qty in item.get('comboQuantities', {}).items():
+                    if qty > 0 and 'comboVariants' in item and combo_name in item['comboVariants']:
+                        combo = item['comboVariants'][combo_name]
+                        if 'kitchen' in combo:
+                            required_kitchens.add(combo['kitchen'])
+                item['requiredKitchens'] = list(required_kitchens)
+                if 'kitchenStatuses' not in item or not item['kitchenStatuses']:
+                    item['kitchenStatuses'] = {kitchen: 'Pending' for kitchen in required_kitchens}
+                else:
+                    for kitchen in required_kitchens:
+                        if kitchen not in item['kitchenStatuses']:
+                            item['kitchenStatuses'][kitchen] = 'Pending'
+
         if 'deliveryPersonId' in data and data['deliveryPersonId']:
             employee = employees_collection.find_one({'employeeId': data['deliveryPersonId']}, {'_id': 0})
             if not employee:
@@ -2737,7 +2756,7 @@ def update_active_order(order_id):
             address_str = f"{address.get('flat_villa_no', '')}, {address.get('building_name', '')}, {address.get('location', '')}".strip(', ')
 
             items_summary = "\nItems:\n"
-            for item in order.get('cartItems', []):
+            for item in data.get('cartItems', order.get('cartItems', [])):
                 items_summary += f"- {item['name']} x{item['quantity']} (Size: {item.get('selectedSize', 'M')}, Spicy: {'Yes' if item.get('isSpicy', False) else 'No'}, Kitchen: {item.get('kitchen', 'Unknown')})\n"
                 if item.get('addonQuantities', {}):
                     items_summary += "  Add-ons:\n"
@@ -2756,6 +2775,7 @@ def update_active_order(order_id):
             sms_body = (
                 f"New delivery assigned to you!\n"
                 f"Order ID: {order_id}\n"
+                f"Order No: {order.get('orderNo', 'N/A')}\n"
                 f"Customer: {order.get('customerName', 'N/A')}\n"
                 f"Address: {address_str or 'Not provided'}\n"
                 f"Phone: {order.get('phoneNumber', 'Not provided')}\n"
@@ -2769,15 +2789,15 @@ def update_active_order(order_id):
             )
             logger.info(f"SMS sent to {employee['phoneNumber']}: {message.sid}")
 
-            # Store trip report data
             trip_report = {
                 'tripId': generate_unique_id(),
                 'deliveryPersonId': data['deliveryPersonId'],
                 'orderId': order_id,
+                'orderNo': order.get('orderNo', 'N/A'),  # Include order number
                 'customerName': order.get('customerName', 'N/A'),
                 'phoneNumber': order.get('phoneNumber', ''),
                 'deliveryAddress': order.get('deliveryAddress', {}),
-                'cartItems': order.get('cartItems', []),
+                'cartItems': data.get('cartItems', order.get('cartItems', [])),
                 'timestamp': order.get('timestamp', datetime.utcnow().isoformat()),
                 'orderType': order.get('orderType', 'Online Delivery'),
                 'status': order.get('status', 'Pending'),
@@ -2791,8 +2811,13 @@ def update_active_order(order_id):
             {'orderId': order_id},
             {'$set': data}
         )
+        kitchen_result = kitchen_saved_collection.update_one(
+            {'orderId': order_id},
+            {'$set': data}
+        )
+        
         updated_order = activeorders_collection.find_one({'orderId': order_id}, {'_id': 0})
-        if result.modified_count > 0:
+        if result.modified_count > 0 or kitchen_result.modified_count > 0:
             logger.info(f"Updated order: {order_id}")
             return jsonify({'success': True, 'message': 'Order updated', 'order': updated_order}), 200
         logger.info(f"No changes made to order: {order_id}")
@@ -2809,7 +2834,8 @@ def update_active_order(order_id):
 def delete_order(order_id):
     try:
         result = activeorders_collection.delete_one({'orderId': order_id})
-        if result.deleted_count > 0:
+        kitchen_result = kitchen_saved_collection.delete_one({'orderId': order_id})
+        if result.deleted_count > 0 or kitchen_result.deleted_count > 0:
             logger.info(f"Deleted order: {order_id}")
             return jsonify({'success': True}), 200
         logger.warning(f"Order not found: {order_id}")
@@ -2837,8 +2863,15 @@ def mark_order_pickedup(order_id):
                 }
             }
         )
-
-        # Update trip report status
+        kitchen_saved_collection.update_one(
+            {'orderId': order_id},
+            {
+                '$set': {
+                    'status': 'PickedUp',
+                    'pickedUpTime': pickup_time
+                }
+            }
+        )
         tripreports_collection.update_many(
             {'orderId': order_id},
             {
@@ -2859,6 +2892,7 @@ def mark_order_pickedup(order_id):
         logger.error(f"Error marking order as picked up: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/tripreports/<employee_id>', methods=['GET'])
 def get_trip_reports(employee_id):
@@ -2892,4 +2926,7 @@ if __name__ == '__main__':
         waitress.serve(app, host='0.0.0.0', port=5000)
     else:
         logger.info("Running in development mode, using Flask")
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=5000, debug=True) 
+
+
+             

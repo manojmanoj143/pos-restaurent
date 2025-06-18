@@ -71,6 +71,15 @@ function FirstTab() {
                             <span className="button-icon">📝</span>
                         </button>
                     </div>
+                    <div className="col-12 col-md-3 d-flex justify-content-center">
+                        <button 
+                            className="main-button posbalance"
+                            onClick={() => handleNavigation('/pos-balance', 'POS Balance')}
+                        >
+                            <span className="button-text">POS Balance</span>
+                            <span className="button-icon">💰</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

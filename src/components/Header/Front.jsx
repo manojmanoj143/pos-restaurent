@@ -19,8 +19,8 @@ function FrontPage() {
   const {
     tableNumber,
     chairsBooked = [],
-    existingOrder,
     orderType,
+    existingOrder,
     cartItems: initialCartItems,
   } = state || {};
   const [isPhoneNumberSet, setIsPhoneNumberSet] = useState(false);
@@ -281,7 +281,7 @@ function FrontPage() {
 
     const existingItemIndex = cartItems.findIndex(
       (cartItem) =>
-        cartItem.item_name === updatedItem.item_name &&
+        cartItem.item_name === updatedItem .item_name &&
         (hasSizeVariant ? cartItem.selectedSize === updatedSelectedSize : cartItem.selectedSize === null)
     );
 
@@ -801,6 +801,7 @@ function FrontPage() {
       total: Number(subtotal.toFixed(2)),
       payment_terms: [{ due_date: new Date().toISOString().split("T")[0], payment_terms: "Immediate" }],
       payments: [paymentDetails],
+      orderType: orderType || "Dine In", // Added orderType to payload
     };
 
     try {
@@ -988,7 +989,13 @@ function FrontPage() {
       return;
     }
 
+    let currentOrderId = orderId || uuidv4();
+    if (!orderId) {
+      setOrderId(currentOrderId);
+    }
+
     const newOrder = {
+      orderId: currentOrderId,
       customerName: customerName || "N/A",
       tableNumber: tableNumber || "N/A",
       chairsBooked: Array.isArray(chairsBooked) ? chairsBooked : [],
@@ -1077,7 +1084,7 @@ function FrontPage() {
               order.chairsBooked.some((chair) => chairsBooked.includes(chair))
             )
         ),
-        { ...newOrder, orderId: orderId || newOrder.orderId },
+        { ...newOrder, orderId: currentOrderId },
       ];
       setSavedOrders(updatedOrders);
       localStorage.setItem("savedOrders", JSON.stringify(updatedOrders));
@@ -1822,7 +1829,7 @@ function FrontPage() {
             <span>Subtotal:</span>
             <span>₹{subtotal.toFixed(2)}</span>
           </div>
-          <div className="frontpage-summary-row">
+          <div className="frontpage-summary-row skylight">
             <span>VAT ({vatRate * 100}%):</span>
             <span>₹{vat.toFixed(2)}</span>
           </div>

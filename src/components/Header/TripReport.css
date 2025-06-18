@@ -38,13 +38,11 @@
   font-size: 1.2rem;
 }
 
-.warning-message {
+.active-orders-alert {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #fff3cd;
-  color: #856404;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -56,14 +54,24 @@
   max-width: 600px;
 }
 
-.warning-buttons {
+.active-orders-alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.active-orders-alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.active-orders-alert-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }
 
-.warning-button {
+.active-orders-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -72,19 +80,19 @@
   transition: background-color 0.3s;
 }
 
-.warning-button.ok {
+.active-orders-btn-primary {
   background-color: #28a745;
 }
 
-.warning-button.ok:hover {
+.active-orders-btn-primary:hover {
   background-color: #218838;
 }
 
-.warning-button.cancel {
+.active-orders-btn-cancel {
   background-color: #dc3545;
 }
 
-.warning-button.cancel:hover {
+.active-orders-btn-cancel:hover {
   background-color: #c82333;
 }
 
@@ -103,9 +111,22 @@
   margin-bottom: 20px;
 }
 
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.form-group-left,
+.form-group-right {
+  flex: 1;
+}
+
 .form-label {
-  font-weight: 600;
+  font-weight: bold;
   color: #333;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .form-control {
@@ -122,7 +143,41 @@
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
 
+.dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
 .submit-button {
+  display: block;
+  width: 100%;
   padding: 10px 20px;
   background-color: #3498db;
   color: #fff;
@@ -130,6 +185,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 20px;
 }
 
 .submit-button:hover {
@@ -152,59 +208,47 @@
   margin-top: 20px;
 }
 
-.grand-totals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-.grand-total-item {
+.orders-table th,
+.orders-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.orders-table th {
+  background-color: #3498db;
+  color: #fff;
+  font-weight: bold;
+}
+
+.orders-table td {
   background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 5px;
+}
+
+.payment-options {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 5px;
 }
 
-.payment-buttons {
+.payment-checkbox {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  align-items: center;
+  gap: 5px;
 }
 
-.payment-button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  color: #fff;
+.payment-checkbox input {
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-.payment-button.cash {
-  background-color: #28a745;
-}
-
-.payment-button.cash:hover {
-  background-color: #218838;
-}
-
-.payment-button.card {
-  background-color: #007bff;
-}
-
-.payment-button.card:hover {
-  background-color: #0069d9;
-}
-
-.payment-button.upi {
-  background-color: #6c757d;
-}
-
-.payment-button.upi:hover {
-  background-color: #5a6268;
+.payment-details-input {
+  margin-top: 10px;
 }
 
 .details-button {
@@ -215,10 +259,25 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-right: 5px;
 }
 
 .details-button:hover {
   background-color: #138496;
+}
+
+.submit-action-button {
+  padding: 8px 15px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-action-button:hover {
+  background-color: #218838;
 }
 
 .no-orders {
@@ -227,7 +286,7 @@
   color: #666;
 }
 
-.popup-overlay {
+.active-orders-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -240,7 +299,7 @@
   z-index: 1000;
 }
 
-.popup-content {
+.active-orders-modal-content {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
