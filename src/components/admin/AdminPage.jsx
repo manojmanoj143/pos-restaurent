@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   FaArrowLeft,
@@ -15,7 +15,8 @@ import {
   FaTable,
   FaUtensils,
   FaLayerGroup,
-  FaUserTie, // Added for Employees icon
+  FaUserTie,
+  FaEnvelope, // Added for Email Settings icon
 } from 'react-icons/fa';
 
 function AdminPage() {
@@ -152,7 +153,8 @@ function AdminPage() {
                 { icon: <FaUtensils />, text: 'Add Kitchen', path: '/add-kitchen' },
                 { icon: <FaUtensils />, text: 'Add Ingredient & Nutrition', path: '/add-ingredients-nutrition' },
                 { icon: <FaLayerGroup />, text: 'Add Variant', path: '/create-variant' },
-                { icon: <FaUserTie />, text: 'Employees', path: '/employees' }, // Added Employees menu item
+                { icon: <FaUserTie />, text: 'Employees', path: '/employees' },
+                { icon: <FaEnvelope />, text: 'Email Settings', path: '/email-settings' }, // Added Email Settings
               ].map((item, index) => (
                 <li
                   key={index}

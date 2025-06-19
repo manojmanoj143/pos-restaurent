@@ -134,7 +134,8 @@ try:
     activeorders_collection = db['activeorders']
     tripreports_collection = db['tripreports']  # New collection for trip reports
     order_counters_collection = db['order_counters']
-    
+    email_settings_collection = db['email_settings']
+
 except Exception as e:
     logger.critical(f"Could not establish MongoDB connection: {str(e)}")
     sys.exit(1)
@@ -161,10 +162,10 @@ except Exception as e:
     print(f"Failed to initialize Twilio client: {str(e)}")
     raise
 
-# Email configuration
-EMAIL_USER = os.getenv('EMAIL_USER', 'manojmanoj@gmail.com')
-EMAIL_PASS = os.getenv('EMAIL_PASS', 'mwlo fcyw ouub oxnd')
-FROM_EMAIL = os.getenv('FROM_EMAIL', 'manojmanoj@gmail.com')
+ #    Email configuration
+# EMAIL_USER = os.getenv('EMAIL_USER', 'manojmanoj88680@gmail.com')
+# EMAIL_PASS = os.getenv('EMAIL_PASS', 'istm jqjk izdn laab')
+# FROM_EMAIL = os.getenv('FROM_EMAIL', 'manojmanoj88680@gmail.com')
 
 # Test users
 TEST_USERS = [
@@ -263,127 +264,127 @@ def sanitize_image_fields(data):
             data['spicy']['non_spicy_image'] = data['spicy']['non_spicy_image'].split('/')[-1] if '/' in data['spicy']['non_spicy_image'] else data['spicy']['non_spicy_image']
     return data
 
-def create_backup():
-    try:
-        wb = openpyxl.Workbook()
-        wb.remove(wb.active)
-        collections = {
-            'customers': customers_collection,
-            'items': items_collection,
-            'sales': sales_collection,
-            'tables': tables_collection,
-            'users': users_collection,
-            'picked_up_items': picked_up_collection,
-            'pos_opening_entries': opening_collection,
-            'pos_closing_entries': pos_closing_collection,
-            'system_settings': settings_collection,
-            'kitchens': kitchens_collection,
-            'item_groups': item_groups_collection
+# def create_backup():
+#     try:
+#         wb = openpyxl.Workbook()
+#         wb.remove(wb.active)
+#         collections = {
+#             'customers': customers_collection,
+#             'items': items_collection,
+#             'sales': sales_collection,
+#             'tables': tables_collection,
+#             'users': users_collection,
+#             'picked_up_items': picked_up_collection,
+#             'pos_opening_entries': opening_collection,
+#             'pos_closing_entries': pos_closing_collection,
+#             'system_settings': settings_collection,
+#             'kitchens': kitchens_collection,
+#             'item_groups': item_groups_collection
             
-        }
-        for collection_name, collection in collections.items():
-            ws = wb.create_sheet(title=collection_name)
-            data = list(collection.find())
-            if not data:
-                ws.append(['No data'])
-                continue
-            sample_doc = data[0]
-            headers = list(sample_doc.keys())
-            ws.append(headers)
-            for doc in data:
-                row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
-                ws.append(row)
-        buffer = BytesIO()
-        wb.save(buffer)
-        buffer.seek(0)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f'backup_restaurant_data_{timestamp}.xlsx'
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        with open(file_path, 'wb') as f:
-            f.write(buffer.getvalue())
-        manage_backup_limit()
-        msg = MIMEMultipart()
-        msg['From'] = FROM_EMAIL
-        msg['To'] = EMAIL_USER
-        msg['Subject'] = f'Restaurant Data Backup - {timestamp}'
-        body = f'Backup of restaurant data generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.'
-        msg.attach(MIMEText(body, 'plain'))
-        with open(file_path, 'rb') as f:
-            attachment = MIMEBase('application', 'octet-stream')
-            attachment.set_payload(f.read())
-            encoders.encode_base64(attachment)
-            attachment.add_header('Content-Disposition', f'attachment; filename={filename}')
-            msg.attach(attachment)
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.send_message(msg)
-        logger.info(f"Backup created and emailed: {filename}")
-        return True, f"Backup created successfully: {filename}"
-    except Exception as e:
-        logger.error(f"Error in backup: {str(e)}")
-        return False, str(e)
+#         }
+#         for collection_name, collection in collections.items():
+#             ws = wb.create_sheet(title=collection_name)
+#             data = list(collection.find())
+#             if not data:
+#                 ws.append(['No data'])
+#                 continue
+#             sample_doc = data[0]
+#             headers = list(sample_doc.keys())
+#             ws.append(headers)
+#             for doc in data:
+#                 row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
+#                 ws.append(row)
+#         buffer = BytesIO()
+#         wb.save(buffer)
+#         buffer.seek(0)
+#         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#         filename = f'backup_restaurant_data_{timestamp}.xlsx'
+#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#         with open(file_path, 'wb') as f:
+#             f.write(buffer.getvalue())
+#         manage_backup_limit()
+#         msg = MIMEMultipart()
+#         msg['From'] = FROM_EMAIL
+#         msg['To'] = EMAIL_USER
+#         msg['Subject'] = f'Restaurant Data Backup - {timestamp}'
+#         body = f'Backup of restaurant data generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.'
+#         msg.attach(MIMEText(body, 'plain'))
+#         with open(file_path, 'rb') as f:
+#             attachment = MIMEBase('application', 'octet-stream')
+#             attachment.set_payload(f.read())
+#             encoders.encode_base64(attachment)
+#             attachment.add_header('Content-Disposition', f'attachment; filename={filename}')
+#             msg.attach(attachment)
+#         with smtplib.SMTP('smtp.gmail.com', 587) as server:
+#             server.starttls()
+#             server.login(EMAIL_USER, EMAIL_PASS)
+#             server.send_message(msg)
+#         logger.info(f"Backup created and emailed: {filename}")
+#         return True, f"Backup created successfully: {filename}"
+#     except Exception as e:
+#         logger.error(f"Error in backup: {str(e)}")
+#         return False, str(e)
 
-def manage_offers():
-    """Check all items and update offer status based on current time."""
-    try:
-        current_time = datetime.now(UTC)
-        items = items_collection.find({
-            '$or': [
-                {'offer_start_time': {'$exists': True}},
-                {'offer_end_time': {'$exists': True}}
-            ]
-        })
-        for item in items:
-            item_id = item['_id']
-            offer_start_time = item.get('offer_start_time')
-            offer_end_time = item.get('offer_end_time')
-            should_unset = False
-            if offer_start_time and offer_end_time:
-                try:
-                    start_time = datetime.fromisoformat(str(offer_start_time).replace('Z', '+00:00'))
-                    end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
-                    if current_time > end_time:
-                        should_unset = True
-                        logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
-                    elif start_time > end_time:
-                        should_unset = True
-                        logger.warning(f"Invalid offer times for item {item_id}: start_time after end_time")
-                    else:
-                        logger.debug(f"Offer for item {item.get('item_name')} (ID: {item_id}) is active or pending")
-                except (ValueError, TypeError) as e:
-                    logger.warning(f"Invalid offer time format for item {item_id}: {str(e)}")
-                    should_unset = True
-            elif offer_end_time:
-                try:
-                    end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
-                    if current_time > end_time:
-                        should_unset = True
-                        logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
-                except (ValueError, TypeError) as e:
-                    logger.warning(f"Invalid offer_end_time for item {item_id}: {str(e)}")
-                    should_unset = True
-            if should_unset:
-                items_collection.update_one(
-                    {'_id': item_id},
-                    {'$unset': {'offer_price': "", 'offer_start_time': "", 'offer_end_time': ""}}
-                )
-                logger.info(f"Unset offer fields for item {item.get('item_name')} (ID: {item_id})")
-    except Exception as e:
-        logger.error(f"Error in manage_offers: {str(e)}")
+# def manage_offers():
+#     """Check all items and update offer status based on current time."""
+#     try:
+#         current_time = datetime.now(UTC)
+#         items = items_collection.find({
+#             '$or': [
+#                 {'offer_start_time': {'$exists': True}},
+#                 {'offer_end_time': {'$exists': True}}
+#             ]
+#         })
+#         for item in items:
+#             item_id = item['_id']
+#             offer_start_time = item.get('offer_start_time')
+#             offer_end_time = item.get('offer_end_time')
+#             should_unset = False
+#             if offer_start_time and offer_end_time:
+#                 try:
+#                     start_time = datetime.fromisoformat(str(offer_start_time).replace('Z', '+00:00'))
+#                     end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
+#                     if current_time > end_time:
+#                         should_unset = True
+#                         logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
+#                     elif start_time > end_time:
+#                         should_unset = True
+#                         logger.warning(f"Invalid offer times for item {item_id}: start_time after end_time")
+#                     else:
+#                         logger.debug(f"Offer for item {item.get('item_name')} (ID: {item_id}) is active or pending")
+#                 except (ValueError, TypeError) as e:
+#                     logger.warning(f"Invalid offer time format for item {item_id}: {str(e)}")
+#                     should_unset = True
+#             elif offer_end_time:
+#                 try:
+#                     end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
+#                     if current_time > end_time:
+#                         should_unset = True
+#                         logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
+#                 except (ValueError, TypeError) as e:
+#                     logger.warning(f"Invalid offer_end_time for item {item_id}: {str(e)}")
+#                     should_unset = True
+#             if should_unset:
+#                 items_collection.update_one(
+#                     {'_id': item_id},
+#                     {'$unset': {'offer_price': "", 'offer_start_time': "", 'offer_end_time': ""}}
+#                 )
+#                 logger.info(f"Unset offer fields for item {item.get('item_name')} (ID: {item_id})")
+#     except Exception as e:
+#         logger.error(f"Error in manage_offers: {str(e)}")
 
-def schedule_tasks():
-    """Schedule backups and offer management."""
-    schedule.every(6).hours.do(create_backup)
-    schedule.every(1).minutes.do(manage_offers)
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+# def schedule_tasks():
+#     """Schedule backups and offer management."""
+#     schedule.every(6).hours.do(create_backup)
+#     schedule.every(1).minutes.do(manage_offers)
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(60)
 
-def start_scheduler():
-    scheduler_thread = threading.Thread(target=schedule_tasks, daemon=True)
-    scheduler_thread.start()
-    logger.info("Automatic backup and offer scheduler started")
+# def start_scheduler():
+#     scheduler_thread = threading.Thread(target=schedule_tasks, daemon=True)
+#     scheduler_thread.start()
+#     logger.info("Automatic backup and offer scheduler started")
 
 # System settings management
 def get_system_settings():
@@ -1581,112 +1582,112 @@ def create_closing_entry():
         logger.error(f"Error in create_closing_entry: {str(e)}")
         return jsonify({"message": f"Error: {str(e)}", "status": "error"}), 500
 
-@app.route('/api/send-email', methods=['POST', 'OPTIONS'])
-def send_email():
-    """Send an email with HTML content."""
-    if request.method == 'OPTIONS':
-        response = jsonify({"success": True})
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        return response, 200
-    try:
-        data = request.get_json()
-        logger.info(f"Received email request: {data}")
-        if not data:
-            logger.error("No data received in send-email request")
-            return jsonify({"success": False, "message": "No data provided"}), 400
-        to_email = data.get('to')
-        subject = data.get('subject')
-        html_content = data.get('html')
-        if not all([to_email, subject, html_content]):
-            logger.error("Missing required email fields")
-            return jsonify({"success": False, "message": "Missing required fields: to, subject, html"}), 400
-        msg = MIMEMultipart('alternative')
-        msg['From'] = FROM_EMAIL
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(html_content, 'html'))
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.send_message(msg)
-            logger.info(f"Email sent successfully to {to_email}")
-        return jsonify({"success": True, "message": "Email sent successfully"}), 200
-    except smtplib.SMTPAuthenticationError as e:
-        logger.error(f"SMTP Authentication Error: {str(e)}")
-        return jsonify({"success": False, "message": "Email authentication failed"}), 401
-    except smtplib.SMTPException as e:
-        logger.error(f"SMTP Error: {str(e)}")
-        return jsonify({"success": False, "message": f"SMTP error: {str(e)}"}), 500
-    except Exception as e:
-        logger.error(f"Unexpected error sending email: {str(e)}")
-        return jsonify({"success": False, "message": f"Failed to send email: {str(e)}"}), 500
+# @app.route('/api/send-email', methods=['POST', 'OPTIONS'])
+# def send_email():
+#     """Send an email with HTML content."""
+#     if request.method == 'OPTIONS':
+#         response = jsonify({"success": True})
+#         response.headers['Access-Control-Allow-Origin'] = '*'
+#         response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+#         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+#         return response, 200
+#     try:
+#         data = request.get_json()
+#         logger.info(f"Received email request: {data}")
+#         if not data:
+#             logger.error("No data received in send-email request")
+#             return jsonify({"success": False, "message": "No data provided"}), 400
+#         to_email = data.get('to')
+#         subject = data.get('subject')
+#         html_content = data.get('html')
+#         if not all([to_email, subject, html_content]):
+#             logger.error("Missing required email fields")
+#             return jsonify({"success": False, "message": "Missing required fields: to, subject, html"}), 400
+#         msg = MIMEMultipart('alternative')
+#         msg['From'] = FROM_EMAIL
+#         msg['To'] = to_email
+#         msg['Subject'] = subject
+#         msg.attach(MIMEText(html_content, 'html'))
+#         with smtplib.SMTP('smtp.gmail.com', 587) as server:
+#             server.starttls()
+#             server.login(EMAIL_USER, EMAIL_PASS)
+#             server.send_message(msg)
+#             logger.info(f"Email sent successfully to {to_email}")
+#         return jsonify({"success": True, "message": "Email sent successfully"}), 200
+#     except smtplib.SMTPAuthenticationError as e:
+#         logger.error(f"SMTP Authentication Error: {str(e)}")
+#         return jsonify({"success": False, "message": "Email authentication failed"}), 401
+#     except smtplib.SMTPException as e:
+#         logger.error(f"SMTP Error: {str(e)}")
+#         return jsonify({"success": False, "message": f"SMTP error: {str(e)}"}), 500
+#     except Exception as e:
+#         logger.error(f"Unexpected error sending email: {str(e)}")
+#         return jsonify({"success": False, "message": f"Failed to send email: {str(e)}"}), 500
 
-@app.route('/api/export-all-to-excel', methods=['GET'])
-def export_all_to_excel():
-    """Export all data to an Excel file."""
-    try:
-        wb = openpyxl.Workbook()
-        wb.remove(wb.active)
-        collections = {
-            'customers': customers_collection,
-            'items': items_collection,
-            'sales': sales_collection,
-            'tables': tables_collection,
-            'users': users_collection,
-            'picked_up_items': picked_up_collection,
-            'pos_opening_entries': opening_collection,
-            'pos_closing_entries': pos_closing_collection,
-            'system_settings': settings_collection,
-            'kitchens': kitchens_collection,
-            'item_groups': item_groups_collection
-        }
-        for collection_name, collection in collections.items():
-            ws = wb.create_sheet(title=collection_name)
-            data = list(collection.find())
-            if not data:
-                ws.append(['No data'])
-                continue
-            sample_doc = data[0]
-            headers = list(sample_doc.keys())
-            ws.append(headers)
-            for doc in data:
-                row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
-                ws.append(row)
-        buffer = BytesIO()
-        wb.save(buffer)
-        buffer.seek(0)
-        filename = f'restaurant_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-        logger.info(f"Exported data to Excel: {filename}")
-        return Response(
-            buffer.getvalue(),
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            headers={'Content-Disposition': f'attachment; filename={filename}'}
-        )
-    except Exception as e:
-        logger.error(f"Error exporting to Excel: {str(e)}")
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+# @app.route('/api/export-all-to-excel', methods=['GET'])
+# def export_all_to_excel():
+#     """Export all data to an Excel file."""
+#     try:
+#         wb = openpyxl.Workbook()
+#         wb.remove(wb.active)
+#         collections = {
+#             'customers': customers_collection,
+#             'items': items_collection,
+#             'sales': sales_collection,
+#             'tables': tables_collection,
+#             'users': users_collection,
+#             'picked_up_items': picked_up_collection,
+#             'pos_opening_entries': opening_collection,
+#             'pos_closing_entries': pos_closing_collection,
+#             'system_settings': settings_collection,
+#             'kitchens': kitchens_collection,
+#             'item_groups': item_groups_collection
+#         }
+#         for collection_name, collection in collections.items():
+#             ws = wb.create_sheet(title=collection_name)
+#             data = list(collection.find())
+#             if not data:
+#                 ws.append(['No data'])
+#                 continue
+#             sample_doc = data[0]
+#             headers = list(sample_doc.keys())
+#             ws.append(headers)
+#             for doc in data:
+#                 row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
+#                 ws.append(row)
+#         buffer = BytesIO()
+#         wb.save(buffer)
+#         buffer.seek(0)
+#         filename = f'restaurant_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+#         logger.info(f"Exported data to Excel: {filename}")
+#         return Response(
+#             buffer.getvalue(),
+#             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+#             headers={'Content-Disposition': f'attachment; filename={filename}'}
+#         )
+#     except Exception as e:
+#         logger.error(f"Error exporting to Excel: {str(e)}")
+#         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/backup-to-excel', methods=['GET'])
-def backup_to_excel():
-    """Create a backup and serve it as a download."""
-    try:
-        success, message = create_backup()
-        if not success:
-            return jsonify({"error": message}), 500
-        filename = message.split(': ')[1]
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        with open(file_path, 'rb') as f:
-            file_data = f.read()
-        return Response(
-            file_data,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            headers={'Content-Disposition': f'attachment; filename={filename}'}
-        )
-    except Exception as e:
-        logger.error(f"Error serving backup file {filename}: {str(e)}")
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+# @app.route('/api/backup-to-excel', methods=['GET'])
+# def backup_to_excel():
+#     """Create a backup and serve it as a download."""
+#     try:
+#         success, message = create_backup()
+#         if not success:
+#             return jsonify({"error": message}), 500
+#         filename = message.split(': ')[1]
+#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#         with open(file_path, 'rb') as f:
+#             file_data = f.read()
+#         return Response(
+#             file_data,
+#             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+#             headers={'Content-Disposition': f'attachment; filename={filename}'}
+#         )
+#     except Exception as e:
+#         logger.error(f"Error serving backup file {filename}: {str(e)}")
+#         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/kitchens', methods=['GET'])
 def get_kitchens():
@@ -2905,6 +2906,398 @@ def get_trip_reports(employee_id):
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/shutdown', methods=['POST'])
+def shutdown():
+    logger.info("Shutdown requested")
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func:
+        func()
+    return jsonify({"message": "Server shutting down"}), 200
+
+@app.route('/api/save-email-settings', methods=['POST'])
+def save_email_settings():
+    """Save email settings to MongoDB."""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        from_email = data.get('from_email')
+        
+        if not all([email, password, from_email]):
+            return jsonify({"success": False, "error": "Missing required fields: email, password, from_email"}), 400
+
+        # Update or insert email settings
+        email_settings_collection.update_one(
+            {},
+            {
+                '$set': {
+                    'email': email,
+                    'password': password,
+                    'from_email': from_email,
+                    'updated_at': datetime.now(UTC)
+                }
+            },
+            upsert=True
+        )
+        logger.info(f"Email settings saved for {email}")
+        return jsonify({"success": True, "message": "Email settings saved successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error saving email settings: {str(e)}")
+        return jsonify({"success": False, "error": f"Failed to save email settings: {str(e)}"}), 500
+
+@app.route('/api/get-email-settings', methods=['GET'])
+def get_email_settings():
+    """Retrieve email settings from MongoDB."""
+    try:
+        settings = email_settings_collection.find_one({}, {'_id': 0, 'password': 0})
+        if not settings:
+            return jsonify({"success": False, "error": "No email settings found"}), 404
+        return jsonify({"success": True, "email": settings.get('email'), "from_email": settings.get('from_email')}), 200
+    except Exception as e:
+        logger.error(f"Error retrieving email settings: {str(e)}")
+        return jsonify({"success": False, "error": f"Failed to retrieve email settings: {str(e)}"}), 500
+
+@app.route('/api/test-email-settings', methods=['POST'])
+def test_email_settings():
+    """Test email settings by attempting to authenticate with SMTP."""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        if not all([email, password]):
+            return jsonify({"success": False, "error": "Missing required fields: email, password"}), 400
+
+        # Attempt SMTP login
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(email, password)
+        logger.info(f"SMTP authentication successful for {email}")
+        return jsonify({"success": True, "message": "Email settings are valid"}), 200
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"SMTP Authentication Error during test: {str(e)}")
+        return jsonify({"success": False, "error": "Invalid email or app password. Please check your credentials and ensure an App Password is used for Gmail."}), 401
+    except smtplib.SMTPException as e:
+        logger.error(f"SMTP Error during test: {str(e)}")
+        return jsonify({"success": False, "error": f"SMTP error: {str(e)}"}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error testing email settings: {str(e)}")
+        return jsonify({"success": False, "error": f"Failed to test email settings: {str(e)}"}), 500
+
+@app.route('/api/send-email', methods=['POST', 'OPTIONS'])
+def send_email():
+    """Send an email with HTML content."""
+    if request.method == 'OPTIONS':
+        response = jsonify({"success": True})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response, 200
+    try:
+        data = request.get_json()
+        logger.info(f"Received email request: {data}")
+        if not data:
+            logger.error("No data received in send-email request")
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        to_email = data.get('to')
+        subject = data.get('subject')
+        html_content = data.get('html')
+        if not all([to_email, subject, html_content]):
+            logger.error("Missing required email fields")
+            return jsonify({"success": False, "message": "Missing required fields: to, subject, html"}), 400
+        
+        # Fetch email settings
+        settings = email_settings_collection.find_one()
+        if not settings:
+            logger.error("No email settings configured")
+            return jsonify({"success": False, "message": "Email settings not configured. Please configure in Email Settings."}), 500
+        email_user = settings.get('email')
+        email_pass = settings.get('password')
+        from_email = settings.get('from_email')
+
+        msg = MIMEMultipart('alternative')
+        msg['From'] = from_email
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(html_content, 'html'))
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(email_user, email_pass)
+            server.send_message(msg)
+            logger.info(f"Email sent successfully to {to_email}")
+        return jsonify({"success": True, "message": "Email sent successfully"}), 200
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"SMTP Authentication Error: {str(e)}")
+        return jsonify({"success": False, "message": "Invalid email or app password. Please check your Email Settings and ensure an App Password is used for Gmail."}), 401
+    except smtplib.SMTPException as e:
+        logger.error(f"SMTP Error: {str(e)}")
+        return jsonify({"success": False, "message": f"SMTP error: {str(e)}"}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error sending email: {str(e)}")
+        return jsonify({"success": False, "message": f"Failed to send email: {str(e)}"}), 500
+
+@app.route('/api/export-all-to-excel', methods=['GET'])
+def export_all_to_excel():
+    """Export all data to an Excel file."""
+    try:
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)
+        collections = {
+            'customers': customers_collection,
+            'items': items_collection,
+            'sales': sales_collection,
+            'tables': tables_collection,
+            'users': users_collection,
+            'picked_up_items': picked_up_collection,
+            'pos_opening_entries': opening_collection,
+            'pos_closing_entries': pos_closing_collection,
+            'system_settings': settings_collection,
+            'kitchens': kitchens_collection,
+            'item_groups': item_groups_collection
+        }
+        for collection_name, collection in collections.items():
+            ws = wb.create_sheet(title=collection_name)
+            data = list(collection.find())
+            if not data:
+                ws.append(['No data'])
+                continue
+            sample_doc = data[0]
+            headers = list(sample_doc.keys())
+            ws.append(headers)
+            for doc in data:
+                row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
+                ws.append(row)
+        buffer = BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+        filename = f'restaurant_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        logger.info(f"Exported data to Excel: {filename}")
+        return Response(
+            buffer.getvalue(),
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+    except Exception as e:
+        logger.error(f"Error exporting to Excel: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+def manage_backup_limit():
+    """Manage the number of backup files to keep only the latest MAX_BACKUPS."""
+    try:
+        backup_files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith('.xlsx')]
+        backup_files = sorted(
+            backup_files,
+            key=lambda x: os.path.getctime(os.path.join(app.config['UPLOAD_FOLDER'], x)),
+            reverse=True
+        )
+        for old_file in backup_files[MAX_BACKUPS:]:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], old_file))
+            logger.info(f"Deleted old backup: {old_file}")
+    except Exception as e:
+        logger.error(f"Error managing backup limit: {str(e)}")
+
+def create_backup():
+    """Create a backup and send it via email using settings from MongoDB."""
+    try:
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)
+        collections = {
+            'customers': customers_collection,
+            'items': items_collection,
+            'sales': sales_collection,
+            'tables': tables_collection,
+            'users': users_collection,
+            'picked_up_items': picked_up_collection,
+            'pos_opening_entries': opening_collection,
+            'pos_closing_entries': pos_closing_collection,
+            'system_settings': settings_collection,
+            'kitchens': kitchens_collection,
+            'item_groups': item_groups_collection
+        }
+        for collection_name, collection in collections.items():
+            ws = wb.create_sheet(title=collection_name)
+            data = list(collection.find())
+            if not data:
+                ws.append(['No data'])
+                continue
+            sample_doc = data[0]
+            headers = list(sample_doc.keys())
+            ws.append(headers)
+            for doc in data:
+                row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
+                ws.append(row)
+        buffer = BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f'backup_restaurant_data_{timestamp}.xlsx'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        with open(file_path, 'wb') as f:
+            f.write(buffer.getvalue())
+        manage_backup_limit()
+
+        # Fetch email settings
+        settings = email_settings_collection.find_one()
+        if not settings:
+            logger.error("No email settings configured")
+            return False, "Email settings not configured. Please configure in Email Settings."
+        email_user = settings.get('email')
+        email_pass = settings.get('password')
+        from_email = settings.get('from_email')
+
+        # Send email with backup attachment
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = email_user
+        msg['Subject'] = f'Restaurant Data Backup - {timestamp}'
+        body = f'Backup of restaurant data generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.'
+        msg.attach(MIMEText(body, 'plain'))
+        with open(file_path, 'rb') as f:
+            attachment = MIMEBase('application', 'octet-stream')
+            attachment.set_payload(f.read())
+            encoders.encode_base64(attachment)
+            attachment.add_header('Content-Disposition', f'attachment; filename={filename}')
+            msg.attach(attachment)
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(email_user, email_pass)
+            server.send_message(msg)
+        logger.info(f"Backup created and emailed: {filename}")
+        return True, f"Backup created successfully: {filename}"
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"SMTP Authentication Error: {str(e)}")
+        return False, f"Invalid email or app password. Please check your Email Settings and ensure an App Password is used for Gmail."
+    except smtplib.SMTPException as e:
+        logger.error(f"SMTP Error: {str(e)}")
+        return False, f"SMTP error: {str(e)}"
+    except Exception as e:
+        logger.error(f"Error in backup: {str(e)}")
+        return False, str(e)
+
+@app.route('/api/backup-to-excel', methods=['GET'])
+def backup_to_excel():
+    """Create a backup and serve it as a download."""
+    try:
+        success, message = create_backup()
+        if not success:
+            return jsonify({"error": message}), 500
+        filename = message.split(': ')[1]
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+        return Response(
+            file_data,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+    except Exception as e:
+        logger.error(f"Error serving backup file: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/backup-info', methods=['GET'])
+def backup_info():
+    """Retrieve information about existing backups."""
+    try:
+        backup_files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.endswith('.xlsx')]
+        backups = []
+        for filename in backup_files:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            stat = os.stat(file_path)
+            backups.append({
+                'filename': filename,
+                'date': datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                'size': f"{stat.st_size / 1024:.2f} KB"
+            })
+        backups.sort(key=lambda x: x['date'], reverse=True)
+        return jsonify(backups)
+    except Exception as e:
+        logger.error(f"Error retrieving backup info: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/download-backup', methods=['POST'])
+def download_backup():
+    """Download a specific backup file."""
+    try:
+        data = request.get_json()
+        filename = data.get('filename')
+        if not filename:
+            return jsonify({"error": "Filename not provided"}), 400
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if not os.path.exists(file_path):
+            return jsonify({"error": "Backup file not found"}), 404
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+        return Response(
+            file_data,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+    except Exception as e:
+        logger.error(f"Error downloading backup {filename}: {str(e)}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+def manage_offers():
+    """Check all items and update offer status based on current time."""
+    try:
+        current_time = datetime.now(UTC)
+        items = items_collection.find({
+            '$or': [
+                {'offer_start_time': {'$exists': True}},
+                {'offer_end_time': {'$exists': True}}
+            ]
+        })
+        for item in items:
+            item_id = item['_id']
+            offer_start_time = item.get('offer_start_time')
+            offer_end_time = item.get('offer_end_time')
+            should_unset = False
+            if offer_start_time and offer_end_time:
+                try:
+                    start_time = datetime.fromisoformat(str(offer_start_time).replace('Z', '+00:00'))
+                    end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
+                    if current_time > end_time:
+                        should_unset = True
+                        logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
+                    elif start_time > end_time:
+                        should_unset = True
+                        logger.warning(f"Invalid offer times for item {item_id}: start_time after end_time")
+                    else:
+                        logger.debug(f"Offer for item {item.get('item_name')} (ID: {item_id}) is active or pending")
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Invalid offer time format for item {item_id}: {str(e)}")
+                    should_unset = True
+            elif offer_end_time:
+                try:
+                    end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
+                    if current_time > end_time:
+                        should_unset = True
+                        logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Invalid offer_end_time for item {item_id}: {str(e)}")
+                    should_unset = True
+            if should_unset:
+                items_collection.update_one(
+                    {'_id': item_id},
+                    {'$unset': {'offer_price': "", 'offer_start_time': "", 'offer_end_time': ""}}
+                )
+                logger.info(f"Unset offer fields for item {item.get('item_name')} (ID: {item_id})")
+    except Exception as e:
+        logger.error(f"Error in manage_offers: {str(e)}")
+
+def schedule_tasks():
+    """Schedule backups and offer management."""
+    schedule.every(6).hours.do(create_backup)
+    schedule.every(1).minutes.do(manage_offers)
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
+def start_scheduler():
+    scheduler_thread = threading.Thread(target=schedule_tasks, daemon=True)
+    scheduler_thread.start()
+    logger.info("Automatic backup and offer scheduler started")
+
+
 # Serve React frontend
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -2928,5 +3321,3 @@ if __name__ == '__main__':
         logger.info("Running in development mode, using Flask")
         app.run(host='0.0.0.0', port=5000, debug=True) 
 
-
-             

@@ -1,15 +1,15 @@
-// src/components/Form/BackupPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaDownload } from 'react-icons/fa';
+import axios from 'axios';
 
 function BackupPage() {
   const navigate = useNavigate();
   const [backups, setBackups] = useState([]);
   const [maxBackups, setMaxBackups] = useState(parseInt(localStorage.getItem('numberOfBackups')) || 5);
-  const [warningMessage, setWarningMessage] = useState(""); // For warning and success messages
-  const [warningType, setWarningType] = useState("warning"); // "warning" or "success"
-  const [pendingAction, setPendingAction] = useState(null); // Store the action to perform after OK
+  const [warningMessage, setWarningMessage] = useState('');
+  const [warningType, setWarningType] = useState('warning');
+  const [pendingAction, setPendingAction] = useState(null);
 
   useEffect(() => {
     fetchBackupInfo();
@@ -17,32 +17,25 @@ function BackupPage() {
     setMaxBackups(storedMax);
   }, []);
 
-  // Handle OK button click for warning messages
   const handleWarningOk = () => {
     if (pendingAction) {
       pendingAction();
       setPendingAction(null);
     }
-    setWarningMessage("");
-    setWarningType("warning");
+    setWarningMessage('');
+    setWarningType('warning');
   };
 
   const fetchBackupInfo = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/backup-info', {
-        method: 'GET',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch backup info');
-      }
-      const data = await response.json();
-      const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const response = await axios.get('http://localhost:5000/api/backup-info');
+      const sortedData = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
       const limitedData = sortedData.slice(0, maxBackups);
       setBackups(limitedData);
     } catch (error) {
       console.error('Error fetching backup info:', error);
       setWarningMessage(`Failed to fetch backup info: ${error.message}`);
-      setWarningType("warning");
+      setWarningType('warning');
     }
   };
 
@@ -52,16 +45,11 @@ function BackupPage() {
 
   const handleBackup = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/backup-to-excel', {
-        method: 'GET',
+      const response = await axios.get('http://localhost:5000/api/backup-to-excel', {
+        responseType: 'blob',
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create backup');
-      }
-
-      const blob = await response.blob();
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
@@ -73,32 +61,29 @@ function BackupPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setWarningMessage('Backup created successfully! Excel file downloaded and sent to email.');
-      setWarningType("success");
+      setWarningMessage('Backup created successfully! Excel file downloaded and sent to configured email.');
+      setWarningType('success');
       setPendingAction(() => () => fetchBackupInfo());
     } catch (error) {
       console.error('Backup error:', error);
-      setWarningMessage(`Failed to create backup: ${error.message}`);
-      setWarningType("warning");
+      let errorMessage = 'Failed to create backup';
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      setWarningMessage(errorMessage);
+      setWarningType('warning');
     }
   };
 
   const handleDownloadBackup = async (filename) => {
     try {
-      const response = await fetch('http://localhost:5000/api/download-backup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filename }),
+      const response = await axios.post('http://localhost:5000/api/download-backup', { filename }, {
+        responseType: 'blob',
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to download backup');
-      }
-
-      const blob = await response.blob();
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -109,17 +94,22 @@ function BackupPage() {
       window.URL.revokeObjectURL(url);
 
       setWarningMessage('Backup downloaded successfully!');
-      setWarningType("success");
+      setWarningType('success');
     } catch (error) {
       console.error('Download backup error:', error);
-      setWarningMessage(`Failed to download backup: ${error.message}`);
-      setWarningType("warning");
+      let errorMessage = 'Failed to download backup';
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      setWarningMessage(errorMessage);
+      setWarningType('warning');
     }
   };
 
   return (
     <div className="container mt-5" style={{ maxWidth: '1200px' }}>
-      {/* Warning/Success Alert */}
       {warningMessage && (
         <div className={`alert alert-${warningType} text-center alert-dismissible fade show`} role="alert">
           {warningMessage}
@@ -290,7 +280,6 @@ function BackupPage() {
         </div>
       </div>
 
-      {/* Add CSS styling */}
       <style jsx>{`
         .alert {
           position: fixed;
@@ -310,7 +299,6 @@ function BackupPage() {
           padding: 5px 20px;
           font-size: 0.9rem;
         }
-        /* Responsive Adjustments */
         @media (max-width: 991px) {
           .alert {
             min-width: 80%;

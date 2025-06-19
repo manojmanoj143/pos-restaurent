@@ -38,45 +38,62 @@ import CreateVariant from "../components/Form/CreateVariant";
 import Employee from "../components/Form/Employee";
 import TripReport from "../components/Header/TripReport";
 import PosBalance from "../components/Header/PosBalance";
+import EmailSettings from "../components/Form/EmailSettings";
 
 const UserRouter = () => {
   return (
-    <Routes>
-      <Route path="/" element={<BearerLoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/home" element={<FirstTab />} />
-      <Route path="/table" element={<TablePage />} />
-      <Route path="/frontpage" element={<FrontPage />} />
-      <Route path="/kitchen" element={<KitchenRoomPage />} />
-      <Route path="/bearer" element={<BearerPage />} />
-      <Route path="/cash" element={<CashPage />} />
-      <Route path="/card" element={<CardPage />} />
-      <Route path="/savedorders" element={<SavedOrderPage />} />
-      <Route path="/salespage" element={<SalesPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/main" element={<MainPage />} />
-      <Route path="/customers" element={<CustomerListPage />} />
-      <Route path="/items" element={<ItemListPage />} />
-      <Route path="/create-item" element={<CreateItemsPage />} />
-      <Route path="/add-table" element={<AddTablePage />} />
-      <Route path="/record" element={<RecordPage />} />
-      <Route path="/opening-entry" element={<OpeningEntry />} />
-      <Route path="/closing-entry" element={<ClosingEntry />} />
-      <Route path="/backup" element={<BackupPage />} />
-      <Route path="/system-settings" element={<SystemSettings />} />
-      <Route path="/active-orders" element={<ActiveOrders />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/users" element={<UserList />} />
-      <Route path="/add-kitchen" element={<AddKitchenPage />} />
-      <Route path="/add-item-group" element={<AddItemGroupPage />} />
-      <Route path="/add-ingredients-nutrition" element={<AddingirdientAndNurion />} />
-      <Route path="/sales-reports" element={<SalesReport />} />
-      <Route path="/booking" element={<Booking />} />
-      <Route path="/create-variant" element={<CreateVariant />} />
-      <Route path="/employees" element={<Employee />} />
-      <Route path="/trip-report" element={<TripReport />} />
-      <Route path="/pos-balance" element={<PosBalance />} />
-    </Routes>
+    <div className="min-h-screen bg-gray-100">
+      <Routes>
+        {/* Authentication Routes */}
+        <Route path="/" element={<BearerLoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Main Application Routes */}
+        <Route path="/home" element={<FirstTab />} />
+        <Route path="/table" element={<TablePage />} />
+        <Route path="/frontpage" element={<FrontPage />} />
+        <Route path="/kitchen" element={<KitchenRoomPage />} />
+        <Route path="/bearer" element={<BearerPage />} />
+        <Route path="/cash" element={<CashPage />} />
+        <Route path="/card" element={<CardPage />} />
+        <Route path="/savedorders" element={<SavedOrderPage />} />
+        <Route path="/salespage" element={<SalesPage />} />
+
+        {/* Admin and Management Routes */}
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/customers" element={<CustomerListPage />} />
+        <Route path="/items" element={<ItemListPage />} />
+        <Route path="/create-item" element={<CreateItemsPage />} />
+        <Route path="/add-table" element={<AddTablePage />} />
+        <Route path="/record" element={<RecordPage />} />
+        <Route path="/opening-entry" element={<OpeningEntry />} />
+        <Route path="/closing-entry" element={<ClosingEntry />} />
+
+        {/* System Configuration Routes */}
+        <Route path="/backup" element={<BackupPage />} />
+        <Route path="/system-settings" element={<SystemSettings />} />
+        <Route path="/email-settings" element={<EmailSettings />} />
+
+        {/* Operational Routes */}
+        <Route path="/active-orders" element={<ActiveOrders />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/users" element={<UserList />} />
+        <Route path="/add-kitchen" element={<AddKitchenPage />} />
+        <Route path="/add-item-group" element={<AddItemGroupPage />} />
+        <Route path="/add-ingredients-nutrition" element={<AddingirdientAndNurion />} />
+
+        {/* Reporting Routes */}
+        <Route path="/sales-reports" element={<SalesReport />} />
+        <Route path="/trip-report" element={<TripReport />} />
+        <Route path="/pos-balance" element={<PosBalance />} />
+
+        {/* Additional Feature Routes */}
+        <Route path="/booking" element={<Booking />} />
+        <Route path="/create-variant" element={<CreateVariant />} />
+        <Route path="/employees" element={<Employee />} />
+      </Routes>
+    </div>
   );
 };
 

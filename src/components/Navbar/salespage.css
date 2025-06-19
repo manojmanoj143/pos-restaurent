@@ -1,3 +1,4 @@
+
 /* General container styling */
 .sales-page-container {
     background: linear-gradient(135deg, #ffffff 0%, #3498db 100%);
@@ -32,6 +33,7 @@
 
 .filter-item {
     min-width: 180px;
+    position: relative;
 }
 
 .filter-item .form-control,
@@ -50,6 +52,32 @@
 
 .filter-item .fw-bold {
     color: #000000;
+}
+
+/* Item dropdown styling */
+.item-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #3498db;
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-option {
+    padding: 10px;
+    cursor: pointer;
+    color: #000000;
+    transition: background-color 0.2s ease;
+}
+
+.item-option:hover {
+    background-color: rgba(52, 152, 219, 0.1);
 }
 
 /* Sales card styling */
@@ -242,5 +270,9 @@
         width: 100%;
         max-width: 88mm;
         font-size: 10px;
+    }
+
+    .filter-item {
+        min-width: 100%;
     }
 }

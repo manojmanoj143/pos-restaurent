@@ -208,7 +208,7 @@ function TripReport() {
         email: report.email || 'N/A',
         whatsappNumber: report.whatsappNumber || 'N/A',
         status: 'Draft',
-        orderType: 'Online Delivery', // Set orderType to Online Delivery
+        orderType: 'Online Delivery',
       };
 
       const response = await axios.post('http://localhost:5000/api/sales', salesData, {
@@ -325,7 +325,7 @@ function TripReport() {
     if (selectedEmployee && selectedDate) {
       fetchTripReports(selectedEmployee.employeeId, selectedDate, billNumber, custName);
     }
-    };
+  };
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -426,14 +426,6 @@ function TripReport() {
   const handleWarningCancel = () => {
     setWarningMessage('');
     setWarningType('warning');
-    setDeliveryPerson('');
-    setSearchTerm('');
-    setSelectedEmployee(null);
-    setSelectedDate('');
-    setBillNumber('');
-    setCustomerName('');
-    setTripReports([]);
-    setFilteredReports([]);
   };
 
   // Format timestamp

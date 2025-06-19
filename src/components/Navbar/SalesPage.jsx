@@ -36,6 +36,9 @@ const SalesPage = () => {
   const [filterCustomer, setFilterCustomer] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
   const [filterItem, setFilterItem] = useState("");
+  const [itemOptions, setItemOptions] = useState([]);
+  const [itemSearch, setItemSearch] = useState("");
+  const [showItemDropdown, setShowItemDropdown] = useState(false);
   const [filterOrderType, setFilterOrderType] = useState("");
   const [warningMessage, setWarningMessage] = useState("");
   const [warningType, setWarningType] = useState("warning");
@@ -57,6 +60,7 @@ const SalesPage = () => {
 
   useEffect(() => {
     fetchSalesData();
+    fetchItemOptions();
   }, []);
 
   const fetchSalesData = () => {
@@ -76,6 +80,37 @@ const SalesPage = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const fetchItemOptions = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/items");
+      if (response.data && Array.isArray(response.data)) {
+        const items = response.data.map((item) => ({
+          name: item.item_name,
+          type: "Item",
+        }));
+        const addons = response.data
+          .flatMap((item) => item.addons || [])
+          .map((addon) => ({
+            name: addon.name1,
+            type: "Addon",
+          }));
+        const combos = response.data
+          .flatMap((item) => item.combos || [])
+          .map((combo) => ({
+            name: combo.name1,
+            type: "Combo",
+          }));
+        const allOptions = [...items, ...addons, ...combos];
+        const uniqueOptions = Array.from(
+          new Map(allOptions.map((option) => [option.name, option])).values()
+        );
+        setItemOptions(uniqueOptions);
+      }
+    } catch (error) {
+      console.error("Error fetching item options:", error);
+    }
   };
 
   const cleanData = (data) => {
@@ -100,10 +135,9 @@ const SalesPage = () => {
       })
       .map((sale) => ({
         ...sale,
-        orderType: sale.orderType || "N/A", // Ensure orderType is always defined
+        orderType: sale.orderType || "N/A",
       }));
 
-    // Log duplicate invoice numbers
     const invoiceNos = cleaned.map((sale) => sale.invoice_no);
     const duplicates = invoiceNos.filter(
       (no, index) => invoiceNos.indexOf(no) !== index
@@ -562,6 +596,25 @@ const SalesPage = () => {
     return `${hour}:00`;
   });
 
+  const handleItemSearch = (e) => {
+    setItemSearch(e.target.value);
+    setShowItemDropdown(true);
+  };
+
+  const handleItemSelect = (name) => {
+    setFilterItem(name);
+    setItemSearch(name);
+    setShowItemDropdown(false);
+  };
+
+  const handleItemInputBlur = () => {
+    setTimeout(() => setShowItemDropdown(false), 200);
+  };
+
+  const filteredItemOptions = itemOptions.filter((option) =>
+    option.name.toLowerCase().includes(itemSearch.toLowerCase())
+  );
+
   const filteredSales = salesData.filter((sale) => {
     const saleDate = parseDate(sale.date);
     const from = fromDate ? new Date(fromDate) : null;
@@ -587,9 +640,22 @@ const SalesPage = () => {
       : true;
 
     const itemMatch = filterItem
-      ? sale.items.some((item) =>
-          item.item_name.toLowerCase().includes(filterItem.toLowerCase())
-        )
+      ? sale.items.some((item) => {
+          const itemNameMatch = item.item_name
+            .toLowerCase()
+            .includes(filterItem.toLowerCase());
+          const addonMatch =
+            item.addons &&
+            item.addons.some((addon) =>
+              addon.addon_name.toLowerCase().includes(filterItem.toLowerCase())
+            );
+          const comboMatch =
+            item.selectedCombos &&
+            item.selectedCombos.some((combo) =>
+              combo.name1.toLowerCase().includes(filterItem.toLowerCase())
+            );
+          return itemNameMatch || addonMatch || comboMatch;
+        })
       : true;
 
     const orderTypeMatch = filterOrderType
@@ -763,15 +829,34 @@ const SalesPage = () => {
             className="shadow-sm"
           />
         </div>
-        <div className="filter-item">
+        <div className="filter-item position-relative">
           <Form.Label className="fw-bold">Item Name:</Form.Label>
           <Form.Control
             type="text"
-            value={filterItem}
-            onChange={(e) => setFilterItem(e.target.value)}
+            value={itemSearch}
+            onChange={handleItemSearch}
+            onFocus={() => setShowItemDropdown(true)}
+            onBlur={handleItemInputBlur}
             placeholder="Filter by item name"
             className="shadow-sm"
           />
+          {showItemDropdown && (
+            <div className="item-dropdown">
+              {filteredItemOptions.length > 0 ? (
+                filteredItemOptions.map((option, index) => (
+                  <div
+                    key={index}
+                    className="item-option"
+                    onMouseDown={() => handleItemSelect(option.name)}
+                  >
+                    {option.name} ({option.type})
+                  </div>
+                ))
+              ) : (
+                <div className="item-option">No items found</div>
+              )}
+            </div>
+          )}
         </div>
         <div className="filter-item">
           <Form.Label className="fw-bold">Order Type:</Form.Label>
@@ -835,7 +920,7 @@ const SalesPage = () => {
                   <tbody>
                     {filteredSales.map((sale) => (
                       <tr
-                        key={sale._id} // Use _id instead of invoice_no to ensure uniqueness
+                        key={sale._id}
                         onClick={() => handleInvoiceClick(sale._id, sale)}
                         className="table-row"
                       >
