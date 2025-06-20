@@ -54,6 +54,7 @@ function FrontPage() {
   const [startIndex, setStartIndex] = useState(0);
   const [totalChairs, setTotalChairs] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Added state for sidebar toggle
 
   const phoneNumberRef = useRef(null);
   const customerSectionRef = useRef(null);
@@ -281,7 +282,7 @@ function FrontPage() {
 
     const existingItemIndex = cartItems.findIndex(
       (cartItem) =>
-        cartItem.item_name === updatedItem .item_name &&
+        cartItem.item_name === updatedItem.item_name &&
         (hasSizeVariant ? cartItem.selectedSize === updatedSelectedSize : cartItem.selectedSize === null)
     );
 
@@ -640,10 +641,16 @@ function FrontPage() {
       })),
       totalAmount: Number(subtotal.toFixed(2)),
       payments: [paymentDetails],
+      invoice_no: `INV-${Date.now()}`, // Temporary invoice_no, will be updated
+      date: new Date().toISOString().split("T")[0],
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
     try {
-      await handleSaveToBackend(paymentDetails);
+      const savedSale = await handleSaveToBackend(paymentDetails);
+      if (savedSale) {
+        billDetails.invoice_no = savedSale.invoice_no; // Update with backend-generated invoice_no
+      }
 
       if (orderId) {
         try {
@@ -801,7 +808,7 @@ function FrontPage() {
       total: Number(subtotal.toFixed(2)),
       payment_terms: [{ due_date: new Date().toISOString().split("T")[0], payment_terms: "Immediate" }],
       payments: [paymentDetails],
-      orderType: orderType || "Dine In", // Added orderType to payload
+      orderType: orderType || "Dine In",
     };
 
     try {
@@ -821,6 +828,7 @@ function FrontPage() {
         setCartItems([]);
         setBillCartItems([]);
       });
+      return result; // Return the result containing invoice_no
     } catch (error) {
       console.error("Error saving to backend:", error.message);
       setWarningMessage(`Failed to save sale: ${error.message}`);
@@ -1185,7 +1193,12 @@ function FrontPage() {
 
   return (
     <div className="frontpage-container">
-      <div className="frontpage-sidebar">
+      <div className={`frontpage-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        {isSidebarOpen && (
+          <div className="frontpage-sidebar-close" onClick={() => setIsSidebarOpen(false)}>
+            <i className="bi bi-x"></i>
+          </div>
+        )}
         <ul className="navbar-nav mx-auto mb-2 mb-lg-0 d-flex justify-content-center flex-column align-items-center h-100">
           <li className="nav-item">
             <a
@@ -1257,9 +1270,15 @@ function FrontPage() {
           </li>
         </ul>
       </div>
+      {isSidebarOpen && (
+        <div className="frontpage-overlay" onClick={() => setIsSidebarOpen(false)}></div>
+      )}
 
       <div className="frontpage-main-content">
         <div className="frontpage-header">
+          <div className="frontpage-hamburger" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <i className="bi bi-list"></i>
+          </div>
           <h2>Restaurant POS</h2>
           <div className="frontpage-user-info">
             <div className="frontpage-date-time">

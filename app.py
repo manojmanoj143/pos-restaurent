@@ -1289,15 +1289,23 @@ def create_sales_invoice():
         if not all(field in sales_data for field in required_fields):
             logger.error("Missing required fields in sales invoice")
             return jsonify({"error": "Missing required fields: customer, items, total"}), 400
+        
+        # Set date and time
         sales_data['date'] = datetime.now().strftime("%Y-%m-%d")
         sales_data['time'] = datetime.now().strftime("%H:%M:%S")
+        
+        # Calculate totals
         net_total = float(sales_data['total'])
         vat_amount = net_total * 0.10
         grand_total = net_total + vat_amount
         sales_data['vat_amount'] = round(vat_amount, 2)
         sales_data['grand_total'] = round(grand_total, 2)
+        
+        # Generate invoice number
         sales_data['invoice_no'] = f"INV-{int(datetime.now().timestamp())}"
         sales_data['status'] = 'Draft'
+        
+        # Process items
         processed_items = []
         for item in sales_data.get('items', []):
             if not all(key in item for key in ['item_name', 'basePrice', 'quantity']):
@@ -1325,7 +1333,7 @@ def create_sales_invoice():
                     processed_combos.append({
                         "name1": combo['name1'],
                         "combo_price": float(combo['combo_price']),
-                        "combo_quantity": int(combo.get('combo_quantity', 1)),  # Added default combo_quantity
+                        "combo_quantity": int(combo.get('combo_quantity', 1)),
                         "combo_image": combo.get('combo_image', ''),
                         "size": combo.get('size', 'S'),
                         "selectedVariant": combo.get('selectedVariant', None)
@@ -1342,8 +1350,12 @@ def create_sales_invoice():
             })
         sales_data['items'] = processed_items
         sales_data['created_at'] = datetime.now(UTC).isoformat()
+        
+        # Insert into database
         sales_id = sales_collection.insert_one(sales_data).inserted_id
-        logger.info(f"Sales invoice created with ID: {sales_id}")
+        logger.info(f"Sale saved successfully: {sales_data['invoice_no']}")
+        
+        # Return response with invoice number
         return jsonify({
             "id": str(sales_id),
             "invoice_no": sales_data['invoice_no'],
@@ -2530,8 +2542,8 @@ def save_active_order():
         data = request.get_json()
         order_id = generate_unique_id()
         order_type = data.get('orderType', 'Dine In')
-        order_no = generate_order_number(order_type)  # Generate order number
-        
+        order_no = generate_order_number(order_type)
+
         cart_items = data.get('cartItems', [])
         for item in cart_items:
             required_kitchens = set()
@@ -2552,14 +2564,14 @@ def save_active_order():
 
         active_order = {
             'orderId': order_id,
-            'orderNo': order_no,  # Add order number
+            'orderNo': order_no,
             'customerName': data.get('customerName', 'N/A'),
             'tableNumber': data.get('tableNumber', 'N/A'),
             'chairsBooked': data.get('chairsBooked', []),
             'phoneNumber': data.get('phoneNumber', ''),
             'deliveryAddress': data.get('deliveryAddress', {}),
             'whatsappNumber': data.get('whatsappNumber', ''),
-            'email': data.get('email', ''),
+            'email': data.get('email', ''),  # Ensure email is saved
             'cartItems': cart_items,
             'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
             'orderType': order_type,
@@ -2568,15 +2580,14 @@ def save_active_order():
             'deliveryPersonId': data.get('deliveryPersonId', ''),
             'pickedUpTime': None
         }
-        
+
         result = activeorders_collection.insert_one(active_order)
-        
-        # Save to kitchen_saved_collection with orderId and orderNo
+
         kitchen_order = active_order.copy()
         kitchen_order['orderId'] = order_id
         kitchen_order['orderNo'] = order_no
         kitchen_saved_collection.insert_one(kitchen_order)
-        
+
         logger.info(f"Created order: {order_id} with order number: {order_no}")
         return jsonify({'success': True, 'orderId': order_id, 'orderNo': order_no}), 201
     except Exception as e:
@@ -2622,7 +2633,6 @@ def mark_item_prepared_active(order_id, item_id):
 
         item['kitchenStatuses'][kitchen] = 'Prepared'
 
-        # Update both collections
         activeorders_collection.update_one(
             {'orderId': order_id, 'cartItems.id': item_id},
             {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
@@ -2665,9 +2675,6 @@ def mark_item_pickedup_active(order_id, item_id):
 
         item['kitchenStatuses'][kitchen] = 'PickedUp'
 
-        all_picked_up = all(status == 'PickedUp' for status in item['kitchenStatuses'].values()) if item.get('kitchenStatuses') else False
-
-        # Update both collections
         activeorders_collection.update_one(
             {'orderId': order_id, 'cartItems.id': item_id},
             {'$set': {'cartItems.$.kitchenStatuses': item['kitchenStatuses']}}
@@ -2718,7 +2725,6 @@ def update_active_order(order_id):
         if '_id' in data:
             del data['_id']
 
-        # Process cartItems to ensure requiredKitchens and kitchenStatuses are set
         if 'cartItems' in data:
             for item in data['cartItems']:
                 required_kitchens = set()
@@ -2776,10 +2782,11 @@ def update_active_order(order_id):
             sms_body = (
                 f"New delivery assigned to you!\n"
                 f"Order ID: {order_id}\n"
-                f"Order No: {order.get('orderNo', 'N/A')}\n"
+                f"Nap முறை Order No: {order.get('orderNo', 'N/A')}\n"
                 f"Customer: {order.get('customerName', 'N/A')}\n"
                 f"Address: {address_str or 'Not provided'}\n"
                 f"Phone: {order.get('phoneNumber', 'Not provided')}\n"
+                f"Email: {order.get('email', 'Not provided')}\n"  # Include email in SMS
                 f"{items_summary}"
                 f"Mark as Picked Up: {pickup_url}"
             )
@@ -2794,10 +2801,11 @@ def update_active_order(order_id):
                 'tripId': generate_unique_id(),
                 'deliveryPersonId': data['deliveryPersonId'],
                 'orderId': order_id,
-                'orderNo': order.get('orderNo', 'N/A'),  # Include order number
+                'orderNo': order.get('orderNo', 'N/A'),
                 'customerName': order.get('customerName', 'N/A'),
                 'phoneNumber': order.get('phoneNumber', ''),
                 'deliveryAddress': order.get('deliveryAddress', {}),
+                'email': order.get('email', ''),  # Include email in trip report
                 'cartItems': data.get('cartItems', order.get('cartItems', [])),
                 'timestamp': order.get('timestamp', datetime.utcnow().isoformat()),
                 'orderType': order.get('orderType', 'Online Delivery'),
@@ -2816,7 +2824,7 @@ def update_active_order(order_id):
             {'orderId': order_id},
             {'$set': data}
         )
-        
+
         updated_order = activeorders_collection.find_one({'orderId': order_id}, {'_id': 0})
         if result.modified_count > 0 or kitchen_result.modified_count > 0:
             logger.info(f"Updated order: {order_id}")
@@ -2893,7 +2901,6 @@ def mark_order_pickedup(order_id):
         logger.error(f"Error marking order as picked up: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/tripreports/<employee_id>', methods=['GET'])
 def get_trip_reports(employee_id):

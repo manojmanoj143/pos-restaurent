@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { FaArrowLeft } from 'react-icons/fa';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './TripReport.css';
 
 function TripReport() {
@@ -92,6 +93,7 @@ function TripReport() {
         paymentMethods: Array.isArray(report.paymentMethods) ? report.paymentMethods : [],
         cardDetails: report.cardDetails || '',
         upiDetails: report.upiDetails || '',
+        email: report.email || 'N/A',
       }));
       setTripReports(sanitizedReports);
       filterReportsByDate(sanitizedReports, date, billNo, custName);
@@ -104,7 +106,7 @@ function TripReport() {
     }
   };
 
-  // Filter reports by date, bill number (orderNo), and customer name
+  // Filter reports by date, bill number, and customer name
   const filterReportsByDate = (reports, date, billNo, custName) => {
     if (!date) {
       setFilteredReports([]);
@@ -462,23 +464,22 @@ function TripReport() {
   }, []);
 
   return (
-    <div className="trip-main">
+    <div className="trip-main container-fluid p-4">
       {warningMessage && (
         <div
-          className={`active-orders-alert active-orders-alert-${
-            warningType === 'success' ? 'success' : 'warning'
-          }`}
+          className={`alert alert-${warningType === 'success' ? 'success' : 'warning'} position-fixed top-50 start-50 translate-middle shadow z-3 p-4 rounded-3 text-center`}
+          style={{ minWidth: '400px', maxWidth: '600px' }}
         >
           {warningMessage}
-          <div className="active-orders-alert-buttons">
+          <div className="d-flex justify-content-center gap-2 mt-3">
             <button
-              className="active-orders-btn active-orders-btn-primary"
+              className="btn btn-success"
               onClick={handleWarningOk}
             >
               OK
             </button>
             <button
-              className="active-orders-btn-cancel"
+              className="btn btn-danger"
               onClick={handleWarningCancel}
             >
               Cancel
@@ -487,34 +488,34 @@ function TripReport() {
         </div>
       )}
       {loading && (
-        <div className="loading-message">
+        <div className="text-center text-muted fs-5 my-3">
           Loading...
         </div>
       )}
       {error && (
-        <div className="error-message">
+        <div className="alert alert-danger my-3 text-center">
           {error}
         </div>
       )}
-      <div className="active-orders-header">
+      <div className="d-flex align-items-center mb-4">
         <FaArrowLeft
-          className="active-orders-back-button"
+          className="back-button fs-3 me-3"
           onClick={handleBack}
           role="button"
           tabIndex={0}
           onKeyPress={(e) => e.key === 'Enter' && handleBack()}
         />
-        <h1>Delivery Person Trip Report</h1>
+        <h1 className="h3 mb-0" style={{marginLeft:"20%"}}>Delivery Person Trip Report</h1>
       </div>
-      <div className="content-wrapper">
-        <div className="form-container">
+      <div className="content-wrapper mx-auto" style={{ maxWidth: '1200px' }}>
+        <div className="card p-4 mb-4 shadow-sm">
           <form onSubmit={handleSubmit}>
-            <div className="form-row">
-              <div className="form-group-left">
-                <label htmlFor="deliveryPerson" className="form-label">
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label htmlFor="deliveryPerson" className="form-label fw-bold">
                   Delivery Person
                 </label>
-                <div className="dropdown-container" ref={dropdownRef}>
+                <div className="position-relative" ref={dropdownRef}>
                   <input
                     type="text"
                     className="form-control"
@@ -526,7 +527,7 @@ function TripReport() {
                     required
                   />
                   {showDropdown && filteredEmployees.length > 0 && (
-                    <ul className="dropdown-list">
+                    <ul className="dropdown-menu show w-100 mt-1">
                       {filteredEmployees.map((employee) => (
                         <li
                           key={employee.employeeId}
@@ -540,8 +541,8 @@ function TripReport() {
                   )}
                 </div>
               </div>
-              <div className="form-group-right">
-                <label htmlFor="dateFilter" className="form-label">
+              <div className="col-md-6">
+                <label htmlFor="dateFilter" className="form-label fw-bold">
                   Filter by Date
                 </label>
                 <input
@@ -554,9 +555,9 @@ function TripReport() {
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group-left">
-                <label htmlFor="billNumber" className="form-label">
+            <div className="row g-3 mt-2">
+              <div className="col-md-6">
+                <label htmlFor="billNumber" className="form-label fw-bold">
                   Bill Number
                 </label>
                 <input
@@ -568,8 +569,8 @@ function TripReport() {
                   placeholder="Enter bill number"
                 />
               </div>
-              <div className="form-group-right">
-                <label htmlFor="customerName" className="form-label">
+              <div className="col-md-6">
+                <label htmlFor="customerName" className="form-label fw-bold">
                   Customer Name
                 </label>
                 <input
@@ -582,19 +583,19 @@ function TripReport() {
                 />
               </div>
             </div>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="btn btn-primary w-100 mt-4">
               Submit
             </button>
           </form>
         </div>
 
         {selectedEmployee && (
-          <div className="employee-details">
-            <h3>Selected Delivery Person</h3>
+          <div className="card p-4 mb-4 shadow-sm">
+            <h3 className="h5">Selected Delivery Person</h3>
             <p><strong>Name:</strong> {selectedEmployee.name}</p>
             {filteredReports.length > 0 && (
               <button
-                className="submit-all-button active-orders-btn active-orders-btn-success"
+                className="btn btn-success"
                 onClick={createAllSalesInvoices}
               >
                 Submit All
@@ -604,104 +605,120 @@ function TripReport() {
         )}
 
         {selectedEmployee && filteredReports.length > 0 && (
-          <div className="active-orders-table-wrapper">
-            <h2>Assigned Delivery Orders</h2>
-            <table className="orders-table active-orders-table active-orders-table-striped active-orders-table-bordered">
-              <thead>
-                <tr>
-                  <th>Order No</th>
-                  <th>Date</th>
-                  <th>Customer</th>
-                  <th>Delivery Person</th>
-                  <th>Grand Total (₹)</th>
-                  <th>Payment Method</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredReports.map((report) => (
-                  <tr key={report.tripId}>
-                    <td>{report.orderNo}</td>
-                    <td>{formatTimestamp(report.timestamp)}</td>
-                    <td>{report.customerName || 'N/A'}</td>
-                    <td>{selectedEmployee.name}</td>
-                    <td>{calculateGrandTotal(report.cartItems)}</td>
-                    <td>
-                      <div className="payment-options">
-                        <label className="payment-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={report.paymentMethods.includes('Cash')}
-                            onChange={() => handlePaymentMethodSelect('Cash', report.tripId)}
-                          />
-                          Cash
-                        </label>
-                        <label className="payment-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={report.paymentMethods.includes('Card')}
-                            onChange={() => handlePaymentMethodSelect('Card', report.tripId)}
-                          />
-                          Card
-                        </label>
-                        <label className="payment-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={report.paymentMethods.includes('UPI')}
-                            onChange={() => handlePaymentMethodSelect('UPI', report.tripId)}
-                          />
-                          UPI
-                        </label>
-                      </div>
-                      {paymentDetails[report.tripId]?.showDetailsInput === 'Card' && (
-                        <div className="payment-details-input">
-                          <input
-                            type="text"
-                            placeholder="Enter Card Number"
-                            className="form-control"
-                            value={report.cardDetails || ''}
-                            onChange={(e) =>
-                              handlePaymentDetailsInput(report.tripId, 'cardDetails', e.target.value)
-                            }
-                          />
-                        </div>
-                      )}
-                      {paymentDetails[report.tripId]?.showDetailsInput === 'UPI' && (
-                        <div className="payment-details-input">
-                          <input
-                            type="text"
-                            placeholder="Enter UPI ID"
-                            className="form-control"
-                            value={report.upiDetails || ''}
-                            onChange={(e) =>
-                              handlePaymentDetailsInput(report.tripId, 'upiDetails', e.target.value)
-                            }
-                          />
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        className="details-button active-orders-btn active-orders-btn-primary"
-                        onClick={() => handleShowDetails(report)}
-                      >
-                        Details
-                      </button>
-                      <button
-                        className="submit-action-button active-orders-btn active-orders-btn-success"
-                        onClick={() => handleActionSubmit(report)}
-                      >
-                        Create Invoice
-                      </button>
-                    </td>
+          <div className="card p-4 shadow-sm">
+            <h2 className="h4 mb-3">Assigned Delivery Orders</h2>
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered">
+                <thead className="table-primary">
+                  <tr>
+                    <th>Order No</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th>Delivery Person</th>
+                    <th>Grand Total (₹)</th>
+                    <th>Payment Method</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredReports.map((report) => (
+                    <tr key={report.tripId}>
+                      <td>{report.orderNo}</td>
+                      <td>{formatTimestamp(report.timestamp)}</td>
+                      <td>{report.customerName || 'N/A'}</td>
+                      <td>{report.email || 'N/A'}</td>
+                      <td>{selectedEmployee.name}</td>
+                      <td>{calculateGrandTotal(report.cartItems)}</td>
+                      <td>
+                        <div className="d-flex flex-column gap-2">
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              checked={report.paymentMethods.includes('Cash')}
+                              onChange={() => handlePaymentMethodSelect('Cash', report.tripId)}
+                              id={`cash-${report.tripId}`}
+                            />
+                            <label className="form-check-label" htmlFor={`cash-${report.tripId}`}>
+                              Cash
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              checked={report.paymentMethods.includes('Card')}
+                              onChange={() => handlePaymentMethodSelect('Card', report.tripId)}
+                              id={`card-${report.tripId}`}
+                            />
+                            <label className="form-check-label" htmlFor={`card-${report.tripId}`}>
+                              Card
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              checked={report.paymentMethods.includes('UPI')}
+                              onChange={() => handlePaymentMethodSelect('UPI', report.tripId)}
+                              id={`upi-${report.tripId}`}
+                            />
+                            <label className="form-check-label" htmlFor={`upi-${report.tripId}`}>
+                              UPI
+                            </label>
+                          </div>
+                        </div>
+                        {paymentDetails[report.tripId]?.showDetailsInput === 'Card' && (
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Card Number"
+                              value={report.cardDetails || ''}
+                              onChange={(e) =>
+                                handlePaymentDetailsInput(report.tripId, 'cardDetails', e.target.value)
+                              }
+                            />
+                          </div>
+                        )}
+                        {paymentDetails[report.tripId]?.showDetailsInput === 'UPI' && (
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter UPI ID"
+                              value={report.upiDetails || ''}
+                              onChange={(e) =>
+                                handlePaymentDetailsInput(report.tripId, 'upiDetails', e.target.value)
+                              }
+                            />
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-info btn-sm me-2"
+                          onClick={() => handleShowDetails(report)}
+                        >
+                          Details
+                        </button>
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() => handleActionSubmit(report)}
+                        >
+                          Create Invoice
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {selectedEmployee && filteredReports.length === 0 && !loading && (
-          <div className="no-orders">
+          <div className="text-center my-4 text-muted">
             <p>
               No delivery orders assigned to {selectedEmployee.name} for the selected date
               {billNumber ? ` and bill number ${billNumber}` : ''}
@@ -711,50 +728,60 @@ function TripReport() {
         )}
 
         {showPopup && selectedReport && (
-          <div className="active-orders-modal-overlay">
-            <div className="active-orders-modal-content">
-              <h3>Order Details</h3>
-              <table className="popup-table active-orders-table active-orders-table-striped active-orders-table-bordered">
-                <thead>
-                  <tr>
-                    <th>Order No</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Delivery Person</th>
-                    <th>Grand Total (₹)</th>
-                    <th>Payment Method</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{selectedReport.orderNo}</td>
-                    <td>{formatTimestamp(selectedReport.timestamp)}</td>
-                    <td>{selectedReport.customerName || 'N/A'}</td>
-                    <td>{selectedEmployee.name}</td>
-                    <td>{calculateGrandTotal(selectedReport.cartItems)}</td>
-                    <td>
-                      {selectedReport.paymentMethods.length > 0
-                        ? selectedReport.paymentMethods.join(', ')
-                        : 'None'}
-                      {selectedReport.cardDetails && (
-                        <div>Card: {selectedReport.cardDetails}</div>
-                      )}
-                      {selectedReport.upiDetails && (
-                        <div>UPI: {selectedReport.upiDetails}</div>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        className="close-popup active-orders-btn active-orders-btn-danger"
-                        onClick={handleClosePopup}
-                      >
-                        Close
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Order Details</h5>
+                </div>
+                <div className="modal-body">
+                  <div className="table-responsive">
+                    <table className="table table-striped table-bordered">
+                      <thead className="table-primary">
+                        <tr>
+                          <th>Order No</th>
+                          <th>Date</th>
+                          <th>Customer</th>
+                          <th>Email</th>
+                          <th>Delivery Person</th>
+                          <th>Grand Total (₹)</th>
+                          <th>Payment Method</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{selectedReport.orderNo}</td>
+                          <td>{formatTimestamp(selectedReport.timestamp)}</td>
+                          <td>{selectedReport.customerName || 'N/A'}</td>
+                          <td>{selectedReport.email || 'N/A'}</td>
+                          <td>{selectedEmployee.name}</td>
+                          <td>{calculateGrandTotal(selectedReport.cartItems)}</td>
+                          <td>
+                            {selectedReport.paymentMethods.length > 0
+                              ? selectedReport.paymentMethods.join(', ')
+                              : 'None'}
+                            {selectedReport.cardDetails && (
+                              <div>Card: {selectedReport.cardDetails}</div>
+                            )}
+                            {selectedReport.upiDetails && (
+                              <div>UPI: {selectedReport.upiDetails}</div>
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-danger"
+                              onClick={handleClosePopup}
+                            >
+                              Close
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

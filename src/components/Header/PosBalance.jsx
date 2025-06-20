@@ -320,6 +320,10 @@ function PosBalance() {
         navigate('/home');
     };
 
+    const handleBackToApp = () => {
+        navigate('/app'); // Adjust the route as needed
+    };
+
     const handleResetFilters = () => {
         setFromDate(null);
         setToDate(null);
@@ -355,77 +359,94 @@ function PosBalance() {
 
     return (
         <div className="pos-balance-container">
-            <button
-                className="back-button"
-                onClick={handleBackToFirstTab}
-                aria-label="Back to Dining Options"
-                title="Back to Home"
-            >
-                <i className="bi bi-arrow-left-circle"></i>
-            </button>
+            <div className="button-group">
+                <button
+                    className="back-button"
+                    onClick={handleBackToFirstTab}
+                    aria-label="Back to Dining Options"
+                    title="Back to Home"
+                >
+                    <i className="bi bi-arrow-left-circle"></i>
+                </button>
+                {/* <button
+                    className="back-app-button"
+                    onClick={handleBackToApp}
+                    aria-label="Back to App"
+                    title="Back to App"
+                >
+                    <i className="bi bi-app"></i>
+                </button> */}
+            </div>
 
-            <div className="content-wrapper">
-                <div className="d-flex flex-wrap">
-                    <div className="filter-section me-4">
-                        <h2 className="filter-title">Filters</h2>
-                        <div className="filter-item mb-3">
-                            <label className="fw-bold mb-1">From Date:</label>
-                            <DatePicker
-                                selected={fromDate}
-                                onChange={(date) => setFromDate(date)}
-                                dateFormat="yyyy-MM-dd"
-                                className="form-control shadow-sm"
-                                placeholderText="Select start date"
-                                wrapperClassName="w-100"
-                            />
+            <div className="container-fluid content-wrapper px-0">
+                <div className="row g-4">
+                    <div className="col-lg-3 col-md-12 filter-container">
+                        <div className="balance-card filter-card rounded-3 shadow-sm">
+                            <div className="card-header p-3">
+                                <h2 className="card-title mb-0">Filters</h2>
+                                <span className="card-icon">🔍</span>
+                            </div>
+                            <div className="card-body p-3">
+                                <div className="mb-3">
+                                    <label className="fw-bold mb-1">From Date:</label>
+                                    <DatePicker
+                                        selected={fromDate}
+                                        onChange={(date) => setFromDate(date)}
+                                        dateFormat="yyyy-MM-dd"
+                                        className="form-control shadow-sm"
+                                        placeholderText="Select start date"
+                                        wrapperClassName="w-100"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="fw-bold mb-1">To Date:</label>
+                                    <DatePicker
+                                        selected={toDate}
+                                        onChange={(date) => setToDate(date)}
+                                        dateFormat="yyyy-MM-dd"
+                                        className="form-control shadow-sm"
+                                        placeholderText="Select end date"
+                                        minDate={fromDate}
+                                        wrapperClassName="w-100"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="fw-bold mb-1">Order Type:</label>
+                                    <select
+                                        value={filterOrderType}
+                                        onChange={(e) => setFilterOrderType(e.target.value)}
+                                        className="form-select shadow-sm"
+                                    >
+                                        <option value="">All Order Types</option>
+                                        <option value="Dine In">Dine In</option>
+                                        <option value="Takeaway">Takeaway</option>
+                                        <option value="Online Delivery">Online Delivery</option>
+                                    </select>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="fw-bold mb-1">Payment Mode:</label>
+                                    <select
+                                        value={filterPaymentMode}
+                                        onChange={(e) => setFilterPaymentMode(e.target.value)}
+                                        className="form-select shadow-sm"
+                                    >
+                                        <option value="">All Payment Modes</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Card">Card</option>
+                                        <option value="UPI">UPI</option>
+                                    </select>
+                                </div>
+                                <button
+                                    className="btn btn-outline-secondary w-100 shadow-sm"
+                                    onClick={handleResetFilters}
+                                >
+                                    Reset Filters
+                                </button>
+                            </div>
                         </div>
-                        <div className="filter-item mb-3">
-                            <label className="fw-bold mb-1">To Date:</label>
-                            <DatePicker
-                                selected={toDate}
-                                onChange={(date) => setToDate(date)}
-                                dateFormat="yyyy-MM-dd"
-                                className="form-control shadow-sm"
-                                placeholderText="Select end date"
-                                minDate={fromDate}
-                                wrapperClassName="w-100"
-                            />
-                        </div>
-                        <div className="filter-item mb-3">
-                            <label className="fw-bold mb-1">Order Type:</label>
-                            <select
-                                value={filterOrderType}
-                                onChange={(e) => setFilterOrderType(e.target.value)}
-                                className="form-control shadow-sm"
-                            >
-                                <option value="">All Order Types</option>
-                                <option value="Dine In">Dine In</option>
-                                <option value="Takeaway">Takeaway</option>
-                                <option value="Online Delivery">Online Delivery</option>
-                            </select>
-                        </div>
-                        <div className="filter-item mb-3">
-                            <label className="fw-bold mb-1">Payment Mode:</label>
-                            <select
-                                value={filterPaymentMode}
-                                onChange={(e) => setFilterPaymentMode(e.target.value)}
-                                className="form-control shadow-sm"
-                            >
-                                <option value="">All Payment Modes</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Card">Card</option>
-                                <option value="UPI">UPI</option>
-                            </select>
-                        </div>
-                        <button
-                            className="btn btn-outline-secondary w-100 shadow-sm"
-                            onClick={handleResetFilters}
-                        >
-                            Reset Filters
-                        </button>
                     </div>
 
-                    <div className="flex-grow-1">
+                    <div className="col-lg-9 col-md-12">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h1 className="title">POS Balance Overview</h1>
                             <button
@@ -437,22 +458,22 @@ function PosBalance() {
                         </div>
 
                         <div className="row g-4">
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="balance-card dinein w-100">
-                                    <div className="card-header">
-                                        <h2 className="card-title">Dine In</h2>
+                            <div className="col-md-4">
+                                <div className="balance-card dinein rounded-3 shadow-sm">
+                                    <div className="card-header p-3">
+                                        <h2 className="card-title mb-0">Dine In</h2>
                                         <span className="card-icon">🍽️</span>
                                     </div>
-                                    <div className="card-body">
-                                        <p className="balance-item">
+                                    <div className="card-body p-3">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Orders:</span>
                                             <span className="balance-value">{balanceData.dineIn.totalOrders}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.dineIn.totalRevenue.toFixed(2)}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Pending Orders:</span>
                                             <span className="balance-value">{balanceData.dineIn.pendingOrders}</span>
                                         </p>
@@ -460,22 +481,22 @@ function PosBalance() {
                                 </div>
                             </div>
 
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="balance-card delivery w-100">
-                                    <div className="card-header">
-                                        <h2 className="card-title">Online Delivery</h2>
+                            <div className="col-md-4">
+                                <div className="balance-card delivery rounded-3 shadow-sm">
+                                    <div className="card-header p-3">
+                                        <h2 className="card-title mb-0">Online Delivery</h2>
                                         <span className="card-icon">🚚</span>
                                     </div>
-                                    <div className="card-body">
-                                        <p className="balance-item">
+                                    <div className="card-body p-3">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Orders:</span>
                                             <span className="balance-value">{balanceData.onlineDelivery.totalOrders}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.onlineDelivery.totalRevenue.toFixed(2)}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Pending Orders:</span>
                                             <span className="balance-value">{balanceData.onlineDelivery.pendingOrders}</span>
                                         </p>
@@ -483,22 +504,22 @@ function PosBalance() {
                                 </div>
                             </div>
 
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="balance-card takeaway w-100">
-                                    <div className="card-header">
-                                        <h2 className="card-title">Take Away</h2>
+                            <div className="col-md-4">
+                                <div className="balance-card takeaway rounded-3 shadow-sm">
+                                    <div className="card-header p-3">
+                                        <h2 className="card-title mb-0">Take Away</h2>
                                         <span className="card-icon">🍔</span>
                                     </div>
-                                    <div className="card-body">
-                                        <p className="balance-item">
+                                    <div className="card-body p-3">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Orders:</span>
                                             <span className="balance-value">{balanceData.takeAway.totalOrders}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.takeAway.totalRevenue.toFixed(2)}</span>
                                         </p>
-                                        <p className="balance-item">
+                                        <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Pending Orders:</span>
                                             <span className="balance-value">{balanceData.takeAway.pendingOrders}</span>
                                         </p>
@@ -507,18 +528,18 @@ function PosBalance() {
                             </div>
                         </div>
 
-                        <div className="sales-graph mt-5">
-                            <h2 className="graph-title">Sales Overview</h2>
+                        <div className="sales-graph mt-5 p-4 rounded-3 shadow-sm">
+                            <h2 className="graph-title mb-4">Sales Overview</h2>
                             <div className="chart-container">
                                 <canvas id="salesChart"></canvas>
                             </div>
                         </div>
 
                         {showList && (
-                            <div className="hourly-breakdown mt-5">
-                                <h2 className="hourly-title">Hourly Order Breakdown</h2>
+                            <div className="hourly-breakdown mt-5 p-4 rounded-3 shadow-sm">
+                                <h2 className="hourly-title mb-4">Hourly Order Breakdown</h2>
                                 <div className="table-responsive">
-                                    <table className="hourly-table">
+                                    <table className="hourly-table table table-bordered">
                                         <thead>
                                             <tr>
                                                 <th>Time Slot</th>

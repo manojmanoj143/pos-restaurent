@@ -1,4 +1,3 @@
-/* General Reset and Box Sizing */
 * {
   margin: 0;
   padding: 0;
@@ -58,6 +57,7 @@ html, body {
   position: fixed;
   height: 100vh;
   z-index: 1000;
+  transition: left 0.3s ease; /* Added for smooth sliding */
 }
 
 .navbar-nav {
@@ -116,6 +116,36 @@ html, body {
 .nav-item.mt-auto {
   margin-top: auto;
   margin-bottom: 20px;
+}
+
+/* Hamburger Icon */
+.frontpage-hamburger {
+  display: none; /* Hidden by default on larger screens */
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #1f2937;
+  margin-right: 15px;
+}
+
+/* Sidebar Close Icon */
+.frontpage-sidebar-close {
+  display: none; /* Hidden by default on larger screens */
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #1f2937;
+  padding: 10px;
+  align-self: flex-start;
+}
+
+/* Overlay */
+.frontpage-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
 /* Main Content */
@@ -941,31 +971,41 @@ html, body {
   }
 
   .frontpage-sidebar {
-    width: 100%;
-    height: 70px;
-    flex-direction: row;
-    border-radius: 0 0 12px 12px;
-    position: fixed;
-    top: 0;
+    position: absolute; /* Changed to absolute for toggle */
+    left: -70px; /* Hidden off-screen by default */
+    width: 70px; /* Maintain vertical width */
+    height: 100vh; /* Full height */
+    flex-direction: column; /* Keep vertical layout */
+    border-radius: 0 12px 12px 0;
     z-index: 1000;
-    padding: 0 20px;
+  }
+
+  .frontpage-sidebar.open {
+    left: 0; /* Slides in when open */
+  }
+
+  .frontpage-hamburger {
+    display: block; /* Show hamburger on smaller screens */
+  }
+
+  .frontpage-sidebar.open .frontpage-sidebar-close {
+    display: block; /* Show close icon when sidebar is open */
   }
 
   .navbar-nav {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    height: auto;
+    flex-direction: column; /* Keep vertical alignment */
+    justify-content: space-between; /* Maintain spacing */
+    height: 100%; /* Full height */
   }
 
   .nav-item.mt-auto {
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-top: auto; /* Keep logout at bottom */
+    margin-bottom: 20px;
   }
 
   .frontpage-main-content {
-    margin-left: 0;
-    margin-top: 70px;
+    margin-left: 0; /* No margin since sidebar overlays */
+    margin-top: 70px; /* Space for header */
     width: 100%;
   }
 

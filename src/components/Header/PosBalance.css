@@ -1,8 +1,7 @@
 .pos-balance-container {
     min-height: 100vh;
     background: linear-gradient(135deg, #e6f0fa, #b8c8e8);
-    padding: 2.5rem;
-    position: relative;
+    padding: 2.5rem 0;
     font-family: 'Inter', sans-serif;
 }
 
@@ -24,8 +23,7 @@
 }
 
 .pos-balance-container .content-wrapper {
-    max-width: 1500px;
-    margin: 0 auto;
+    max-width: 100%;
 }
 
 .pos-balance-container .title {
@@ -37,34 +35,44 @@
     letter-spacing: 0.05em;
 }
 
-.pos-balance-container .filter-section {
+.pos-balance-container .filter-container .filter-card {
     background: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    width: 280px;
-    transition: transform 0.3s ease;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 20%;
 }
 
-.pos-balance-container .filter-section:hover {
-    transform: translateY(-3px);
+.pos-balance-container .filter-container .filter-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.pos-balance-container .filter-title {
+.pos-balance-container .filter-card .card-header {
+    background: #f0f4f8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+}
+
+.pos-balance-container .filter-card .card-title {
     font-size: 1.9rem;
     font-weight: 600;
     color: #2d3748;
-    margin-bottom: 1.8rem;
 }
 
-.pos-balance-container .filter-item {
-    width: 100%;
+.pos-balance-container .filter-card .card-icon {
+    font-size: 2.2rem;
 }
 
-.pos-balance-container .filter-item .form-control,
-.pos-balance-container .filter-item .react-datepicker-wrapper,
-.pos-balance-container .filter-item .react-datepicker__input-container input {
-    width: 100%;
+.pos-balance-container .filter-card .card-body {
+    padding: 1.5rem;
+}
+
+.pos-balance-container .filter-card .form-control,
+.pos-balance-container .filter-card .react-datepicker-wrapper,
+.pos-balance-container .filter-card .react-datepicker__input-container input {
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     padding: 0.75rem;
@@ -72,7 +80,7 @@
     transition: border-color 0.3s ease;
 }
 
-.pos-balance-container .filter-item .form-control:focus {
+.pos-balance-container .filter-card .form-control:focus {
     border-color: #3182ce;
     box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
 }
@@ -93,11 +101,7 @@
     background: #ffffff;
     border-radius: 15px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    padding: 1.8rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .pos-balance-container .balance-card:hover {
@@ -109,15 +113,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.2rem;
-    padding: 1.2rem;
     border-radius: 10px 10px 0 0;
 }
 
 .pos-balance-container .card-title {
     font-size: 1.9rem;
     font-weight: 600;
-    margin: 0;
     color: #2d3748;
 }
 
@@ -125,14 +126,7 @@
     font-size: 2.2rem;
 }
 
-.pos-balance-container .card-body {
-    text-align: left;
-}
-
 .pos-balance-container .balance-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
     font-size: 1.15rem;
 }
 
@@ -159,9 +153,7 @@
 }
 
 .pos-balance-container .sales-graph {
-    margin-top: 3.5rem;
     background: #ffffff;
-    padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -170,7 +162,6 @@
     font-size: 2.2rem;
     font-weight: 700;
     color: #2d3748;
-    margin-bottom: 2rem;
 }
 
 .pos-balance-container .chart-container {
@@ -185,9 +176,7 @@
 }
 
 .pos-balance-container .hourly-breakdown {
-    margin-top: 3.5rem;
     background: #ffffff;
-    padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -196,21 +185,10 @@
     font-size: 2.2rem;
     font-weight: 700;
     color: #2d3748;
-    margin-bottom: 2rem;
 }
 
 .pos-balance-container .hourly-table {
-    width: 100%;
-    background: #ffffff;
     border-radius: 10px;
-    border-collapse: collapse;
-}
-
-.pos-balance-container .hourly-table th,
-.pos-balance-container .hourly-table td {
-    padding: 1.2rem;
-    text-align: center;
-    border-bottom: 1px solid #e2e8f0;
 }
 
 .pos-balance-container .hourly-table th {
@@ -229,22 +207,13 @@
     background: #f7fafc;
 }
 
-.pos-balance-container .hourly-table tr:last-child td {
-    border-bottom: none;
-}
-
 @media (max-width: 992px) {
-    .pos-balance-container .filter-section {
-        width: 100%;
+    .pos-balance-container .filter-container {
         margin-bottom: 2.5rem;
     }
 
     .pos-balance-container .title {
         font-size: 2.3rem;
-    }
-
-    .pos-balance-container .balance-card {
-        margin-bottom: 1.5rem;
     }
 
     .pos-balance-container .card-title {
@@ -262,21 +231,17 @@
 
 @media (max-width: 768px) {
     .pos-balance-container {
-        padding: 1.5rem;
+        padding: 1.5rem 0;
     }
 
     .pos-balance-container .title {
         font-size: 2rem;
     }
 
-    .pos-balance-container .filter-title,
+    .pos-balance-container .filter-card .card-title,
     .pos-balance-container .hourly-title,
     .pos-balance-container .graph-title {
         font-size: 1.8rem;
-    }
-
-    .pos-balance-container .filter-section {
-        padding: 1.5rem;
     }
 
     .pos-balance-container .hourly-table th,
@@ -306,14 +271,10 @@
         font-size: 1.8rem;
     }
 
-    .pos-balance-container .filter-title,
+    .pos-balance-container .filter-card .card-title,
     .pos-balance-container .hourly-title,
     .pos-balance-container .graph-title {
         font-size: 1.6rem;
-    }
-
-    .pos-balance-container .balance-card {
-        padding: 1.2rem;
     }
 
     .pos-balance-container .card-title {
