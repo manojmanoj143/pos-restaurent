@@ -97,6 +97,17 @@
     transform: translateY(-2px);
 }
 
+.pos-balance-container .total-revenue {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.pos-balance-container .total-revenue .balance-value {
+    font-weight: 700;
+    color: #2d3748;
+}
+
 .pos-balance-container .balance-card {
     background: #ffffff;
     border-radius: 15px;
@@ -255,6 +266,10 @@
         padding: 0.5rem 1.5rem;
     }
 
+    .pos-balance-container .total-revenue {
+        font-size: 1rem;
+    }
+
     .pos-balance-container .chart-container {
         height: 350px;
     }
@@ -287,6 +302,10 @@
 
     .pos-balance-container .balance-item {
         font-size: 1rem;
+    }
+
+    .pos-balance-container .total-revenue {
+        font-size: 0.95rem;
     }
 
     .pos-balance-container .chart-container {

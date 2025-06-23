@@ -144,28 +144,34 @@ function ActiveOrders() {
   const confirmDeliveryAssignment = async () => {
     try {
       const order = savedOrders.find((o) => o.orderId === selectedOrderId);
+      if (!order) {
+        setWarningMessage("Order not found.");
+        setWarningType("warning");
+        setShowDeliveryPopup(false);
+        return;
+      }
       if (!checkAllItemsPickedUp(order)) {
         setWarningMessage(`Cannot assign delivery person to order ${order.orderNo}. All items, addons, and combos must be marked as Picked Up in the Kitchen page.`);
         setWarningType("warning");
         setShowDeliveryPopup(false);
         return;
       }
-      const response = await axios.put(`http://localhost:5000/api/activeorders/${selectedOrderId}`, {
+
+      await axios.put(`http://localhost:5000/api/activeorders/${selectedOrderId}`, {
         deliveryPersonId: selectedDeliveryPersonId,
+        cartItems: order.cartItems,
       });
-      const updatedOrder = response.data.order;
-      const updatedOrders = savedOrders.map((order) =>
-        order.orderId === selectedOrderId ? { ...order, ...updatedOrder } : order
-      );
+
+      const updatedOrders = savedOrders.filter((o) => o.orderId !== selectedOrderId);
       setSavedOrders(updatedOrders);
       localStorage.setItem("savedOrders", JSON.stringify(updatedOrders));
-      setWarningMessage("Delivery person assigned successfully!");
+      setWarningMessage("Delivery person assigned and order removed successfully!");
       setWarningType("success");
       setShowDeliveryPopup(false);
       setSelectedOrderId(null);
       setSelectedDeliveryPersonId(null);
     } catch (err) {
-      setWarningMessage(`Failed to assign delivery person: ${err.message}`);
+      setWarningMessage(`Failed to assign delivery person: ${err.response?.data?.error || err.message}`);
       setWarningType("warning");
       setShowDeliveryPopup(false);
     }
@@ -211,50 +217,31 @@ function ActiveOrders() {
       return;
     }
 
-    const formattedCartItems = order.cartItems.map((item) => {
-      const requiredKitchens = new Set();
-      if (item.kitchen) requiredKitchens.add(item.kitchen);
-      if (item.addonVariants) {
-        Object.values(item.addonVariants).forEach((addon) => {
-          if (addon.kitchen) requiredKitchens.add(addon.kitchen);
-        });
-      }
-      if (item.comboVariants) {
-        Object.values(item.comboVariants).forEach((combo) => {
-          if (combo.kitchen) requiredKitchens.add(combo.kitchen);
-        });
-      }
-      const kitchenStatuses = {};
-      requiredKitchens.forEach((kitchen) => {
-        kitchenStatuses[kitchen] = item.kitchenStatuses?.[kitchen] || "Pending";
-      });
-
-      return {
-        ...item,
-        id: item.id || uuidv4(),
-        item_name: item.item_name || item.name,
-        name: item.name || item.item_name,
-        quantity: Number(item.quantity) || 1,
-        basePrice: Number(item.basePrice) || (Number(item.totalPrice) / (Number(item.quantity) || 1)) || 0,
-        totalPrice: Number(item.totalPrice) || (Number(item.basePrice) * (Number(item.quantity) || 1)) || 0,
-        selectedSize: item.selectedSize || "M",
-        icePreference: item.icePreference || "without_ice",
-        icePrice: Number(item.icePrice) || 0,
-        isSpicy: item.isSpicy || false,
-        spicyPrice: Number(item.spicyPrice) || 0,
-        kitchen: item.kitchen || "Main Kitchen",
-        addonQuantities: item.addonQuantities || {},
-        addonVariants: item.addonVariants || {},
-        addonPrices: item.addonPrices || {},
-        comboQuantities: item.comboQuantities || {},
-        comboVariants: item.comboVariants || {},
-        comboPrices: item.comboPrices || {},
-        selectedCombos: item.selectedCombos || [],
-        ingredients: item.ingredients || [],
-        requiredKitchens: Array.from(requiredKitchens),
-        kitchenStatuses,
-      };
-    });
+    const formattedCartItems = order.cartItems.map((item) => ({
+      ...item,
+      id: item.id || uuidv4(),
+      item_name: item.item_name || item.name,
+      name: item.name || item.item_name,
+      quantity: Number(item.quantity) || 1,
+      basePrice: Number(item.basePrice) || (Number(item.totalPrice) / (Number(item.quantity) || 1)) || 0,
+      totalPrice: Number(item.totalPrice) || (Number(item.basePrice) * (Number(item.quantity) || 1)) || 0,
+      selectedSize: item.selectedSize || "M",
+      icePreference: item.icePreference || "without_ice",
+      icePrice: Number(item.icePrice) || 0,
+      isSpicy: item.isSpicy || false,
+      spicyPrice: Number(item.spicyPrice) || 0,
+      kitchen: item.kitchen || "Main Kitchen",
+      addonQuantities: item.addonQuantities || {},
+      addonVariants: item.addonVariants || {},
+      addonPrices: item.addonPrices || {},
+      comboQuantities: item.comboQuantities || {},
+      comboVariants: item.comboVariants || {},
+      comboPrices: item.comboPrices || {},
+      selectedCombos: item.selectedCombos || [],
+      ingredients: item.ingredients || [],
+      requiredKitchens: item.requiredKitchens || [],
+      kitchenStatuses: item.kitchenStatuses || {},
+    }));
 
     const orderType = order.orderType || inferOrderType(order);
     const phoneNumber = order.phoneNumber?.replace(/^\+\d+/, "") || "";
@@ -273,7 +260,7 @@ function ActiveOrders() {
           whatsappNumber: "",
           email: "",
           orderType: orderType,
-          bookedChairs: Array.isArray(order.chairsBooked) ? order.chairsBooked : [],
+          chairsBooked: Array.isArray(order.chairsBooked) ? order.chairsBooked : [],
           deliveryPersonId: order.deliveryPersonId || "",
           pickedUpTime: order.pickedUpTime || null,
           orderId: order.orderId,

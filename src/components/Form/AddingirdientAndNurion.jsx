@@ -8,12 +8,13 @@ const AddIngredientAndNutrition = () => {
   const dropdownRef = useRef(null);
   const [isMessageBoxVisible, setIsMessageBoxVisible] = useState(false);
 
-  // State declarations
-  const [ingredients, setIngredients] = useState([
-    { name: '', small: '', medium: '', large: '', weight: '', nutrition: [] },
-  ]);
+  const { formData: passedFormData, itemId, isEditing = false, itemToEdit } = location.state || {};
+
+  const [ingredients, setIngredients] = useState(
+    passedFormData?.ingredients || [{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]
+  );
   const [items, setItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedItem, setSelectedItem] = useState(itemId === "new" ? passedFormData?.item_name : '');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,8 +22,8 @@ const AddIngredientAndNutrition = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [hasExistingData, setHasExistingData] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNewItem, setIsNewItem] = useState(itemId === "new");
 
-  // List of available nutrition names
   const nutritionNames = [
     'Carbohydrates', 'Calories', 'carbs', 'Proteins', 'Fats', 'Fiber', 'Vitamins', 'Minerals', 'Water', 'Sugars', 'Starch',
     'Amino Acids', 'Fatty Acids', 'Cholesterol', 'Antioxidants', 'Electrolytes', 'Glucose', 'Fructose',
@@ -35,12 +36,10 @@ const AddIngredientAndNutrition = () => {
     'Polyphenols', 'Carotenoids', 'Glycogen', 'Beta-Glucans', 'Sterols',
   ];
 
-  // Generate deduplicated and sorted options for the dropdown
   const generateOptions = () => {
     const nameMap = {};
 
     items.forEach((item) => {
-      // Item itself
       if (!nameMap[item.item_name]) {
         nameMap[item.item_name] = {
           label: `${item.item_name} (Item)`,
@@ -52,7 +51,6 @@ const AddIngredientAndNutrition = () => {
         nameMap[item.item_name].instances.push({ item_id: item._id });
       }
 
-      // Addons
       item.addons?.forEach((addon, index) => {
         if (!nameMap[addon.name1]) {
           nameMap[addon.name1] = {
@@ -66,7 +64,6 @@ const AddIngredientAndNutrition = () => {
         }
       });
 
-      // Combos
       item.combos?.forEach((combo, index) => {
         if (!nameMap[combo.name1]) {
           nameMap[combo.name1] = {
@@ -81,18 +78,15 @@ const AddIngredientAndNutrition = () => {
       });
     });
 
-    // Sort options alphabetically by label
     return Object.values(nameMap).sort((a, b) => a.label.localeCompare(b.label));
   };
 
   const options = generateOptions();
 
-  // Filter options based on partial match of search term
   const filteredOptions = searchTerm.trim()
     ? options.filter((option) => option.value.toLowerCase().includes(searchTerm.toLowerCase()))
     : options;
 
-  // Fetch all items from the API
   const fetchItems = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/items');
@@ -110,10 +104,9 @@ const AddIngredientAndNutrition = () => {
     }
   };
 
-  // Fetch nutrition data for the selected item/addon/combo
   const fetchItemData = async (selectedValue) => {
-    if (!selectedValue) {
-      setIngredients([{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
+    if (!selectedValue || isNewItem) {
+      setIngredients(passedFormData?.ingredients || [{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
       setHasExistingData(false);
       return;
     }
@@ -128,7 +121,6 @@ const AddIngredientAndNutrition = () => {
     const { type, instances } = option;
     let ingredients = [];
 
-    // Try fetching data from the first instance
     const firstInstance = instances[0];
     try {
       const response = await fetch(
@@ -167,17 +159,20 @@ const AddIngredientAndNutrition = () => {
     setHasExistingData(ingredients?.length > 0);
   };
 
-  // Initial fetch of items on component mount
   useEffect(() => {
     fetchItems();
   }, []);
 
-  // Fetch item data when selected item changes
   useEffect(() => {
-    fetchItemData(selectedItem);
-  }, [selectedItem, items]);
+    if (isNewItem) {
+      setSelectedItem(passedFormData?.item_name);
+      setIngredients(passedFormData?.ingredients || [{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
+      setHasExistingData(false);
+    } else {
+      fetchItemData(selectedItem);
+    }
+  }, [selectedItem, items, isNewItem, passedFormData]);
 
-  // Handle clicks outside the dropdown to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -190,14 +185,12 @@ const AddIngredientAndNutrition = () => {
     };
   }, []);
 
-  // Handle changes to ingredient fields
   const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
     newIngredients[index] = { ...newIngredients[index], [field]: value };
     setIngredients(newIngredients);
   };
 
-  // Handle changes to nutrition fields
   const handleNutritionChange = (ingredientIndex, nutritionIndex, field, value) => {
     const newIngredients = [...ingredients];
     const nutrition = [...newIngredients[ingredientIndex].nutrition];
@@ -206,12 +199,10 @@ const AddIngredientAndNutrition = () => {
     setIngredients(newIngredients);
   };
 
-  // Add a new ingredient row
   const handleAddRow = () => {
     setIngredients([...ingredients, { name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
   };
 
-  // Add a new nutrition entry for an ingredient
   const handleAddNutrition = (ingredientIndex) => {
     const newIngredients = [...ingredients];
     newIngredients[ingredientIndex].nutrition = [
@@ -221,7 +212,6 @@ const AddIngredientAndNutrition = () => {
     setIngredients(newIngredients);
   };
 
-  // Delete a nutrition entry
   const handleDeleteNutrition = (ingredientIndex, nutritionIndex) => {
     const newIngredients = [...ingredients];
     newIngredients[ingredientIndex].nutrition = newIngredients[ingredientIndex].nutrition.filter(
@@ -230,14 +220,12 @@ const AddIngredientAndNutrition = () => {
     setIngredients(newIngredients);
   };
 
-  // Handle item selection
   const handleItemSelect = (option) => {
     setSelectedItem(option.value);
     setSearchTerm(option.label);
     setIsDropdownOpen(false);
   };
 
-  // Handle search term change
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -247,16 +235,10 @@ const AddIngredientAndNutrition = () => {
     }
   };
 
-  // Navigate back to the previous page
   const handleGoBack = () => {
-    try {
-      navigate(-1);
-    } catch (error) {
-      navigate('/create-item');
-    }
+    navigate(-1);
   };
 
-  // Save the data to the API
   const handleSave = async () => {
     if (!selectedItem) {
       setSaveMessage('Please select an item, addon, or combo');
@@ -269,7 +251,6 @@ const AddIngredientAndNutrition = () => {
       return;
     }
 
-    // Validate all inputs
     for (const ing of validIngredients) {
       if (!ing.weight || isNaN(parseFloat(ing.weight)) || parseFloat(ing.weight) <= 0) {
         setSaveMessage(`Please enter a valid base weight for ingredient: ${ing.name}`);
@@ -300,71 +281,101 @@ const AddIngredientAndNutrition = () => {
       }
     }
 
-    const option = options.find((opt) => opt.value === selectedItem);
-    if (!option) {
-      setSaveMessage('Invalid selection');
-      return;
-    }
-
-    const { type, instances } = option;
-
-    // Prepare data for saving
-    const data = {
-      item_name: selectedItem,
-      type,
-      instances,
-      ingredients: validIngredients.map((ing) => ({
-        name: ing.name,
-        small: parseFloat(ing.small),
-        medium: parseFloat(ing.medium),
-        large: parseFloat(ing.large),
-        weight: parseFloat(ing.weight),
-        nutrition: ing.nutrition
-          .filter((nut) => nut.nutrition_name.trim() && nut.nutrition_value?.toString().trim())
-          .map((nut) => ({
-            nutrition_name: nut.nutrition_name,
-            nutrition_value: parseFloat(nut.nutrition_value),
-          })),
+    const updatedIngredients = validIngredients.map((ing) => ({
+      ingredients_name: ing.name,
+      small: parseFloat(ing.small),
+      medium: parseFloat(ing.medium),
+      large: parseFloat(ing.large),
+      weight: parseFloat(ing.weight),
+      nutrition: ing.nutrition.map((nut) => ({
+        nutrition_name: nut.nutrition_name,
+        nutrition_value: parseFloat(nut.nutrition_value),
       })),
+    }));
+
+    const updatedFormData = {
+      ...passedFormData,
+      ingredients: updatedIngredients,
     };
 
-    try {
-      setSaveLoading(true);
-      setSaveMessage('');
-      const response = await fetch('http://localhost:5000/api/items/nutrition', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+    if (isNewItem) {
+      navigate('/create-item', {
+        state: {
+          formData: updatedFormData,
+          isEditing: false,
         },
-        body: JSON.stringify(data),
       });
-
-      if (response.ok) {
-        setSaveMessage('Data saved successfully!');
-        setHasExistingData(true);
-        setTimeout(() => {
-          try {
-            navigate();
-          } catch (error) {
-            navigate('/create-item');
-          }
-        }, 1000);
-      } else {
-        const errorData = await response.json();
-        setSaveMessage(`Failed to save data: ${errorData.error || 'Unknown error'}`);
+    } else {
+      const option = options.find((opt) => opt.value === selectedItem);
+      if (!option) {
+        setSaveMessage('Invalid selection');
+        return;
       }
-    } catch (error) {
-      console.error('Error saving data:', error);
-      setSaveMessage('Error while saving data');
-    } finally {
-      setSaveLoading(false);
+
+      const { type, instances } = option;
+
+      const data = {
+        item_name: selectedItem,
+        type,
+        instances,
+        ingredients: validIngredients.map((ing) => ({
+          name: ing.name,
+          small: parseFloat(ing.small),
+          medium: parseFloat(ing.medium),
+          large: parseFloat(ing.large),
+          weight: parseFloat(ing.weight),
+          nutrition: ing.nutrition
+            .filter((nut) => nut.nutrition_name.trim() && nut.nutrition_value?.toString().trim())
+            .map((nut) => ({
+              nutrition_name: nut.nutrition_name,
+              nutrition_value: parseFloat(nut.nutrition_value),
+            })),
+        })),
+      };
+
+      try {
+        setSaveLoading(true);
+        setSaveMessage('');
+        const response = await fetch('http://localhost:5000/api/items/nutrition', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          setSaveMessage('Data saved successfully!');
+          setHasExistingData(true);
+          navigate('/create-item', {
+            state: {
+              formData: updatedFormData,
+              isEditing: isEditing,
+              item: itemToEdit,
+            },
+          });
+        } else {
+          const errorData = await response.json();
+          setSaveMessage(`Failed to save data: ${errorData.error || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error saving data:', error);
+        setSaveMessage('Error while saving data');
+      } finally {
+        setSaveLoading(false);
+      }
     }
   };
 
-  // Clear the data for the selected item/addon/combo
   const handleClear = async () => {
     if (!selectedItem) {
       setSaveMessage('Please select an item, addon, or combo to clear');
+      return;
+    }
+
+    if (isNewItem) {
+      setIngredients([{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
+      setSaveMessage('Ingredients cleared for new item');
       return;
     }
 
@@ -395,11 +406,7 @@ const AddIngredientAndNutrition = () => {
         setIngredients([{ name: '', small: '', medium: '', large: '', weight: '', nutrition: [] }]);
         setHasExistingData(false);
         setTimeout(() => {
-          try {
-            navigate(-1);
-          } catch (error) {
-            navigate('/create-item');
-          }
+          navigate(-1);
         }, 1000);
       } else {
         const errorData = await response.json();
@@ -413,7 +420,6 @@ const AddIngredientAndNutrition = () => {
     }
   };
 
-  // Calculate scaled nutrition values based on size
   const calculateNutrition = (ingredient, sizeKey) => {
     const baseWeight = parseFloat(ingredient.weight) || 1;
     const sizeWeight = parseFloat(ingredient[sizeKey]) || 1;
@@ -430,18 +436,15 @@ const AddIngredientAndNutrition = () => {
     });
   };
 
-  // Close message box
   const handleCloseMessageBox = () => {
     setIsMessageBoxVisible(false);
   };
 
-  // Close warning or error message box
   const handleCloseWarning = () => {
     setSaveMessage('');
     setError(null);
   };
 
-  // Styles object
   const styles = {
     container: {
       minHeight: '100vh',
@@ -596,7 +599,6 @@ const AddIngredientAndNutrition = () => {
       fontSize: '16px',
       fontWeight: '600',
       color: '#2c3e50',
-boj: '#2c3e50',
       marginBottom: '10px',
     },
     errorMessageBoxHeader: {
@@ -650,36 +652,40 @@ boj: '#2c3e50',
 
       {!loading && (
         <div style={styles.formContainer}>
-          {/* Item Selection */}
-          <div style={{ marginBottom: '24px', position: 'relative' }} ref={dropdownRef}>
-            <h5 style={styles.title}>Select Item, Addon, or Combo</h5>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onFocus={() => setIsDropdownOpen(true)}
-              placeholder="Search for an item, addon, or combo (e.g., 'wa' for watermelon)"
-              style={styles.input}
-              className="focus:border-blue-500"
-            />
-            {isDropdownOpen && filteredOptions.length > 0 && (
-              <div style={styles.dropdown}>
-                {filteredOptions.map((option, index) => (
-                  <div
-                    key={index}
-                    style={styles.dropdownItem}
-                    onClick={() => handleItemSelect(option)}
-                    onMouseEnter={(e) => (e.target.style.backgroundColor = '#f5f7fa')}
-                    onMouseLeave={(e) => (e.target.style.backgroundColor = '#ffffff')}
-                  >
-                    {option.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {isNewItem ? (
+            <div>
+              <h5 style={styles.title}>Item: {passedFormData?.item_name}</h5>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '24px', position: 'relative' }} ref={dropdownRef}>
+              <h5 style={styles.title}>Select Item, Addon, or Combo</h5>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onFocus={() => setIsDropdownOpen(true)}
+                placeholder="Search for an item, addon, or combo (e.g., 'wa' for watermelon)"
+                style={styles.input}
+                className="focus:border-blue-500"
+              />
+              {isDropdownOpen && filteredOptions.length > 0 && (
+                <div style={styles.dropdown}>
+                  {filteredOptions.map((option, index) => (
+                    <div
+                      key={index}
+                      style={styles.dropdownItem}
+                      onClick={() => handleItemSelect(option)}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = '#f5f7fa')}
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = '#ffffff')}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Error Message Box */}
           {error && (
             <div style={styles.errorMessageBox}>
               <h6 style={styles.errorMessageBoxHeader}>Error</h6>
@@ -695,7 +701,6 @@ boj: '#2c3e50',
             </div>
           )}
 
-          {/* Save Message Box */}
           {saveMessage && (
             <div style={styles.messageBox}>
               <h6 style={styles.messageBoxHeader}>
@@ -713,9 +718,8 @@ boj: '#2c3e50',
             </div>
           )}
 
-          {selectedItem && (
+          {(selectedItem || isNewItem) && (
             <>
-              {/* Ingredients Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h5 style={styles.title}>Ingredients</h5>
                 <table style={styles.table}>
@@ -796,7 +800,6 @@ boj: '#2c3e50',
                 </button>
               </div>
 
-              {/* Message Box for Base Weight */}
               {isMessageBoxVisible && (
                 <div style={styles.messageBox}>
                   <h6 style={styles.messageBoxHeader}>Base Weight Information</h6>
@@ -814,7 +817,6 @@ boj: '#2c3e50',
                 </div>
               )}
 
-              {/* Nutrition Input Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h5 style={styles.title}>Nutrition Input</h5>
                 {ingredients.every((ing) => !ing.name) ? (
@@ -890,7 +892,6 @@ boj: '#2c3e50',
                 )}
               </div>
 
-              {/* Nutrition Calculation Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h5 style={styles.title}>Nutrition Calculation</h5>
                 {ingredients.every((ing) => !ing.name || !ing.nutrition.length) ? (
@@ -935,7 +936,6 @@ boj: '#2c3e50',
                 )}
               </div>
 
-              {/* Save and Clear Buttons */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
                 <button
                   onClick={handleSave}
@@ -952,21 +952,21 @@ boj: '#2c3e50',
                     if (!saveLoading) e.target.style.backgroundColor = '#2ecc71';
                   }}
                 >
-                  {saveLoading ? 'Saving...' : 'Save'}
+                  {saveLoading ? 'Saving...' : isNewItem ? 'Save and Go Back' : 'Save'}
                 </button>
                 <button
                   onClick={handleClear}
-                  disabled={saveLoading || !selectedItem || !hasExistingData}
+                  disabled={saveLoading || (!isNewItem && (!selectedItem || !hasExistingData))}
                   style={{
                     ...styles.button,
                     ...styles.deleteButton,
-                    backgroundColor: saveLoading || !selectedItem || !hasExistingData ? '#95a5a6' : '#e74c3c',
+                    backgroundColor: saveLoading || (!isNewItem && (!selectedItem || !hasExistingData)) ? '#95a5a6' : '#e74c3c',
                   }}
                   onMouseEnter={(e) => {
-                    if (!saveLoading && selectedItem && hasExistingData) e.target.style.backgroundColor = '#c0392b';
+                    if (!saveLoading && (isNewItem || (selectedItem && hasExistingData))) e.target.style.backgroundColor = '#c0392b';
                   }}
                   onMouseLeave={(e) => {
-                    if (!saveLoading && selectedItem && hasExistingData) e.target.style.backgroundColor = '#e74c3c';
+                    if (!saveLoading && (isNewItem || (selectedItem && hasExistingData))) e.target.style.backgroundColor = '#e74c3c';
                   }}
                 >
                   {saveLoading ? 'Clearing...' : 'Clear Data'}

@@ -148,7 +148,9 @@ const CreateItemPage = () => {
 
   useEffect(() => {
     const fetchItemData = async () => {
-      if (isEditing && itemToEdit) {
+      if (location.state?.formData) {
+        setFormData(location.state.formData);
+      } else if (isEditing && itemToEdit) {
         try {
           const nutritionResponse = await axios.get(
             `http://localhost:5000/api/items/nutrition/${encodeURIComponent(itemToEdit.item_name)}?type=item&item_id=${itemToEdit._id}`
@@ -1877,7 +1879,13 @@ const CreateItemPage = () => {
                 className="add-button"
                 onClick={() =>
                   navigate("/add-ingredients-nutrition", {
-                    state: { name: formData.item_name, type: "item", itemId: itemToEdit?._id || "new" },
+                    state: {
+                      formData: formData,
+                      itemId: itemToEdit?._id || "new",
+                      isEditing: isEditing,
+                      itemToEdit: itemToEdit,
+                      type: "item",
+                    },
                   })
                 }
               >
@@ -2304,7 +2312,13 @@ const CreateItemPage = () => {
                 className="add-button"
                 onClick={() =>
                   navigate("/add-ingredients-nutrition", {
-                    state: { name: formData.item_name, type: "item", itemId: itemToEdit?._id || "new" },
+                    state: {
+                      formData: formData,
+                      itemId: itemToEdit?._id || "new",
+                      isEditing: isEditing,
+                      itemToEdit: itemToEdit,
+                      type: "item",
+                    },
                   })
                 }
               >

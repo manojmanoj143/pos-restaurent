@@ -9,10 +9,11 @@ import './PosBalance.css';
 function PosBalance() {
     const navigate = useNavigate();
     const [balanceData, setBalanceData] = useState({
-        dineIn: { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 },
-        onlineDelivery: { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 },
-        takeAway: { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 },
+        dineIn: { totalOrders: 0, totalRevenue: 0 },
+        onlineDelivery: { totalOrders: 0, totalRevenue: 0 },
+        takeAway: { totalOrders: 0, totalRevenue: 0 },
     });
+    const [totalRevenue, setTotalRevenue] = useState(0);
     const [hourlyBreakdown, setHourlyBreakdown] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -138,10 +139,11 @@ function PosBalance() {
     };
 
     const processSalesData = (salesData) => {
-        const dineIn = { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 };
-        const onlineDelivery = { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 };
-        const takeAway = { totalOrders: 0, totalRevenue: 0, pendingOrders: 0 };
+        const dineIn = { totalOrders: 0, totalRevenue: 0 };
+        const onlineDelivery = { totalOrders: 0, totalRevenue: 0 };
+        const takeAway = { totalOrders: 0, totalRevenue: 0 };
         const hourlyData = {};
+        let totalRev = 0;
 
         const filteredData = salesData.filter((sale) => {
             const dateMatch = isDateInRange(sale.date, fromDate, toDate);
@@ -157,21 +159,19 @@ function PosBalance() {
         filteredData.forEach((sale) => {
             const grandTotal = parseFloat(sale.grand_total) || 0;
             const orderType = sale.orderType;
-            const isPending = sale.status === 'pending';
 
             if (orderType === 'Dine In') {
                 dineIn.totalOrders += 1;
                 dineIn.totalRevenue += grandTotal;
-                if (isPending) dineIn.pendingOrders += 1;
             } else if (orderType === 'Online Delivery') {
                 onlineDelivery.totalOrders += 1;
                 onlineDelivery.totalRevenue += grandTotal;
-                if (isPending) onlineDelivery.pendingOrders += 1;
             } else if (orderType === 'Takeaway') {
                 takeAway.totalOrders += 1;
                 takeAway.totalRevenue += grandTotal;
-                if (isPending) takeAway.pendingOrders += 1;
             }
+
+            totalRev += grandTotal;
 
             const time = sale.time || '00:00:00';
             const hour = parseInt(time.split(':')[0], 10);
@@ -199,6 +199,7 @@ function PosBalance() {
         }
 
         setBalanceData({ dineIn, onlineDelivery, takeAway });
+        setTotalRevenue(totalRev);
         setHourlyBreakdown(fullHourlyBreakdown);
     };
 
@@ -320,10 +321,6 @@ function PosBalance() {
         navigate('/home');
     };
 
-    const handleBackToApp = () => {
-        navigate('/app'); // Adjust the route as needed
-    };
-
     const handleResetFilters = () => {
         setFromDate(null);
         setToDate(null);
@@ -368,14 +365,6 @@ function PosBalance() {
                 >
                     <i className="bi bi-arrow-left-circle"></i>
                 </button>
-                {/* <button
-                    className="back-app-button"
-                    onClick={handleBackToApp}
-                    aria-label="Back to App"
-                    title="Back to App"
-                >
-                    <i className="bi bi-app"></i>
-                </button> */}
             </div>
 
             <div className="container-fluid content-wrapper px-0">
@@ -449,12 +438,18 @@ function PosBalance() {
                     <div className="col-lg-9 col-md-12">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h1 className="title">POS Balance Overview</h1>
-                            <button
-                                className="btn btn-primary list-button shadow-sm"
-                                onClick={toggleList}
-                            >
-                                {showList ? 'Hide List' : 'Show List'}
-                            </button>
+                            <div className="d-flex align-items-center">
+                                <div className="total-revenue me-3">
+                                    <span className="fw-bold">Total Revenue: </span>
+                                    <span className="balance-value">₹{totalRevenue.toFixed(2)}</span>
+                                </div>
+                                <button
+                                    className="btn btn-primary list-button shadow-sm"
+                                    onClick={toggleList}
+                                >
+                                    {showList ? 'Hide List' : 'Show List'}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="row g-4">
@@ -472,10 +467,6 @@ function PosBalance() {
                                         <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.dineIn.totalRevenue.toFixed(2)}</span>
-                                        </p>
-                                        <p className="balance-item d-flex justify-content-between">
-                                            <span className="balance-label">Pending Orders:</span>
-                                            <span className="balance-value">{balanceData.dineIn.pendingOrders}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -496,10 +487,6 @@ function PosBalance() {
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.onlineDelivery.totalRevenue.toFixed(2)}</span>
                                         </p>
-                                        <p className="balance-item d-flex justify-content-between">
-                                            <span className="balance-label">Pending Orders:</span>
-                                            <span className="balance-value">{balanceData.onlineDelivery.pendingOrders}</span>
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -518,10 +505,6 @@ function PosBalance() {
                                         <p className="balance-item d-flex justify-content-between">
                                             <span className="balance-label">Total Revenue:</span>
                                             <span className="balance-value">₹{balanceData.takeAway.totalRevenue.toFixed(2)}</span>
-                                        </p>
-                                        <p className="balance-item d-flex justify-content-between">
-                                            <span className="balance-label">Pending Orders:</span>
-                                            <span className="balance-value">{balanceData.takeAway.pendingOrders}</span>
                                         </p>
                                     </div>
                                 </div>

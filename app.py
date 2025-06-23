@@ -33,6 +33,7 @@ from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
 from dotenv import load_dotenv
 
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -135,6 +136,9 @@ try:
     tripreports_collection = db['tripreports']  # New collection for trip reports
     order_counters_collection = db['order_counters']
     email_settings_collection = db['email_settings']
+    table_orders_collection = db['table_orders']  # New collection for table orders
+    
+    
 
 except Exception as e:
     logger.critical(f"Could not establish MongoDB connection: {str(e)}")
@@ -162,10 +166,7 @@ except Exception as e:
     print(f"Failed to initialize Twilio client: {str(e)}")
     raise
 
- #    Email configuration
-# EMAIL_USER = os.getenv('EMAIL_USER', 'manojmanoj88680@gmail.com')
-# EMAIL_PASS = os.getenv('EMAIL_PASS', 'istm jqjk izdn laab')
-# FROM_EMAIL = os.getenv('FROM_EMAIL', 'manojmanoj88680@gmail.com')
+
 
 # Test users
 TEST_USERS = [
@@ -263,128 +264,6 @@ def sanitize_image_fields(data):
         if 'non_spicy_image' in data['spicy'] and data['spicy']['non_spicy_image']:
             data['spicy']['non_spicy_image'] = data['spicy']['non_spicy_image'].split('/')[-1] if '/' in data['spicy']['non_spicy_image'] else data['spicy']['non_spicy_image']
     return data
-
-# def create_backup():
-#     try:
-#         wb = openpyxl.Workbook()
-#         wb.remove(wb.active)
-#         collections = {
-#             'customers': customers_collection,
-#             'items': items_collection,
-#             'sales': sales_collection,
-#             'tables': tables_collection,
-#             'users': users_collection,
-#             'picked_up_items': picked_up_collection,
-#             'pos_opening_entries': opening_collection,
-#             'pos_closing_entries': pos_closing_collection,
-#             'system_settings': settings_collection,
-#             'kitchens': kitchens_collection,
-#             'item_groups': item_groups_collection
-            
-#         }
-#         for collection_name, collection in collections.items():
-#             ws = wb.create_sheet(title=collection_name)
-#             data = list(collection.find())
-#             if not data:
-#                 ws.append(['No data'])
-#                 continue
-#             sample_doc = data[0]
-#             headers = list(sample_doc.keys())
-#             ws.append(headers)
-#             for doc in data:
-#                 row = [str(doc.get(header, '')) if isinstance(doc.get(header), (ObjectId, list, dict)) else doc.get(header, '') for header in headers]
-#                 ws.append(row)
-#         buffer = BytesIO()
-#         wb.save(buffer)
-#         buffer.seek(0)
-#         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-#         filename = f'backup_restaurant_data_{timestamp}.xlsx'
-#         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#         with open(file_path, 'wb') as f:
-#             f.write(buffer.getvalue())
-#         manage_backup_limit()
-#         msg = MIMEMultipart()
-#         msg['From'] = FROM_EMAIL
-#         msg['To'] = EMAIL_USER
-#         msg['Subject'] = f'Restaurant Data Backup - {timestamp}'
-#         body = f'Backup of restaurant data generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.'
-#         msg.attach(MIMEText(body, 'plain'))
-#         with open(file_path, 'rb') as f:
-#             attachment = MIMEBase('application', 'octet-stream')
-#             attachment.set_payload(f.read())
-#             encoders.encode_base64(attachment)
-#             attachment.add_header('Content-Disposition', f'attachment; filename={filename}')
-#             msg.attach(attachment)
-#         with smtplib.SMTP('smtp.gmail.com', 587) as server:
-#             server.starttls()
-#             server.login(EMAIL_USER, EMAIL_PASS)
-#             server.send_message(msg)
-#         logger.info(f"Backup created and emailed: {filename}")
-#         return True, f"Backup created successfully: {filename}"
-#     except Exception as e:
-#         logger.error(f"Error in backup: {str(e)}")
-#         return False, str(e)
-
-# def manage_offers():
-#     """Check all items and update offer status based on current time."""
-#     try:
-#         current_time = datetime.now(UTC)
-#         items = items_collection.find({
-#             '$or': [
-#                 {'offer_start_time': {'$exists': True}},
-#                 {'offer_end_time': {'$exists': True}}
-#             ]
-#         })
-#         for item in items:
-#             item_id = item['_id']
-#             offer_start_time = item.get('offer_start_time')
-#             offer_end_time = item.get('offer_end_time')
-#             should_unset = False
-#             if offer_start_time and offer_end_time:
-#                 try:
-#                     start_time = datetime.fromisoformat(str(offer_start_time).replace('Z', '+00:00'))
-#                     end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
-#                     if current_time > end_time:
-#                         should_unset = True
-#                         logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
-#                     elif start_time > end_time:
-#                         should_unset = True
-#                         logger.warning(f"Invalid offer times for item {item_id}: start_time after end_time")
-#                     else:
-#                         logger.debug(f"Offer for item {item.get('item_name')} (ID: {item_id}) is active or pending")
-#                 except (ValueError, TypeError) as e:
-#                     logger.warning(f"Invalid offer time format for item {item_id}: {str(e)}")
-#                     should_unset = True
-#             elif offer_end_time:
-#                 try:
-#                     end_time = datetime.fromisoformat(str(offer_end_time).replace('Z', '+00:00'))
-#                     if current_time > end_time:
-#                         should_unset = True
-#                         logger.info(f"Offer expired for item {item.get('item_name')} (ID: {item_id})")
-#                 except (ValueError, TypeError) as e:
-#                     logger.warning(f"Invalid offer_end_time for item {item_id}: {str(e)}")
-#                     should_unset = True
-#             if should_unset:
-#                 items_collection.update_one(
-#                     {'_id': item_id},
-#                     {'$unset': {'offer_price': "", 'offer_start_time': "", 'offer_end_time': ""}}
-#                 )
-#                 logger.info(f"Unset offer fields for item {item.get('item_name')} (ID: {item_id})")
-#     except Exception as e:
-#         logger.error(f"Error in manage_offers: {str(e)}")
-
-# def schedule_tasks():
-#     """Schedule backups and offer management."""
-#     schedule.every(6).hours.do(create_backup)
-#     schedule.every(1).minutes.do(manage_offers)
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(60)
-
-# def start_scheduler():
-#     scheduler_thread = threading.Thread(target=schedule_tasks, daemon=True)
-#     scheduler_thread.start()
-#     logger.info("Automatic backup and offer scheduler started")
 
 # System settings management
 def get_system_settings():
@@ -1481,6 +1360,9 @@ def delete_table(table_number):
         return jsonify({"error": str(e)}), 500
 
 
+
+
+
 @app.route('/api/create_opening_entry', methods=['POST'])
 def create_opening_entry():
     """Create a POS opening entry."""
@@ -2571,7 +2453,7 @@ def save_active_order():
             'phoneNumber': data.get('phoneNumber', ''),
             'deliveryAddress': data.get('deliveryAddress', {}),
             'whatsappNumber': data.get('whatsappNumber', ''),
-            'email': data.get('email', ''),  # Ensure email is saved
+            'email': data.get('email', ''),
             'cartItems': cart_items,
             'timestamp': data.get('timestamp', datetime.utcnow().isoformat()),
             'orderType': order_type,
@@ -2582,7 +2464,6 @@ def save_active_order():
         }
 
         result = activeorders_collection.insert_one(active_order)
-
         kitchen_order = active_order.copy()
         kitchen_order['orderId'] = order_id
         kitchen_order['orderNo'] = order_no
@@ -2748,16 +2629,16 @@ def update_active_order(order_id):
                         if kitchen not in item['kitchenStatuses']:
                             item['kitchenStatuses'][kitchen] = 'Pending'
 
+        order = activeorders_collection.find_one({'orderId': order_id}, {'_id': 0})
+        if not order:
+            logger.warning(f"Order not found: {order_id}")
+            return jsonify({'error': 'Order not found'}), 404
+
         if 'deliveryPersonId' in data and data['deliveryPersonId']:
             employee = employees_collection.find_one({'employeeId': data['deliveryPersonId']}, {'_id': 0})
             if not employee:
                 logger.warning(f"Delivery person not found: {data['deliveryPersonId']}")
                 return jsonify({'error': 'Delivery person not found'}), 404
-
-            order = activeorders_collection.find_one({'orderId': order_id}, {'_id': 0})
-            if not order:
-                logger.warning(f"Order not found: {order_id}")
-                return jsonify({'error': 'Order not found'}), 404
 
             address = order.get('deliveryAddress', {})
             address_str = f"{address.get('flat_villa_no', '')}, {address.get('building_name', '')}, {address.get('location', '')}".strip(', ')
@@ -2786,7 +2667,7 @@ def update_active_order(order_id):
                 f"Customer: {order.get('customerName', 'N/A')}\n"
                 f"Address: {address_str or 'Not provided'}\n"
                 f"Phone: {order.get('phoneNumber', 'Not provided')}\n"
-                f"Email: {order.get('email', 'Not provided')}\n"  # Include email in SMS
+                f"Email: {order.get('email', 'Not provided')}\n"
                 f"{items_summary}"
                 f"Mark as Picked Up: {pickup_url}"
             )
@@ -2805,7 +2686,7 @@ def update_active_order(order_id):
                 'customerName': order.get('customerName', 'N/A'),
                 'phoneNumber': order.get('phoneNumber', ''),
                 'deliveryAddress': order.get('deliveryAddress', {}),
-                'email': order.get('email', ''),  # Include email in trip report
+                'email': order.get('email', ''),
                 'cartItems': data.get('cartItems', order.get('cartItems', [])),
                 'timestamp': order.get('timestamp', datetime.utcnow().isoformat()),
                 'orderType': order.get('orderType', 'Online Delivery'),
@@ -2815,6 +2696,12 @@ def update_active_order(order_id):
             }
             tripreports_collection.insert_one(trip_report)
             logger.info(f"Created trip report for order: {order_id}, delivery person: {data['deliveryPersonId']}")
+
+            # Delete the order from activeorders_collection and kitchen_saved_collection
+            activeorders_collection.delete_one({'orderId': order_id})
+            kitchen_saved_collection.delete_one({'orderId': order_id})
+            logger.info(f"Deleted order {order_id} from active orders and kitchen orders after delivery person assignment")
+            return jsonify({'success': True, 'message': 'Delivery person assigned and order deleted', 'order': order}), 200
 
         result = activeorders_collection.update_one(
             {'orderId': order_id},
@@ -2914,13 +2801,43 @@ def get_trip_reports(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
+shutdown_flag = False
+
+# Example route for testing server
+@app.route('/api/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Server is running"}), 200
+
+# Shutdown endpoint
 @app.route('/api/shutdown', methods=['POST'])
 def shutdown():
+    global shutdown_flag
     logger.info("Shutdown requested")
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func:
-        func()
-    return jsonify({"message": "Server shutting down"}), 200
+    
+    try:
+        # For development (Werkzeug server)
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func:
+            func()
+            logger.info("Werkzeug server shutdown initiated")
+            return jsonify({"message": "Server shutting down"}), 200
+        
+        # For production (Waitress server)
+        shutdown_flag = True
+        logger.info("Setting shutdown flag for Waitress")
+        
+        # Start a thread to exit the process after a short delay
+        def exit_process():
+            time.sleep(1)  # Reduced delay to 1 second for faster shutdown
+            logger.info("Exiting Python process")
+            os._exit(0)  # Forcefully exit the process
+        
+        threading.Thread(target=exit_process, daemon=True).start()
+        return jsonify({"message": "Server shutting down"}), 200
+    
+    except Exception as e:
+        logger.error(f"Shutdown error: {str(e)}")
+        return jsonify({"message": "Error during shutdown", "error": str(e)}), 500
 
 @app.route('/api/save-email-settings', methods=['POST'])
 def save_email_settings():
@@ -3318,13 +3235,16 @@ def serve_frontend(path):
     return jsonify({"error": "Frontend not found"}), 404
 
 # Start the server
+def start_scheduler():
+    pass  # Add your scheduler logic here if required
+
 if __name__ == '__main__':
     start_scheduler()  # Start the backup scheduler
-    # Use waitress for production, Flask's built-in server for development
+    # Use Waitress for production, Flask's built-in server for development
     if getattr(sys, 'frozen', False):
-        logger.info("Running as frozen executable, using waitress")
-        waitress.serve(app, host='0.0.0.0', port=5000)
+        logger.info("Running as frozen executable, using Waitress")
+        waitress.serve(app, host='0.0.0.0', port=5000, threads=1, _quiet=True)
     else:
         logger.info("Running in development mode, using Flask")
-        app.run(host='0.0.0.0', port=5000, debug=True) 
+        app.run(host='0.0.0.0', port=5000, debug=True)
 

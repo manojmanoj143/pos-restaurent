@@ -17,11 +17,16 @@ function FrontPage() {
   const location = useLocation();
   const { state } = location;
   const {
-    tableNumber,
+    tableNumber = "N/A",
     chairsBooked = [],
-    orderType,
+    orderType = "Dine In",
     existingOrder,
     cartItems: initialCartItems,
+    phoneNumber: initialPhoneNumber,
+    customerName: initialCustomerName,
+    deliveryAddress: initialDeliveryAddress,
+    whatsappNumber: initialWhatsappNumber,
+    email: initialEmail,
   } = state || {};
   const [isPhoneNumberSet, setIsPhoneNumberSet] = useState(false);
   const [savedOrders, setSavedOrders] = useState([]);
@@ -54,7 +59,7 @@ function FrontPage() {
   const [startIndex, setStartIndex] = useState(0);
   const [totalChairs, setTotalChairs] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Added state for sidebar toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const phoneNumberRef = useRef(null);
   const customerSectionRef = useRef(null);
@@ -70,6 +75,7 @@ function FrontPage() {
     { code: "+61", country: "Australia" },
   ];
 
+  // **Handle clicks outside customer section**
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -84,6 +90,7 @@ function FrontPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showCustomerSection]);
 
+  // **Update date and time**
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -96,6 +103,7 @@ function FrontPage() {
     return () => clearInterval(intervalId);
   }, []);
 
+  // **Fetch total chairs for the table**
   useEffect(() => {
     const fetchTableData = async () => {
       try {
@@ -105,37 +113,43 @@ function FrontPage() {
         });
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-        const table = data.message.find((t) => t.table_number === tableNumber);
-        if (table) setTotalChairs(table.number_of_chairs || 0);
+        const table = data.message.find((t) => String(t.table_number) === String(tableNumber));
+        if (table) {
+          setTotalChairs(table.number_of_chairs || 0);
+        } else {
+          console.warn(`Table ${tableNumber} not found in the backend.`);
+          setTotalChairs(0);
+        }
       } catch (err) {
         setWarningMessage(`Error fetching table data: ${err.message}`);
         setWarningType("warning");
       }
     };
-    if (tableNumber) fetchTableData();
+    if (tableNumber && tableNumber !== "N/A") fetchTableData();
   }, [tableNumber]);
 
+  // **Initialize state from location**
   useEffect(() => {
     if (state) {
-      setPhoneNumber(state.phoneNumber?.replace(/^\+\d+/, "") || existingOrder?.phoneNumber?.replace(/^\+\d+/, "") || "");
-      setCustomerName(state.customerName || existingOrder?.customerName || "");
-      const savedAddress = state.deliveryAddress || existingOrder?.deliveryAddress || {};
+      setPhoneNumber(initialPhoneNumber?.replace(/^\+\d+/, "") || existingOrder?.phoneNumber?.replace(/^\+\d+/, "") || "");
+      setCustomerName(initialCustomerName || existingOrder?.customerName || "");
+      const savedAddress = initialDeliveryAddress || existingOrder?.deliveryAddress || {};
       setDeliveryAddress({
         building_name: savedAddress.building_name || "",
         flat_villa_no: savedAddress.flat_villa_no || "",
         location: savedAddress.location || "",
       });
-      setWhatsappNumber(state.whatsappNumber || existingOrder?.whatsappNumber || "");
-      setEmail(state.email || existingOrder?.email || "");
-      setIsPhoneNumberSet(!!(state.phoneNumber || existingOrder?.phoneNumber));
+      setWhatsappNumber(initialWhatsappNumber || existingOrder?.whatsappNumber || "");
+      setEmail(initialEmail || existingOrder?.email || "");
+      setIsPhoneNumberSet(!!(initialPhoneNumber || existingOrder?.phoneNumber));
       setCartItems(initialCartItems || existingOrder?.cartItems || []);
       setBillCartItems(initialCartItems || existingOrder?.cartItems || []);
-      if (existingOrder) {
-        setOrderId(existingOrder.orderId);
-      }
+      setOrderId(existingOrder?.orderId || null);
+      setBookedChairs(JSON.parse(localStorage.getItem("bookedChairs")) || {});
     }
-  }, [state, existingOrder, initialCartItems]);
+  }, [state, existingOrder, initialCartItems, initialPhoneNumber, initialCustomerName, initialDeliveryAddress, initialWhatsappNumber, initialEmail]);
 
+  // **Load saved orders and booked data**
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("savedOrders")) || [];
     setSavedOrders(saved);
@@ -145,6 +159,7 @@ function FrontPage() {
     setBookedChairs(chairs);
   }, []);
 
+  // **Fetch menu items**
   useEffect(() => {
     const fetchItems = async () => {
       try {
@@ -201,6 +216,7 @@ function FrontPage() {
     fetchItems();
   }, []);
 
+  // **Fetch customers**
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -218,6 +234,7 @@ function FrontPage() {
     fetchCustomers();
   }, []);
 
+  // **Search functionality**
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredItems(menuItems);
@@ -231,6 +248,7 @@ function FrontPage() {
     }
   }, [searchQuery, menuItems]);
 
+  // **Filter by category**
   const handleFilter = (category) => {
     setSearchQuery("");
     if (category === "All Items") {
@@ -242,12 +260,14 @@ function FrontPage() {
     setSelectedCategory(category);
   };
 
+  // **Handle item selection**
   const handleItemClick = (item) => {
     const existingCartItem = cartItems.find((cartItem) => cartItem.item_name === item.name);
     setSelectedItem(item);
     setSelectedCartItem(existingCartItem || null);
   };
 
+  // **Handle cart item click**
   const handleCartItemClick = (cartItem) => {
     const menuItem = menuItems.find((item) => item.name === cartItem.item_name || item.name === cartItem.name);
     if (menuItem) {
@@ -256,6 +276,7 @@ function FrontPage() {
     }
   };
 
+  // **Check for active offer**
   const hasActiveOffer = (item) => {
     return (
       item &&
@@ -265,6 +286,7 @@ function FrontPage() {
     );
   };
 
+  // **Calculate offer price based on size**
   const calculateOfferSizePrice = (offerPrice, size) => {
     if (!offerPrice) return 0;
     switch (size) {
@@ -275,6 +297,7 @@ function FrontPage() {
     }
   };
 
+  // **Update cart item**
   const handleItemUpdate = (updatedItem) => {
     const menuItem = menuItems.find((item) => item.name === updatedItem.item_name);
     const hasSizeVariant = menuItem?.size?.enabled || false;
@@ -416,6 +439,7 @@ function FrontPage() {
     setSelectedCartItem(null);
   };
 
+  // **Handle quantity changes**
   const handleQuantityChange = (itemId, value, type, name) => {
     const newQty = Math.max(1, parseInt(value) || 1);
     const updateItems = (prevItems) =>
@@ -462,6 +486,7 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
+  // **Calculate totals**
   const getAddonsTotal = (item) => {
     if (!item.addonQuantities || !item.addonPrices) return 0;
     return Object.entries(item.addonQuantities).reduce((sum, [addonName, qty]) => {
@@ -491,11 +516,13 @@ function FrontPage() {
     return mainItemPrice * item.quantity;
   };
 
+  // **Remove from cart**
   const removeFromCart = (item) => {
     setCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
     setBillCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
   };
 
+  // **Remove addon or combo**
   const removeAddonOrCombo = (itemId, type, name) => {
     const updateItems = (prevItems) =>
       prevItems.map((cartItem) => {
@@ -546,6 +573,7 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
+  // **Remove custom variant**
   const removeCustomVariant = (itemId, variantName) => {
     const updateItems = (prevItems) =>
       prevItems.map((cartItem) => {
@@ -569,6 +597,7 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
+  // **Handle warning confirmation**
   const handleWarningOk = () => {
     if (pendingAction) {
       pendingAction();
@@ -578,6 +607,7 @@ function FrontPage() {
     setWarningType("warning");
   };
 
+  // **Calculate subtotal**
   const calculateSubtotal = (items) => {
     return items.reduce((sum, item) => {
       const mainItemPrice = item.basePrice + item.icePrice + item.spicyPrice + getCustomVariantsTotal(item);
@@ -588,6 +618,7 @@ function FrontPage() {
     }, 0);
   };
 
+  // **Handle payment selection**
   const handlePaymentSelection = async (method) => {
     if (billCartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before proceeding.");
@@ -641,7 +672,7 @@ function FrontPage() {
       })),
       totalAmount: Number(subtotal.toFixed(2)),
       payments: [paymentDetails],
-      invoice_no: `INV-${Date.now()}`, // Temporary invoice_no, will be updated
+      invoice_no: `INV-${Date.now()}`,
       date: new Date().toISOString().split("T")[0],
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
@@ -649,16 +680,12 @@ function FrontPage() {
     try {
       const savedSale = await handleSaveToBackend(paymentDetails);
       if (savedSale) {
-        billDetails.invoice_no = savedSale.invoice_no; // Update with backend-generated invoice_no
+        billDetails.invoice_no = savedSale.invoice_no;
       }
 
       if (orderId) {
-        try {
-          await axios.delete(`http://localhost:5000/api/activeorders/${orderId}`);
-          console.log("Order deleted successfully from activeorders");
-        } catch (error) {
-          console.error("Error deleting order:", error);
-        }
+        await axios.delete(`http://localhost:5000/api/activeorders/${orderId}`);
+        console.log("Order deleted successfully from activeorders");
       }
 
       if (orderType === "Takeaway") {
@@ -702,6 +729,7 @@ function FrontPage() {
     }
   };
 
+  // **Handle payment completion**
   const handlePaymentCompletion = (tableNumber, chairsBooked) => {
     const updatedOrders = savedOrders.filter(
       (order) =>
@@ -745,6 +773,7 @@ function FrontPage() {
     setPendingAction(() => () => navigate("/table"));
   };
 
+  // **Save to backend**
   const handleSaveToBackend = async (paymentDetails) => {
     if (billCartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before saving.");
@@ -828,7 +857,7 @@ function FrontPage() {
         setCartItems([]);
         setBillCartItems([]);
       });
-      return result; // Return the result containing invoice_no
+      return result;
     } catch (error) {
       console.error("Error saving to backend:", error.message);
       setWarningMessage(`Failed to save sale: ${error.message}`);
@@ -837,12 +866,14 @@ function FrontPage() {
     }
   };
 
+  // **Handle key press**
   const handleKeyPress = (e) => {
     if (e.key === " " || e.keyCode === 32) {
       e.preventDefault();
     }
   };
 
+  // **Create customer**
   const handleCreateCustomer = async () => {
     if (orderType !== "Dine In" && (!customerName.trim() || !phoneNumber)) {
       setWarningMessage("Customer name and phone number are required for non-Dine In orders.");
@@ -899,6 +930,7 @@ function FrontPage() {
     }
   };
 
+  // **Handle customer name change**
   const handleCustomerNameChange = (e) => {
     const value = e.target.value;
     setCustomerName(value);
@@ -917,6 +949,7 @@ function FrontPage() {
     }
   };
 
+  // **Handle phone number change**
   const handlePhoneNumberChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) {
@@ -946,11 +979,13 @@ function FrontPage() {
     }
   };
 
+  // **Handle ISD code selection**
   const handleISDCodeSelect = (code) => {
     setSelectedISDCode(code);
     setShowISDCodeDropdown(false);
   };
 
+  // **Handle customer selection**
   const handleCustomerSelect = (customer) => {
     setCustomerName(customer.customer_name);
     const fullPhone = customer.phone_number || "";
@@ -968,6 +1003,7 @@ function FrontPage() {
     setIsPhoneNumberSet(true);
   };
 
+  // **Handle customer submission**
   const handleCustomerSubmit = () => {
     if (orderType === "Dine In") {
       setIsPhoneNumberSet(true);
@@ -990,6 +1026,7 @@ function FrontPage() {
     }
   };
 
+  // **Save order**
   const saveOrder = async () => {
     if (cartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before saving.");
@@ -1124,15 +1161,18 @@ function FrontPage() {
     }
   };
 
+  // **Handle delivery address change**
   const handleDeliveryAddressChange = (field, value) => {
     setDeliveryAddress((prev) => ({ ...prev, [field]: value.trimStart() }));
   };
 
+  // **Handle WhatsApp number change**
   const handleWhatsappNumberChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) setWhatsappNumber(value);
   };
 
+  // **Set phone number**
   const handleSetPhoneNumber = () => {
     if (orderType === "Dine In") {
       setIsPhoneNumberSet(true);
@@ -1147,6 +1187,7 @@ function FrontPage() {
     handleCustomerSubmit();
   };
 
+  // **Cancel cart**
   const cancelCart = () => {
     setCartItems([]);
     setBillCartItems([]);
@@ -1154,10 +1195,12 @@ function FrontPage() {
     setWarningType("success");
   };
 
+  // **Navigate to active orders**
   const handleActiveOrdersClick = () => {
     navigate("/active-orders");
   };
 
+  // **Category navigation**
   const handleNext = () => {
     setStartIndex((prev) => prev + 1);
   };
@@ -1166,14 +1209,17 @@ function FrontPage() {
     setStartIndex((prev) => Math.max(0, prev - 1));
   };
 
+  // **Navigate to sales report**
   const handleSalesReportNavigation = () => {
     navigate("/sales-reports");
   };
 
+  // **Navigate to closing entry**
   const handleClosingEntryNavigation = () => {
     navigate("/closing-entry");
   };
 
+  // **Handle logout**
   const handleLogout = () => {
     setWarningMessage("Logout Successful!");
     setWarningType("success");
@@ -1183,6 +1229,7 @@ function FrontPage() {
     });
   };
 
+  // **Calculate chair status**
   const totalBookedChairs = bookedChairs[tableNumber]?.length || 0;
   const availableChairs = totalChairs - totalBookedChairs;
   const subtotal = calculateSubtotal(cartItems);
@@ -1191,9 +1238,10 @@ function FrontPage() {
   const showKitchenColumn = orderType === "Dine In";
   const visibleCategories = categories.slice(startIndex, startIndex + 5);
 
+  // **Render component**
   return (
     <div className="frontpage-container">
-      <div className={`frontpage-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <div className={`frontpage-sidebar ${isSidebarOpen ? "open" : ""}`}>
         {isSidebarOpen && (
           <div className="frontpage-sidebar-close" onClick={() => setIsSidebarOpen(false)}>
             <i className="bi bi-x"></i>
@@ -1357,14 +1405,16 @@ function FrontPage() {
 
         {showCustomerSection && (
           <div className="frontpage-customer-info" ref={customerSectionRef}>
-            {tableNumber && (
+            {tableNumber && tableNumber !== "N/A" && (
               <>
-                <h4 className="frontpage-order-header">Order for Table {tableNumber}, Chairs {chairsBooked.join(", ")}</h4>
+                <h4 className="frontpage-order-header">
+                  Order for Table {tableNumber}, Chairs {Array.isArray(chairsBooked) ? chairsBooked.join(", ") : "None"}
+                </h4>
                 <div className="frontpage-chairs-container">
                   {totalChairs > 0 ? (
                     <>
                       {Array.from({ length: totalBookedChairs }).map((_, index) => (
-                        <i key={`booked-${index}`} className="fa-solid fa-chair frontpage-chair-icon frontpage-booked-chair"></i>
+                        <i key={`booked-${index}`} className="fa-solid fa-chair hazırlanpage-chair-icon frontpage-booked-chair"></i>
                       ))}
                       {Array.from({ length: availableChairs }).map((_, index) => (
                         <i key={`available-${index}`} className="fa-solid fa-chair frontpage-chair-icon frontpage-available-chair"></i>
