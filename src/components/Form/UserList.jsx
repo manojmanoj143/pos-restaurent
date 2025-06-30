@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
-import './UserList.css'; // Import the CSS file
+import './UserList.css';
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ const UserList = () => {
           userType: user.role || 'User',
           phoneNumber: user.phone_number || 'N/A',
           id: user.email,
+          isTest: user.is_test || false,
         }))
       );
     } catch (error) {
@@ -152,15 +153,15 @@ const UserList = () => {
             <h3>Filters</h3>
             <div>
               <label>Filter By</label>
-              <input type="text" placeholder="Begin typing" />
+              <input type="text" placeholder="Begin typing" disabled={loading} />
             </div>
-            <button className="edit-filters-btn">Edit Filters</button>
+            <button className="edit-filters-btn" disabled={loading}>Edit Filters</button>
             <label>
-              <input type="checkbox" /> Show Tags
+              <input type="checkbox" disabled={loading} /> Show Tags
             </label>
             <div>
               <label>Save Filter</label>
-              <input type="text" placeholder="Filter Name" />
+              <input type="text" placeholder="Filter Name" disabled={loading} />
             </div>
           </div>
 
@@ -179,6 +180,7 @@ const UserList = () => {
                   <th>User Type</th>
                   <th>Phone Number</th>
                   <th>ID</th>
+                  <th>Test User</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -191,11 +193,12 @@ const UserList = () => {
                       <td>{user.userType}</td>
                       <td>{user.phoneNumber}</td>
                       <td>{user.id}</td>
+                      <td>{user.isTest ? 'Yes' : 'No'}</td>
                       <td>
                         <button
                           className="delete-btn"
                           onClick={() => handleDeleteUser(user.id)}
-                          disabled={loading}
+                          disabled={loading || user.isTest}
                         >
                           Delete
                         </button>
@@ -204,7 +207,7 @@ const UserList = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center' }}>
+                    <td colSpan="7" style={{ textAlign: 'center' }}>
                       No users found
                     </td>
                   </tr>

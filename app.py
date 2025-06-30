@@ -32,6 +32,7 @@ import uuid
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
 from dotenv import load_dotenv
+from zoneinfo import ZoneInfo
 
 
 # Load environment variables from .env file
@@ -137,6 +138,11 @@ try:
     order_counters_collection = db['order_counters']
     email_settings_collection = db['email_settings']
     table_orders_collection = db['table_orders']  # New collection for table orders
+    purchase_items_collection = db['purchase_items']
+    suppliers_collection = db['suppliers']
+    purchase_orders_collection = db['purchase_orders']
+    purchase_receipts_collection = db['purchase_receipts']
+    purchase_invoices_collection = db['purchase_invoices']
     
     
 
@@ -537,10 +543,12 @@ def login():
         login_type = data.get('type', '')
         if not identifier or not password:
             return jsonify({"message": "Identifier and password are required"}), 400
+
         user = None
         mobileOnly = settings.get('allowLoginUsingMobileNumber', False) and not settings.get('allowLoginUsingUserName', False) and not settings.get('loginWithEmailLink', False)
         mobileOrUsername = settings.get('allowLoginUsingMobileNumber', False) and settings.get('allowLoginUsingUserName', False) and not settings.get('loginWithEmailLink', False)
         allThree = settings.get('allowLoginUsingMobileNumber', False) and settings.get('allowLoginUsingUserName', False) and settings.get('loginWithEmailLink', False)
+
         if mobileOnly:
             user = users_collection.find_one({"phone_number": identifier})
         elif mobileOrUsername or login_type == 'mobile_or_username':
@@ -549,13 +557,14 @@ def login():
             user = users_collection.find_one({"phone_number": identifier}) or users_collection.find_one({"firstName": identifier}) or users_collection.find_one({"email": identifier})
         else:
             return jsonify({"message": "No valid login method enabled"}), 403
+
         requires_opening_entry = False
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             last_opening_time = user.get('last_opening_entry_time')
             if last_opening_time:
                 try:
                     last_opening = datetime.fromisoformat(last_opening_time.replace('Z', '+00:00'))
-                    time_diff = datetime.now(UTC) - last_opening
+                    time_diff = datetime.now(ZoneInfo("UTC")) - last_opening
                     if time_diff.total_seconds() / 3600 >= 8:
                         requires_opening_entry = True
                 except ValueError:
@@ -573,18 +582,43 @@ def login():
                     "phone_number": user.get('phone_number', ''),
                     "pos_profile": user.get('pos_profile', 'POS-001'),
                     "company": user.get('company', 'POS 8'),
-                    "is_test": False
+                    "is_test": user.get('is_test', False)
                 },
                 "requires_opening_entry": requires_opening_entry
             }
             logger.info(f"User logged in: {identifier}, role: {user['role']}, requires_opening_entry: {requires_opening_entry}")
             return jsonify(response), 200
+
+        # Check for test user
         test_user = next((u for u in TEST_USERS if ((u['firstName'] == identifier or u['phone_number'] == identifier or u['email'] == identifier) and u['password'] == password)), None)
         if test_user:
+            # Check if test user already exists in the database
+            existing_user = users_collection.find_one({"email": test_user['email']})
+            if not existing_user:
+                # Hash the test user's password and insert into the database
+                hashed_password = bcrypt.hashpw(test_user['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                new_user = {
+                    "email": test_user['email'],
+                    "password": hashed_password,
+                    "phone_number": test_user['phone_number'],
+                    "role": test_user['role'],
+                    "firstName": test_user['firstName'],
+                    "company": test_user['company'],
+                    "pos_profile": test_user['pos_profile'],
+                    "status": test_user['status'],
+                    "created_at": test_user['created_at'],
+                    "is_test": test_user['is_test']
+                }
+                result = users_collection.insert_one(new_user)
+                logger.info(f"Test user {test_user['email']} added to database with ID: {str(result.inserted_id)}")
+                user_id = str(result.inserted_id)
+            else:
+                user_id = str(existing_user['_id'])
+
             response = {
                 "message": "Login successful",
                 "user": {
-                    "id": str(ObjectId()),
+                    "id": user_id,
                     "username": test_user['firstName'],
                     "role": test_user['role'],
                     "email": test_user.get('email', ''),
@@ -597,6 +631,7 @@ def login():
             }
             logger.info(f"Login with test credentials: {identifier}, role: {test_user['role']}")
             return jsonify(response), 200
+
         logger.warning(f"Invalid login attempt: {identifier}")
         return jsonify({"message": "Invalid credentials"}), 401
     except Exception as e:
@@ -618,13 +653,13 @@ def request_email_login():
             return jsonify({"message": "User not found"}), 404
         token = secrets.token_urlsafe(32)
         token_hash = hashlib.sha256(token.encode()).hexdigest()
-        expiry = datetime.now(UTC) + timedelta(hours=24)
+        expiry = datetime.now(ZoneInfo("UTC")) + timedelta(hours=24)
         email_tokens_collection.insert_one({
             "email": email,
             "token_hash": token_hash,
             "expiry": expiry.isoformat(),
             "used": False,
-            "created_at": datetime.now(UTC).isoformat()
+            "created_at": datetime.now(ZoneInfo("UTC")).isoformat()
         })
         login_link = f"http://localhost:5000/api/verify-email-login?token={token}"
         html_content = f"""
@@ -659,7 +694,7 @@ def verify_email_login():
             return jsonify({"message": "Token is required"}), 400
         token_hash = hashlib.sha256(token.encode()).hexdigest()
         token_doc = email_tokens_collection.find_one({"token_hash": token_hash})
-        if not token_doc or token_doc['used'] or datetime.fromisoformat(token_doc['expiry']) < datetime.now(UTC):
+        if not token_doc or token_doc['used'] or datetime.fromisoformat(token_doc['expiry']) < datetime.now(ZoneInfo("UTC")):
             return jsonify({"message": "Invalid or expired token"}), 401
         user = users_collection.find_one({"email": token_doc['email']})
         if not user:
@@ -675,7 +710,7 @@ def verify_email_login():
                 "phone_number": user.get('phone_number', ''),
                 "pos_profile": user.get('pos_profile', 'POS-001'),
                 "company": user.get('company', 'POS 8'),
-                "is_test": False
+                "is_test": user.get('is_test', False)
             }
         }
         logger.info(f"Email login successful for: {user['email']}")
@@ -716,7 +751,7 @@ def register():
             "company": company,
             "pos_profile": "POS-001",
             "status": "Active",
-            "created_at": datetime.now(UTC).isoformat()
+            "created_at": datetime.now(ZoneInfo("UTC")).isoformat()
         }
         result = users_collection.insert_one(new_user)
         logger.info(f"User registered: {email}, role: {role}")
@@ -761,6 +796,7 @@ def delete_user(email):
     except Exception as e:
         logger.error(f"Error deleting user {email}: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/settings', methods=['GET'])
 def get_settings():
@@ -1164,25 +1200,33 @@ def create_customer():
 def create_sales_invoice():
     try:
         sales_data = request.json
-        required_fields = ['customer', 'items', 'total']
-        if not all(field in sales_data for field in required_fields):
-            logger.error("Missing required fields in sales invoice")
-            return jsonify({"error": "Missing required fields: customer, items, total"}), 400
+        required_fields = ['customer', 'items', 'total', 'userId']
+        missing_fields = [field for field in required_fields if field not in sales_data or sales_data[field] is None]
+        if missing_fields:
+            error_msg = f"Missing required fields: {', '.join(missing_fields)}"
+            logger.error(error_msg)
+            return jsonify({"error": error_msg}), 400
         
-        # Set date and time
-        sales_data['date'] = datetime.now().strftime("%Y-%m-%d")
-        sales_data['time'] = datetime.now().strftime("%H:%M:%S")
+        # Validate userId exists in users collection
+        user = users_collection.find_one({"email": sales_data['userId']})
+        if not user:
+            logger.error(f"Invalid userId: {sales_data['userId']}")
+            return jsonify({"error": "Invalid userId"}), 400
         
-        # Calculate totals
+        # Set date and time if not provided
+        sales_data['date'] = sales_data.get('date', datetime.now().strftime("%Y-%m-%d"))
+        sales_data['time'] = sales_data.get('time', datetime.now().strftime("%H:%M:%S"))
+        
+        # Calculate totals if not fully provided
         net_total = float(sales_data['total'])
-        vat_amount = net_total * 0.10
-        grand_total = net_total + vat_amount
+        vat_amount = float(sales_data.get('vat_amount', net_total * 0.10))
+        grand_total = float(sales_data.get('grand_total', net_total + vat_amount))
         sales_data['vat_amount'] = round(vat_amount, 2)
         sales_data['grand_total'] = round(grand_total, 2)
         
-        # Generate invoice number
-        sales_data['invoice_no'] = f"INV-{int(datetime.now().timestamp())}"
-        sales_data['status'] = 'Draft'
+        # Ensure invoice_no is present
+        sales_data['invoice_no'] = sales_data.get('invoice_no', f"INV-{int(datetime.now().timestamp())}")
+        sales_data['status'] = sales_data.get('status', 'Draft')
         
         # Process items
         processed_items = []
@@ -1191,56 +1235,59 @@ def create_sales_invoice():
                 logger.error("Invalid item structure in sales invoice")
                 return jsonify({"error": "Each item must include item_name, basePrice, and quantity"}), 400
             processed_addons = []
-            if 'addons' in item and item['addons']:
-                for addon in item['addons']:
-                    if not all(key in addon for key in ['name1', 'addon_price', 'addon_quantity']):
-                        logger.error("Invalid addon structure in sales invoice")
-                        return jsonify({"error": "Each addon must include name1, addon_price, and addon_quantity"}), 400
-                    processed_addons.append({
-                        "addon_name": addon['name1'],
-                        "addon_price": float(addon['addon_price']),
-                        "addon_quantity": int(addon['addon_quantity']),
-                        "addon_image": addon.get('addon_image', ''),
-                        "size": addon.get('size', 'S')
-                    })
+            for addon in item.get('addons', []):
+                if not all(key in addon for key in ['name1', 'addon_price', 'addon_quantity']):
+                    logger.error("Invalid addon structure in sales invoice")
+                    return jsonify({"error": "Each addon must include name1, addon_price, and addon_quantity"}), 400
+                processed_addons.append({
+                    "addon_name": addon['name1'],
+                    "addon_price": float(addon['addon_price']),
+                    "addon_quantity": int(addon['addon_quantity']),
+                    "addon_image": addon.get('addon_image', ''),
+                    "size": addon.get('size', 'M'),
+                    "kitchen": addon.get('kitchen', 'Main Kitchen'),
+                })
             processed_combos = []
-            if 'selectedCombos' in item and item['selectedCombos']:
-                for combo in item['selectedCombos']:
-                    if not all(key in combo for key in ['name1', 'combo_price']):
-                        logger.error("Invalid combo structure in sales invoice")
-                        return jsonify({"error": "Each combo must include name1 and combo_price"}), 400
-                    processed_combos.append({
-                        "name1": combo['name1'],
-                        "combo_price": float(combo['combo_price']),
-                        "combo_quantity": int(combo.get('combo_quantity', 1)),
-                        "combo_image": combo.get('combo_image', ''),
-                        "size": combo.get('size', 'S'),
-                        "selectedVariant": combo.get('selectedVariant', None)
-                    })
+            for combo in item.get('selectedCombos', []):
+                if not all(key in combo for key in ['name1', 'combo_price']):
+                    logger.error("Invalid combo structure in sales invoice")
+                    return jsonify({"error": "Each combo must include name1 and combo_price"}), 400
+                processed_combos.append({
+                    "name1": combo['name1'],
+                    "combo_price": float(combo['combo_price']),
+                    "combo_quantity": int(combo.get('combo_quantity', 1)),
+                    "combo_image": combo.get('combo_image', ''),
+                    "size": combo.get('size', 'M'),
+                    "spicy": combo.get('spicy', False),
+                    "kitchen": combo.get('kitchen', 'Main Kitchen'),
+                })
             processed_items.append({
                 "item_name": item['item_name'],
                 "basePrice": float(item['basePrice']),
                 "quantity": int(item['quantity']),
                 "amount": float(item.get('amount', item['basePrice'])),
+                "icePreference": item.get('icePreference', 'without_ice'),
+                "isSpicy": item.get('isSpicy', False),
+                "kitchen": item.get('kitchen', 'Main Kitchen'),
+                "selectedSize": item.get('selectedSize', 'M'),
+                "ingredients": item.get('ingredients', []),
                 "addons": processed_addons,
                 "selectedCombos": processed_combos,
-                "kitchen": item.get('kitchen', 'Main Kitchen'),
-                "selectedSize": item.get('selectedSize', 'S')
             })
         sales_data['items'] = processed_items
         sales_data['created_at'] = datetime.now(UTC).isoformat()
         
         # Insert into database
         sales_id = sales_collection.insert_one(sales_data).inserted_id
-        logger.info(f"Sale saved successfully: {sales_data['invoice_no']}")
+        logger.info(f"Sale saved successfully: {sales_data['invoice_no']} by user {sales_data['userId']}")
         
-        # Return response with invoice number
         return jsonify({
             "id": str(sales_id),
             "invoice_no": sales_data['invoice_no'],
             "net_total": sales_data['total'],
             "vat_amount": sales_data['vat_amount'],
-            "grand_total": sales_data['grand_total']
+            "grand_total": sales_data['grand_total'],
+            "userId": sales_data['userId']
         }), 201
     except Exception as e:
         logger.error(f"Error creating sales invoice: {str(e)}")
@@ -2311,6 +2358,12 @@ def generate_employee_id():
     """Generate a unique employee ID."""
     return str(uuid.uuid4())[:8]  # Simple 8-character UUID for employee ID
 
+def validate_email(email):
+    """Validate email format."""
+    import re
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(pattern, email) is not None
+
 @app.route('/api/employees', methods=['GET'])
 def get_employees():
     try:
@@ -2325,7 +2378,8 @@ def get_employees():
 def create_employee():
     try:
         data = request.get_json()
-        if not data or not all(key in data for key in ['name', 'phoneNumber', 'vehicleNumber', 'role']):
+        required_fields = ['name', 'phoneNumber', 'vehicleNumber', 'role', 'email']
+        if not data or not all(key in data for key in required_fields):
             return jsonify({'error': 'Missing required fields'}), 400
 
         phone_number = data['phoneNumber']
@@ -2336,18 +2390,38 @@ def create_employee():
         if len(phone_number) < code_length + 7:
             return jsonify({'error': 'Phone number is too short'}), 400
 
+        email = data['email']
+        if not validate_email(email):
+            return jsonify({'error': 'Invalid email format'}), 400
+
+        # Check if email is unique
+        if employees_collection.find_one({'email': email}):
+            return jsonify({'error': 'Email already exists'}), 400
+
         employee_id = generate_employee_id()
         employee = {
             'employeeId': employee_id,
             'name': data['name'],
             'phoneNumber': phone_number,
             'vehicleNumber': data['vehicleNumber'],
-            'role': data['role']
+            'role': data['role'],
+            'email': email
         }
 
+        # Insert employee into employees_collection
         employees_collection.insert_one(employee)
+
+        # Ensure email exists in users_collection for /api/sales compatibility
+        if not users_collection.find_one({'email': email}):
+            users_collection.insert_one({
+                'email': email,
+                'name': data['name'],
+                'role': data['role'],
+                'created_at': datetime.now(UTC).isoformat()
+            })
+
         employee.pop('_id', None)
-        logger.info(f"Created employee: {employee_id}")
+        logger.info(f"Created employee: {employee_id} with email: {email}")
         return jsonify({'message': 'Employee created successfully', 'employee': employee}), 201
     except Exception as e:
         logger.error(f"Error creating employee: {str(e)}")
@@ -2357,7 +2431,8 @@ def create_employee():
 def update_employee(employee_id):
     try:
         data = request.get_json()
-        if not data or not all(key in data for key in ['name', 'phoneNumber', 'vehicleNumber', 'role']):
+        required_fields = ['name', 'phoneNumber', 'vehicleNumber', 'role', 'email']
+        if not data or not all(key in data for key in required_fields):
             return jsonify({'error': 'Missing required fields'}), 400
 
         phone_number = data['phoneNumber']
@@ -2368,11 +2443,21 @@ def update_employee(employee_id):
         if len(phone_number) < code_length + 7:
             return jsonify({'error': 'Phone number is too short'}), 400
 
+        email = data['email']
+        if not validate_email(email):
+            return jsonify({'error': 'Invalid email format'}), 400
+
+        # Check if email is unique (excluding current employee)
+        existing_employee = employees_collection.find_one({'email': email, 'employeeId': {'$ne': employee_id}})
+        if existing_employee:
+            return jsonify({'error': 'Email already exists'}), 400
+
         updated_employee = {
             'name': data['name'],
             'phoneNumber': phone_number,
             'vehicleNumber': data['vehicleNumber'],
-            'role': data['role']
+            'role': data['role'],
+            'email': email
         }
 
         result = employees_collection.update_one(
@@ -2383,7 +2468,19 @@ def update_employee(employee_id):
         if result.matched_count == 0:
             return jsonify({'error': 'Employee not found'}), 404
 
-        logger.info(f"Updated employee: {employee_id}")
+        # Update or insert user in users_collection
+        users_collection.update_one(
+            {'email': email},
+            {'$set': {
+                'email': email,
+                'name': data['name'],
+                'role': data['role'],
+                'updated_at': datetime.now(UTC).isoformat()
+            }},
+            upsert=True
+        )
+
+        logger.info(f"Updated employee: {employee_id} with email: {email}")
         return jsonify({'message': 'Employee updated successfully'}), 200
     except Exception as e:
         logger.error(f"Error updating employee: {str(e)}")
@@ -2392,15 +2489,23 @@ def update_employee(employee_id):
 @app.route('/api/employees/<employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     try:
+        employee = employees_collection.find_one({'employeeId': employee_id}, {'_id': 0})
+        if not employee:
+            return jsonify({'error': 'Employee not found'}), 404
+
         result = employees_collection.delete_one({'employeeId': employee_id})
         if result.deleted_count == 0:
             return jsonify({'error': 'Employee not found'}), 404
+
+        # Optionally, remove from users_collection if no other employees use this email
+        if not employees_collection.find_one({'email': employee['email']}):
+            users_collection.delete_one({'email': employee['email']})
+
         logger.info(f"Deleted employee: {employee_id}")
         return jsonify({'message': 'Employee deleted successfully'}), 200
     except Exception as e:
         logger.error(f"Error deleting employee: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
 def generate_unique_id():
     return str(uuid.uuid4())
 
@@ -3222,6 +3327,343 @@ def start_scheduler():
     logger.info("Automatic backup and offer scheduler started")
 
 
+def document_to_dict(doc):
+    doc['_id'] = str(doc['_id'])
+    if 'created_at' in doc:
+        doc['created_at'] = doc['created_at'].isoformat()
+    if 'date' in doc:
+        doc['date'] = doc['date'].isoformat()
+    return doc
+
+# --- Purchase Items Routes ---
+@app.route('/api/purchase_items', methods=['GET'])
+def get_purchase_items():
+    try:
+        items = list(purchase_items_collection.find())
+        return jsonify([document_to_dict(item) for item in items]), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to fetch items: {str(e)}"}), 500
+
+@app.route('/api/purchase_items', methods=['POST'])
+def add_purchase_item():
+    try:
+        data = request.json
+        required_fields = ['name', 'mainUnit', 'subUnit', 'conversionFactor']
+        if not all(key in data for key in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        if not data['name'] or not data['mainUnit'] or not data['subUnit'] or float(data['conversionFactor']) <= 0:
+            return jsonify({'error': 'Invalid input data'}), 400
+        
+        item = {
+            'name': data['name'],
+            'mainUnit': data['mainUnit'],
+            'subUnit': data['subUnit'],
+            'conversionFactor': float(data['conversionFactor']),
+            'created_at': datetime.utcnow()
+        }
+        result = purchase_items_collection.insert_one(item)
+        item['_id'] = str(result.inserted_id)
+        return jsonify({'message': 'Item added successfully', 'item': item}), 201
+    except Exception as e:
+        return jsonify({'error': f"Failed to add item: {str(e)}"}), 500
+
+@app.route('/api/purchase_items/<id>', methods=['PUT'])
+def update_purchase_item(id):
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        update_fields = {}
+        if 'name' in data:
+            update_fields['name'] = data['name']
+        if 'mainUnit' in data:
+            update_fields['mainUnit'] = data['mainUnit']
+        if 'subUnit' in data:
+            update_fields['subUnit'] = data['subUnit']
+        if 'conversionFactor' in data:
+            update_fields['conversionFactor'] = float(data['conversionFactor'])
+        if not update_fields:
+            return jsonify({'error': 'No fields to update'}), 400
+        result = purchase_items_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
+        if result.modified_count == 0:
+            return jsonify({'error': 'Item not found or no changes made'}), 404
+        return jsonify({'message': 'Item updated successfully'}), 200
+    except ValueError:
+        return jsonify({'error': 'Invalid input data'}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to update item: {str(e)}"}), 500
+
+@app.route('/api/purchase_items/<id>', methods=['DELETE'])
+def delete_purchase_item(id):
+    try:
+        result = purchase_items_collection.delete_one({'_id': ObjectId(id)})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Item not found'}), 404
+        return jsonify({'message': 'Item deleted successfully'}), 200
+    except ValueError:
+        return jsonify({'error': 'Invalid item ID'}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to delete item: {str(e)}"}), 500
+
+# --- Suppliers Routes ---
+@app.route('/api/suppliers', methods=['GET'])
+def get_suppliers():
+    try:
+        suppliers = list(suppliers_collection.find())
+        return jsonify([document_to_dict(supplier) for supplier in suppliers]), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to fetch suppliers: {str(e)}"}), 500
+
+@app.route('/api/suppliers', methods=['POST'])
+def add_supplier():
+    try:
+        data = request.json
+        required_fields = ['name', 'shopName', 'address', 'phone', 'email']
+        if not all(key in data for key in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        if not all(data[key] for key in required_fields):
+            return jsonify({'error': 'Invalid input data'}), 400
+        
+        supplier = {
+            'name': data['name'],
+            'shopName': data['shopName'],
+            'address': data['address'],
+            'phone': data['phone'],
+            'email': data['email'],
+            'created_at': datetime.utcnow()
+        }
+        result = suppliers_collection.insert_one(supplier)
+        supplier['_id'] = str(result.inserted_id)
+        return jsonify({'message': 'Supplier added successfully', 'supplier': supplier}), 201
+    except Exception as e:
+        return jsonify({'error': f"Failed to add supplier: {str(e)}"}), 500
+
+@app.route('/api/suppliers/<id>', methods=['PUT'])
+def update_supplier(id):
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        update_fields = {}
+        if 'name' in data:
+            update_fields['name'] = data['name']
+        if 'shopName' in data:
+            update_fields['shopName'] = data['shopName']
+        if 'address' in data:
+            update_fields['address'] = data['address']
+        if 'phone' in data:
+            update_fields['phone'] = data['phone']
+        if 'email' in data:
+            update_fields['email'] = data['email']
+        if not update_fields:
+            return jsonify({'error': 'No fields to update'}), 400
+        result = suppliers_collection.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
+        if result.modified_count == 0:
+            return jsonify({'error': 'Supplier not found or no changes made'}), 404
+        return jsonify({'message': 'Supplier updated successfully'}), 200
+    except ValueError:
+        return jsonify({'error': 'Invalid input data'}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to update supplier: {str(e)}"}), 500
+
+@app.route('/api/suppliers/<id>', methods=['DELETE'])
+def delete_supplier(id):
+    try:
+        result = suppliers_collection.delete_one({'_id': ObjectId(id)})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Supplier not found'}), 404
+        return jsonify({'message': 'Supplier deleted successfully'}), 200
+    except ValueError:
+        return jsonify({'error': 'Invalid supplier ID'}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to delete supplier: {str(e)}"}), 500
+
+
+# --- Purchase Orders Routes ---
+@app.route('/api/purchase_orders', methods=['GET'])
+def get_purchase_orders():
+    try:
+        orders = list(purchase_orders_collection.find())
+        return jsonify([document_to_dict(order) for order in orders]), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to fetch purchase orders: {str(e)}"}), 500
+
+@app.route('/api/purchase_orders', methods=['POST'])
+def add_purchase_order():
+    try:
+        data = request.get_json()
+        required_fields = ['supplierId', 'date', 'items']
+        if not all(key in data for key in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        if not data['supplierId'] or not data['date'] or not isinstance(data['items'], list) or not data['items']:
+            return jsonify({'error': 'Invalid input data'}), 400
+        
+        supplier = suppliers_collection.find_one({'_id': ObjectId(data['supplierId'])})
+        if not supplier:
+            return jsonify({'error': 'Supplier not found'}), 404
+        
+        for item in data['items']:
+            if not all(key in item for key in ['itemId', 'quantity', 'unit']):
+                return jsonify({'error': 'Invalid item data'}), 400
+            if not item['itemId'] or float(item['quantity']) <= 0 or item['unit'] not in ['main', 'sub']:
+                return jsonify({'error': 'Invalid item quantity, ID, or unit'}), 400
+            if not purchase_items_collection.find_one({'_id': ObjectId(item['itemId'])}):
+                return jsonify({'error': f"Item {item['itemId']} not found"}), 404
+
+        # Generate unique ID using first 8 characters of a UUID
+        order_id = f"PO-{str(uuid.uuid4())[:8].upper()}"
+        order = {
+            'id': order_id,
+            'supplierId': data['supplierId'],
+            'supplierName': supplier['name'],
+            'supplierEmail': supplier['email'],
+            'date': datetime.strptime(data['date'], '%Y-%m-%d'),
+            'items': data['items'],
+            'status': 'Pending',
+            'created_at': datetime.utcnow()
+        }
+        result = purchase_orders_collection.insert_one(order)
+        order['_id'] = str(result.inserted_id)
+        return jsonify({'message': 'Purchase Order created successfully', 'order': document_to_dict(order)}), 201
+    except ValueError as e:
+        return jsonify({'error': f"Invalid data format: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to create purchase order: {str(e)}"}), 500
+
+@app.route('/api/purchase_orders/<id>', methods=['DELETE'])
+def delete_purchase_order(id):
+    try:
+        result = purchase_orders_collection.delete_one({'id': id})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Purchase Order not found'}), 404
+        return jsonify({'message': 'Purchase Order deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to delete purchase order: {str(e)}"}), 500
+
+# --- Purchase Receipts Routes ---
+@app.route('/api/purchase_receipts', methods=['GET'])
+def get_purchase_receipts():
+    try:
+        receipts = list(purchase_receipts_collection.find())
+        return jsonify([document_to_dict(receipt) for receipt in receipts]), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to fetch purchase receipts: {str(e)}"}), 500
+
+@app.route('/api/purchase_receipts', methods=['POST'])
+def add_purchase_receipt():
+    try:
+        data = request.get_json()
+        required_fields = ['poId', 'date', 'items']
+        if not all(key in data for key in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        if not data['poId'] or not data['date'] or not isinstance(data['items'], list) or not data['items']:
+            return jsonify({'error': 'Invalid input data'}), 400
+        
+        po = purchase_orders_collection.find_one({'id': data['poId']})
+        if not po:
+            return jsonify({'error': 'Purchase Order not found'}), 404
+        
+        for item in data['items']:
+            if not all(key in item for key in ['itemId', 'quantity', 'unit', 'status']):
+                return jsonify({'error': 'Invalid item data'}), 400
+            if not item['itemId'] or float(item['quantity']) <= 0 or item['status'] not in ['Accepted', 'Rejected'] or item['unit'] not in ['main', 'sub']:
+                return jsonify({'error': 'Invalid item quantity, ID, unit, or status'}), 400
+            if not purchase_items_collection.find_one({'_id': ObjectId(item['itemId'])}):
+                return jsonify({'error': f"Item {item['itemId']} not found"}), 404
+
+        receipt_id = f"PR-{str(uuid.uuid4())[:8].upper()}"
+        receipt = {
+            'id': receipt_id,
+            'poId': data['poId'],
+            'date': datetime.strptime(data['date'], '%Y-%m-%d'),
+            'items': data['items'],
+            'created_at': datetime.utcnow()
+        }
+        result = purchase_receipts_collection.insert_one(receipt)
+        receipt['_id'] = str(result.inserted_id)
+        return jsonify({'message': 'Purchase Receipt created successfully', 'receipt': document_to_dict(receipt)}), 201
+    except ValueError as e:
+        return jsonify({'error': f"Invalid data format: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to create purchase receipt: {str(e)}"}), 500
+
+@app.route('/api/purchase_receipts/<id>', methods=['DELETE'])
+def delete_purchase_receipt(id):
+    try:
+        result = purchase_receipts_collection.delete_one({'id': id})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Purchase Receipt not found'}), 404
+        return jsonify({'message': 'Purchase Receipt deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to delete purchase receipt: {str(e)}"}), 500
+
+# --- Purchase Invoices Routes ---
+@app.route('/api/purchase_invoices', methods=['GET'])
+def get_purchase_invoices():
+    try:
+        invoices = list(purchase_invoices_collection.find())
+        return jsonify([document_to_dict(invoice) for invoice in invoices]), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to fetch purchase invoices: {str(e)}"}), 500
+
+@app.route('/api/purchase_invoices', methods=['POST'])
+def add_purchase_invoice():
+    try:
+        data = request.get_json()
+        required_fields = ['poId', 'date', 'supplier', 'items']
+        if not all(key in data for key in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        if not data['poId'] or not data['date'] or not data['supplier'] or not isinstance(data['items'], list) or not data['items']:
+            return jsonify({'error': 'Invalid input data'}), 400
+        
+        po = purchase_orders_collection.find_one({'id': data['poId']})
+        if not po:
+            return jsonify({'error': 'Purchase Order not found'}), 404
+        
+        if data.get('prId'):
+            pr = purchase_receipts_collection.find_one({'id': data['prId']})
+            if not pr:
+                return jsonify({'error': 'Purchase Receipt not found'}), 404
+        
+        for item in data['items']:
+            if not all(key in item for key in ['itemId', 'quantity', 'unit', 'rate', 'tax']):
+                return jsonify({'error': 'Invalid item data'}), 400
+            if not item['itemId'] or float(item['quantity']) <= 0 or float(item['rate']) <= 0 or float(item['tax']) < 0 or item['unit'] not in ['main', 'sub']:
+                return jsonify({'error': 'Invalid item quantity, rate, tax, or unit'}), 400
+            if not purchase_items_collection.find_one({'_id': ObjectId(item['itemId'])}):
+                return jsonify({'error': f"Item {item['itemId']} not found"}), 404
+
+        invoice_id = f"PI-{str(uuid.uuid4())[:8].upper()}"
+        invoice = {
+            'id': invoice_id,
+            'poId': data['poId'],
+            'prId': data.get('prId', ''),
+            'date': datetime.strptime(data['date'], '%Y-%m-%d'),
+            'supplier': data['supplier'],
+            'items': data['items'],
+            'created_at': datetime.utcnow()
+        }
+        result = purchase_invoices_collection.insert_one(invoice)
+        invoice['_id'] = str(result.inserted_id)
+        return jsonify({'message': 'Purchase Invoice created successfully', 'invoice': document_to_dict(invoice)}), 201
+    except ValueError as e:
+        return jsonify({'error': f"Invalid data format: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({'error': f"Failed to create purchase invoice: {str(e)}"}), 500
+
+@app.route('/api/purchase_invoices/<id>', methods=['DELETE'])
+def delete_purchase_invoice(id):
+    try:
+        result = purchase_invoices_collection.delete_one({'id': id})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Purchase Invoice not found'}), 404
+        return jsonify({'message': 'Purchase Invoice deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f"Failed to delete purchase invoice: {str(e)}"}), 500
+
+
+
+
 # Serve React frontend
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -3247,4 +3689,3 @@ if __name__ == '__main__':
     else:
         logger.info("Running in development mode, using Flask")
         app.run(host='0.0.0.0', port=5000, debug=True)
-

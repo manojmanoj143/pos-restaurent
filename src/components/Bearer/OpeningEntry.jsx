@@ -11,6 +11,7 @@ import KitchenIcon from '/menuIcons/kitchen.svg';
 import PowerOffIcon from '/menuIcons/poweroff.svg';
 import TableIcon from '/menuIcons/table1.svg';
 import SaveIcon from '/menuIcons/save.svg';
+import DeliveryIcon from '/menuIcons/delivery.svg'; // Added missing import for DeliveryIcon
 
 // Import Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,15 +24,15 @@ function OpeningEntryWithNavbar() {
   const posProfile = useSelector((state) => state.user.pos_profile);
 
   // Get user from Redux or fallback to localStorage
-  const storedUser = JSON.parse(localStorage.getItem('user')) || { email: "bearer@gmail.com" };
+  const storedUser = JSON.parse(localStorage.getItem('user')) || { email: 'bearer@gmail.com' };
   const currentUser = user || reduxUser || storedUser;
 
   // Date and Time state for Navbar
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Warning message states
-  const [warningMessage, setWarningMessage] = useState(""); // For logout and error messages
-  const [warningType, setWarningType] = useState("warning"); // "warning" or "success"
+  const [warningMessage, setWarningMessage] = useState(''); // For logout and error messages
+  const [warningType, setWarningType] = useState('warning'); // 'warning' or 'success'
   const [pendingAction, setPendingAction] = useState(null); // Store the action to perform after OK
 
   // Update time every second
@@ -45,12 +46,12 @@ function OpeningEntryWithNavbar() {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }); // e.g., "April 7, 2025"
+  }); // e.g., 'April 7, 2025'
   const formattedTime = currentTime.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-  }); // e.g., "09:14:18 AM"
+  }); // e.g., '09:14:18 AM'
 
   // Handle OK button click for warning messages
   const handleWarningOk = () => {
@@ -58,14 +59,14 @@ function OpeningEntryWithNavbar() {
       pendingAction();
       setPendingAction(null);
     }
-    setWarningMessage("");
-    setWarningType("warning");
+    setWarningMessage('');
+    setWarningType('warning');
   };
 
   // Navbar-specific functions
   const handleLogout = () => {
-    setWarningMessage("Logout Successful!");
-    setWarningType("success");
+    setWarningMessage('Logout Successful!');
+    setWarningType('success');
     setPendingAction(() => () => {
       setUser(null);
       localStorage.removeItem('user');
@@ -98,12 +99,13 @@ function OpeningEntryWithNavbar() {
   const [warning, setWarning] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); // New state for success message
 
+  // Initialize user and company data on mount
   useEffect(() => {
-    console.log("OpeningEntryWithNavbar mounted");
+    console.log('OpeningEntryWithNavbar mounted');
     const handleGlobalClick = (e) => {
-      console.log("Global click in OpeningEntryWithNavbar:", e.target);
+      console.log('Global click in OpeningEntryWithNavbar:', e.target);
     };
-    document.addEventListener("click", handleGlobalClick);
+    document.addEventListener('click', handleGlobalClick);
 
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const currentUser = user || reduxUser || storedUser;
@@ -113,11 +115,12 @@ function OpeningEntryWithNavbar() {
     }
 
     return () => {
-      console.log("OpeningEntryWithNavbar unmounted");
-      document.removeEventListener("click", handleGlobalClick);
+      console.log('OpeningEntryWithNavbar unmounted');
+      document.removeEventListener('click', handleGlobalClick);
     };
   }, [user, reduxUser]);
 
+  // Form validation
   const validateForm = () => {
     const missingFields = [];
     if (!periodStartDate) missingFields.push('Period Start Date');
@@ -136,10 +139,12 @@ function OpeningEntryWithNavbar() {
     return true;
   };
 
+  // Add a new balance detail row
   const handleAddBalanceDetail = () => {
     setBalanceDetails((prev) => [...prev, { mode_of_payment: '', opening_amount: '' }]);
   };
 
+  // Update balance detail fields
   const handleBalanceDetailChange = (index, field, value) => {
     setBalanceDetails((prev) =>
       prev.map((detail, i) => (i === index ? { ...detail, [field]: value } : detail))
@@ -147,17 +152,19 @@ function OpeningEntryWithNavbar() {
     validateForm();
   };
 
+  // Remove a balance detail row
   const handleRemoveBalanceDetail = (index) => {
     setBalanceDetails((prev) => prev.filter((_, i) => i !== index));
     validateForm();
   };
 
+  // Submit form data to API
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setLoading(true);
     setError('');
-    setSuccessMessage(''); // Clear any previous success message
+    setSuccessMessage('');
     const payload = {
       period_start_date: periodStartDate,
       posting_date: postingDate,
@@ -189,28 +196,29 @@ function OpeningEntryWithNavbar() {
       if (response.ok && result.message.status === 'success') {
         const openingEntryName = result.message.name;
         localStorage.setItem('openingEntryName', openingEntryName);
-        localStorage.setItem('posOpeningEntry', openingEntryName); // Store for closing entry navigation
+        localStorage.setItem('posOpeningEntry', openingEntryName);
         setSuccessMessage(`Opening Entry created successfully: ${openingEntryName}`);
       } else {
         const errorMessage = typeof result.message === 'string' ? result.message : `Server error: ${response.status}`;
         setError(errorMessage);
         setWarningMessage(`Failed: ${errorMessage}`);
-        setWarningType("warning");
+        setWarningType('warning');
       }
     } catch (error) {
       console.error('OpeningEntry Network Error:', error);
       const errorMsg = error.message || 'Network error occurred.';
       setError(errorMsg);
       setWarningMessage(`Error: ${errorMsg}`);
-      setWarningType("warning");
+      setWarningType('warning');
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle success message OK button
   const handleSuccessOk = () => {
-    setSuccessMessage(''); // Clear the success message
-    navigate('/home'); // Navigate to the home page
+    setSuccessMessage('');
+    navigate('/home');
   };
 
   return (
@@ -219,11 +227,7 @@ function OpeningEntryWithNavbar() {
       {warningMessage && (
         <div className={`alert alert-${warningType} text-center alert-dismissible fade show`} role="alert">
           {warningMessage}
-          <button
-            type="button"
-            className="btn btn-primary ms-3"
-            onClick={handleWarningOk}
-          >
+          <button type="button" className="btn btn-primary ms-3" onClick={handleWarningOk}>
             OK
           </button>
         </div>
@@ -296,7 +300,9 @@ function OpeningEntryWithNavbar() {
                 <a
                   className={`nav-link ${location.pathname === '/salespage' ? 'active text-primary' : 'text-black'} cursor-pointer`}
                   onClick={() => navigate('/salespage')}
-                  title="Sales Invoice"
+                  title="
+
+Sales Invoice"
                 >
                   <img src={SaveIcon} alt="Save" className="icon-size" />
                 </a>
@@ -491,7 +497,7 @@ function OpeningEntryWithNavbar() {
         </div>
       </div>
 
-      {/* Inline CSS (assumed from OpeningEntryWithNavbar.css) */}
+      {/* Inline CSS */}
       <style jsx>{`
         .icon-size {
           width: 36px;
@@ -551,7 +557,8 @@ function OpeningEntryWithNavbar() {
         .table-responsive {
           margin-bottom: 20px;
         }
-        .table th, .table td {
+        .table th,
+        .table td {
           vertical-align: middle;
         }
         .btn-danger:disabled {

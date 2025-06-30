@@ -202,6 +202,7 @@ function Kitchen() {
             .map((item) => {
               const filteredAddons = {};
               const filteredAddonVariants = {};
+              const filteredAddonCustomVariantsDetails = {};
               if (item.addonQuantities && item.addonVariants) {
                 Object.entries(item.addonQuantities).forEach(([addonName, qty]) => {
                   if (
@@ -210,11 +211,14 @@ function Kitchen() {
                   ) {
                     filteredAddons[addonName] = qty;
                     filteredAddonVariants[addonName] = item.addonVariants[addonName];
+                    filteredAddonCustomVariantsDetails[addonName] =
+                      item.addonCustomVariantsDetails?.[addonName] || {};
                   }
                 });
               }
               const filteredCombos = {};
               const filteredComboVariants = {};
+              const filteredComboCustomVariantsDetails = {};
               if (item.comboQuantities && item.comboVariants) {
                 Object.entries(item.comboQuantities).forEach(([comboName, qty]) => {
                   if (
@@ -223,6 +227,8 @@ function Kitchen() {
                   ) {
                     filteredCombos[comboName] = qty;
                     filteredComboVariants[comboName] = item.comboVariants[comboName];
+                    filteredComboCustomVariantsDetails[comboName] =
+                      item.comboCustomVariantsDetails?.[comboName] || {};
                   }
                 });
               }
@@ -230,8 +236,10 @@ function Kitchen() {
                 ...item,
                 addonQuantities: filteredAddons,
                 addonVariants: filteredAddonVariants,
+                addonCustomVariantsDetails: filteredAddonCustomVariantsDetails,
                 comboQuantities: filteredCombos,
                 comboVariants: filteredComboVariants,
+                comboCustomVariantsDetails: filteredComboCustomVariantsDetails,
                 displayInKitchen:
                   item.kitchen === selectedKitchen ||
                   Object.keys(filteredAddons).length > 0 ||
@@ -246,6 +254,75 @@ function Kitchen() {
       };
     })
     .filter((order) => order.cartItems.length > 0);
+
+  const formatItemVariants = (item) => {
+    const variants = [];
+    if (item.selectedSize) {
+      variants.push(`Size: ${item.selectedSize}`);
+    }
+    if (item.icePreference === 'with_ice') {
+      variants.push(`Ice: With Ice`);
+    }
+    if (item.isSpicy === true) {
+      variants.push(`Spicy: Yes`);
+    }
+    if (item.sugarLevel && item.sugarLevel !== 'medium') {
+      variants.push(`Sugar: ${item.sugarLevel.charAt(0).toUpperCase() + item.sugarLevel.slice(1)}`);
+    }
+    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+  };
+
+  const formatCustomVariants = (customVariantsDetails) => {
+    if (!customVariantsDetails) return '';
+    const custom = Object.values(customVariantsDetails)
+      .map((v) => `${v.heading}: ${v.name}`)
+      .join(', ');
+    return custom ? `Custom: ${custom}` : '';
+  };
+
+  const formatAddonVariants = (addonVariants) => {
+    const variants = [];
+    if (addonVariants?.size && addonVariants.size !== 'M') {
+      variants.push(`Size: ${addonVariants.size}`);
+    }
+    if (addonVariants?.spicy === true) {
+      variants.push(`Spicy: Yes`);
+    }
+    if (addonVariants?.sugar && addonVariants.sugar !== 'medium') {
+      variants.push(`Sugar: ${addonVariants.sugar.charAt(0).toUpperCase() + addonVariants.sugar.slice(1)}`);
+    }
+    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+  };
+
+  const formatAddonCustomVariants = (addonCustomVariantsDetails) => {
+    if (!addonCustomVariantsDetails) return '';
+    const custom = Object.values(addonCustomVariantsDetails)
+      .map((v) => `${v.heading}: ${v.name}`)
+      .join(', ');
+    return custom ? `Custom: ${custom}` : '';
+  };
+
+  const formatComboVariants = (comboVariants) => {
+    const variants = [];
+    if (comboVariants?.size && comboVariants.size !== 'M') {
+      variants.push(`Size: ${comboVariants.size}`);
+    }
+    if (comboVariants?.spicy === true) {
+      variants.push(`Spicy: Yes`);
+    }
+    if (comboVariants?.sugar && comboVariants.sugar !== 'medium') {
+      variants.push(`Sugar: ${comboVariants.sugar.charAt(0).toUpperCase() + comboVariants.sugar.slice(1)}`);
+    }
+    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+  };
+
+  const formatComboCustomVariants = (comboCustomVariantsDetails) => {
+    if (!comboCustomVariantsDetails) return '';
+    const custom = Object.values(comboCustomVariantsDetails)
+      .map((v) => `${v.heading}: ${v.name}`)
+      .join(', ');
+    return custom ? `Custom: ${custom}` : '';
+  };
 
   const getLastHourItems = () => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
@@ -688,7 +765,9 @@ function Kitchen() {
                       )}
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                         {item.kitchen === selectedKitchen && (
-                          <span style={{ color: "black" }}>{item.name}</span>
+                          <span style={{ color: "black" }}>
+                            {item.name} {formatItemVariants(item)} {formatCustomVariants(item.customVariantsDetails)}
+                          </span>
                         )}
                         {item.addonQuantities && Object.keys(item.addonQuantities).length > 0 && (
                           <ul
@@ -707,7 +786,10 @@ function Kitchen() {
                                   item.addonVariants?.[addonName]?.kitchen === selectedKitchen
                               )
                               .map(([addonName, qty]) => (
-                                <li key={addonName}>+ Addon: {addonName} x{qty}</li>
+                                <li key={addonName}>
+                                  + Addon: {addonName} {formatAddonVariants(item.addonVariants[addonName])}{" "}
+                                  {formatAddonCustomVariants(item.addonCustomVariantsDetails?.[addonName])} x{qty}
+                                </li>
                               ))}
                           </ul>
                         )}
@@ -731,8 +813,8 @@ function Kitchen() {
                               )
                               .map(([comboName, qty]) => (
                                 <li key={comboName}>
-                                  + Combo: {comboName} ({item.comboVariants?.[comboName]?.size || "M"}) x{qty}
-                                  {item.comboVariants?.[comboName]?.spicy && " (Spicy)"}
+                                  + Combo: {comboName} {formatComboVariants(item.comboVariants[comboName])}{" "}
+                                  {formatComboCustomVariants(item.comboCustomVariantsDetails?.[comboName])} x{qty}
                                 </li>
                               ))}
                           </ul>

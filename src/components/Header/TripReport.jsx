@@ -135,6 +135,7 @@ function TripReport() {
 
   // Create sales invoice for a single report
   const createSalesInvoice = async (report) => {
+    // Validate payment methods
     if (!report.paymentMethods.length || !['Cash', 'Card', 'UPI'].some(method => report.paymentMethods.includes(method))) {
       setWarningMessage('Please select at least one payment method (Cash, Card, or UPI) to create a sales invoice.');
       setWarningType('warning');
@@ -149,6 +150,13 @@ function TripReport() {
       setWarningMessage('Please enter a UPI reference number for UPI payment.');
       setWarningType('warning');
       return { success: false, invoice_no: null, error: 'Missing UPI details' };
+    }
+    // Validate selectedEmployee and email
+    if (!selectedEmployee || !selectedEmployee.email) {
+      const errorMsg = 'Selected employee or employee email is missing.';
+      setWarningMessage(errorMsg);
+      setWarningType('warning');
+      return { success: false, invoice_no: null, error: errorMsg };
     }
     try {
       setLoading(true);
@@ -211,6 +219,7 @@ function TripReport() {
         whatsappNumber: report.whatsappNumber || 'N/A',
         status: 'Draft',
         orderType: 'Online Delivery',
+        userId: selectedEmployee.email, // Add userId field using selected employee's email
       };
 
       const response = await axios.post('http://localhost:5000/api/sales', salesData, {

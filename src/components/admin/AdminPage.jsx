@@ -16,7 +16,9 @@ import {
   FaUtensils,
   FaLayerGroup,
   FaUserTie,
-  FaEnvelope, // Added for Email Settings icon
+  FaEnvelope,
+  FaShoppingCart,
+  FaSearch,
 } from 'react-icons/fa';
 
 function AdminPage() {
@@ -29,6 +31,7 @@ function AdminPage() {
   const [isMasterOpen, setIsMasterOpen] = useState(true);
   const [importFile, setImportFile] = useState(null);
   const [message, setMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Navigation handlers
   const handleGoBack = () => navigate('/');
@@ -109,96 +112,187 @@ function AdminPage() {
     }
   };
 
+  // Search handler
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Menu items
+  const masterMenuItems = [
+    { icon: <FaUsers />, text: 'View All Customers', path: '/customers' },
+    { icon: <FaBox />, text: 'View All Items', path: '/items' },
+    { icon: <FaPlusCircle />, text: 'Add New Item', path: '/create-item' },
+    { icon: <FaTable />, text: 'Add New Table', path: '/add-table' },
+    { icon: <FaBox />, text: 'Add Item Group', path: '/add-item-group' },
+    { icon: <FaUtensils />, text: 'Add Kitchen', path: '/add-kitchen' },
+    { icon: <FaUtensils />, text: 'Add Ingredient & Nutrition', path: '/add-ingredients-nutrition' },
+    { icon: <FaLayerGroup />, text: 'Add Variant', path: '/create-variant' },
+    { icon: <FaUserTie />, text: 'Employees', path: '/employees' },
+    { icon: <FaEnvelope />, text: 'Email Settings', path: '/email-settings' },
+    { icon: <FaShoppingCart />, text: 'Purchase Module', path: '/purchase' },
+  ];
+
+  const otherMenuItems = [
+    { icon: <FaUsers />, text: 'Users', path: '/users' },
+    { icon: <FaFileAlt />, text: 'Record', path: '/record' },
+    { icon: <FaDatabase />, text: 'Backups', path: '/backup' },
+    { icon: <FaCog />, text: 'Settings', path: '/system-settings' },
+  ];
+
+  // Filter menu items based on search query
+  const filteredMasterMenuItems = masterMenuItems.filter(item =>
+    item.text.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const filteredOtherMenuItems = otherMenuItems.filter(item =>
+    item.text.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Determine if "Master" should be shown based on search
+  const showMasterMenu = searchQuery ? filteredMasterMenuItems.length > 0 : true;
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <div
-        className="sidebar"
-        style={{
-          width: '250px',
-          backgroundColor: '#fff',
-          padding: '20px 0',
-          position: 'fixed',
-          height: '100%',
-          boxShadow: '2px 0 5px rgba(0,0,0,0.1)',
-          overflowY: 'auto',
-        }}
-      >
-        <h3 style={{ color: '#000', textAlign: 'center', padding: '20px 0', fontSize: '1.5rem', fontWeight: '600' }}>
-          Admin Menu
-        </h3>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          <li
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f4f6f9' }}>
+      {/* Sidebar */}
+      <div style={{ 
+        width: '250px', 
+        backgroundColor: '#2c3e50', 
+        padding: '20px', 
+        height: '100vh', 
+        position: 'fixed', 
+        left: 0, 
+        top: 0, 
+        boxShadow: '2px 0 5px rgba(0,0,0,0.1)',
+        overflowY: 'auto'
+      }}>
+        {/* Search Box */}
+        <div style={{ 
+          position: 'relative', 
+          marginBottom: '20px' 
+        }}>
+          <FaSearch style={{
+            position: 'absolute',
+            left: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#ecf0f1',
+            fontSize: '1rem'
+          }} />
+          <input
+            type="text"
+            placeholder="Search menu..."
+            value={searchQuery}
+            onChange={handleSearchChange}
             style={{
-              padding: '15px 20px',
-              color: '#000',
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
+              width: '100%',
+              padding: '10px 10px 10px 35px',
+              backgroundColor: '#34495e',
+              color: '#ecf0f1',
+              border: '1px solid #ecf0f1',
+              borderRadius: '5px',
+              fontSize: '1rem',
+              outline: 'none',
+              transition: 'background-color 0.3s, border-color 0.3s',
             }}
-            onClick={toggleMasterMenu}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-          >
-            <FaHome style={{ marginRight: '15px', fontSize: '1.2rem' }} />
-            <span>Master</span>
-          </li>
-          {isMasterOpen && (
-            <ul style={{ listStyle: 'none', paddingLeft: '40px' }}>
-              {[
-                { icon: <FaUsers />, text: 'View All Customers', path: '/customers' },
-                { icon: <FaBox />, text: 'View All Items', path: '/items' },
-                { icon: <FaPlusCircle />, text: 'Add New Item', path: '/create-item' },
-                { icon: <FaTable />, text: 'Add New Table', path: '/add-table' },
-                { icon: <FaBox />, text: 'Add Item Group', path: '/add-item-group' },
-                { icon: <FaUtensils />, text: 'Add Kitchen', path: '/add-kitchen' },
-                { icon: <FaUtensils />, text: 'Add Ingredient & Nutrition', path: '/add-ingredients-nutrition' },
-                { icon: <FaLayerGroup />, text: 'Add Variant', path: '/create-variant' },
-                { icon: <FaUserTie />, text: 'Employees', path: '/employees' },
-                { icon: <FaEnvelope />, text: 'Email Settings', path: '/email-settings' }, // Added Email Settings
-              ].map((item, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleNavigation(item.path)}
-                  style={{
-                    padding: '10px 20px',
-                    color: '#000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <span style={{ marginRight: '10px', fontSize: '1rem' }}>{item.icon}</span>
-                  <span>{item.text}</span>
-                </li>
-              ))}
-            </ul>
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = '#3d566e';
+              e.target.style.borderColor = '#3498db';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = '#34495e';
+              e.target.style.borderColor = '#ecf0f1';
+            }}
+          />
+        </div>
+
+        <h2 style={{ 
+          color: '#ecf0f1', 
+          marginBottom: '30px', 
+          fontSize: '1.5rem', 
+          fontWeight: 'bold', 
+          textAlign: 'center' 
+        }}>
+          Admin Menu
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {showMasterMenu && (
+            <>
+              <button
+                onClick={toggleMasterMenu}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: isMasterOpen && filteredMasterMenuItems.length > 0 ? '#3498db' : '#34495e',
+                  color: '#ecf0f1',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontSize: '1rem',
+                  transition: 'background-color 0.3s',
+                  textAlign: 'left'
+                }}
+                onMouseOver={(e) => !isMasterOpen && (e.target.style.backgroundColor = '#3d566e')}
+                onMouseOut={(e) => !isMasterOpen && (e.target.style.backgroundColor = '#34495e')}
+              >
+                <FaHome /> Master
+              </button>
+              {isMasterOpen && filteredMasterMenuItems.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '20px' }}>
+                  {filteredMasterMenuItems.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleNavigation(item.path)}
+                      style={{
+                        padding: '12px 20px',
+                        backgroundColor: '#34495e',
+                        color: '#ecf0f1',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '1rem',
+                        transition: 'background-color 0.3s',
+                        textAlign: 'left'
+                      }}
+                      onMouseOver={(e) => (e.target.style.backgroundColor = '#3d566e')}
+                      onMouseOut={(e) => (e.target.style.backgroundColor = '#34495e')}
+                    >
+                      {item.icon} {item.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-          {[
-            { icon: <FaUsers />, text: 'Users', path: '/users' },
-            { icon: <FaFileAlt />, text: 'Record', path: '/record' },
-            { icon: <FaDatabase />, text: 'Backups', path: '/backup' },
-            { icon: <FaCog />, text: 'Settings', path: '/system-settings' },
-          ].map((item, index) => (
-            <li
+          {filteredOtherMenuItems.map((item, index) => (
+            <button
               key={index}
               onClick={() => handleNavigation(item.path)}
               style={{
-                padding: '15px 20px',
-                color: '#000',
+                padding: '12px 20px',
+                backgroundColor: '#34495e',
+                color: '#ecf0f1',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                cursor: 'pointer',
+                gap: '10px',
+                fontSize: '1rem',
+                transition: 'background-color 0.3s',
+                textAlign: 'left',
+                marginTop: '10px'
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              onMouseOver={(e) => (e.target.style.backgroundColor = '#3d566e')}
+              onMouseOut={(e) => (e.target.style.backgroundColor = '#34495e')}
             >
-              <span style={{ marginRight: '15px', fontSize: '1.2rem' }}>{item.icon}</span>
-              <span>{item.text}</span>
-            </li>
+              {item.icon} {item.text}
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
 
       <div style={{ marginLeft: '250px', flex: 1, padding: '20px' }}>
@@ -215,23 +309,24 @@ function AdminPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#f0f0f0',
-              border: '1px solid #ccc',
+              backgroundColor: '#ecf0f1',
+              border: '1px solid #bdc3c7',
               cursor: 'pointer',
               transition: 'background-color 0.3s',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}
             onMouseOver={(e) => (e.target.style.backgroundColor = '#3498db')}
-            onMouseOut={(e) => (e.target.style.backgroundColor = '#f0f0f0')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#ecf0f1')}
           >
-            <FaArrowLeft style={{ fontSize: '24px', color: '#333' }} />
+            <FaArrowLeft style={{ fontSize: '24px', color: '#2c3e50' }} />
           </button>
 
-          <h2 style={{ textAlign: 'center', marginBottom: '40px', color: '#333', fontSize: '2rem', fontWeight: '600' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '40px', color: '#2c3e50', fontSize: '2rem', fontWeight: '600' }}>
             Admin Dashboard
           </h2>
 
           {loading && (
-            <div style={{ textAlign: 'center', color: '#666', fontSize: '1.2rem' }}>Loading...</div>
+            <div style={{ textAlign: 'center', color: '#7f8c8d', fontSize: '1.2rem' }}>Loading...</div>
           )}
           {error && (
             <div
@@ -241,6 +336,7 @@ function AdminPage() {
                 marginBottom: '20px',
                 color: '#c0392b',
                 borderRadius: '5px',
+                textAlign: 'center'
               }}
             >
               {error}
@@ -254,6 +350,7 @@ function AdminPage() {
                 marginBottom: '20px',
                 color: message.includes('success') ? '#155724' : '#c0392b',
                 borderRadius: '5px',
+                textAlign: 'center'
               }}
             >
               {message}
@@ -278,8 +375,8 @@ function AdminPage() {
                 onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 <FaUsers style={{ fontSize: '2rem', color: '#3498db', marginBottom: '10px' }} />
-                <h4 style={{ margin: '0', color: '#333' }}>Total Customers</h4>
-                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#555' }}>{customerCount}</p>
+                <h4 style={{ margin: '0', color: '#2c3e50' }}>Total Customers</h4>
+                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#34495e' }}>{customerCount}</p>
               </div>
               <div
                 style={{
@@ -297,8 +394,8 @@ function AdminPage() {
                 onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 <FaBox style={{ fontSize: '2rem', color: '#3498db', marginBottom: '10px' }} />
-                <h4 style={{ margin: '0', color: '#333' }}>Total Items</h4>
-                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#555' }}>{itemCount}</p>
+                <h4 style={{ margin: '0', color: '#2c3e50' }}>Total Items</h4>
+                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#34495e' }}>{itemCount}</p>
               </div>
               <div
                 style={{
@@ -316,8 +413,8 @@ function AdminPage() {
                 onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 <FaDatabase style={{ fontSize: '2rem', color: '#3498db', marginBottom: '10px' }} />
-                <h4 style={{ margin: '0', color: '#333' }}>Total Backups</h4>
-                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#555' }}>{backupCount}</p>
+                <h4 style={{ margin: '0', color: '#2c3e50' }}>Total Backups</h4>
+                <p style={{ fontSize: '1.5rem', margin: '5px 0 0', color: '#34495e' }}>{backupCount}</p>
               </div>
             </div>
           )}
@@ -331,7 +428,7 @@ function AdminPage() {
               boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
             }}
           >
-            <h3 style={{ marginBottom: '20px', color: '#333', fontSize: '1.5rem', fontWeight: '600' }}>
+            <h3 style={{ marginBottom: '20px', color: '#2c3e50', fontSize: '1.5rem', fontWeight: '600' }}>
               Import Data to MongoDB
             </h3>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -340,8 +437,8 @@ function AdminPage() {
                 accept=".json"
                 onChange={handleFileChange}
                 style={{
-                  padding: '5px',
-                  border: '1px solid #ccc',
+                  padding: '10px',
+                  border: '1px solid #bdc3c7',
                   borderRadius: '5px',
                   fontSize: '1rem',
                 }}
@@ -351,11 +448,12 @@ function AdminPage() {
                 disabled={loading || !importFile}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: loading || !importFile ? '#ccc' : '#3498db',
+                  backgroundColor: loading || !importFile ? '#bdc3c7' : '#3498db',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '5px',
                   cursor: loading || !importFile ? 'not-allowed' : 'pointer',
+                  fontSize: '1rem',
                   transition: 'background-color 0.3s',
                 }}
                 onMouseOver={(e) =>
@@ -369,7 +467,7 @@ function AdminPage() {
               </button>
             </div>
             {importFile && (
-              <p style={{ marginTop: '10px', color: '#555' }}>Selected file: {importFile.name}</p>
+              <p style={{ marginTop: '10px', color: '#34495e' }}>Selected file: {importFile.name}</p>
             )}
           </div>
         </div>

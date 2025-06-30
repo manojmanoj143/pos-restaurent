@@ -129,194 +129,484 @@ const CustomerListPage = () => {
   };
 
   return (
-    <div className="min-vh-100 py-5" style={{ background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" }}>
-      <div className="container" style={{ maxWidth: "1300px" }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #e3e7eb 0%, #b8c6db 100%)',
+      padding: '40px 20px',
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        backgroundColor: '#ffffff',
+        borderRadius: '12px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        padding: '30px'
+      }}>
         <button
-          className="btn btn-light mb-4 d-flex align-items-center gap-2 shadow-sm"
           onClick={goToAdminPage}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 20px',
+            backgroundColor: '#f8f9fa',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '500',
+            color: '#333',
+            transition: 'background-color 0.3s ease',
+            marginBottom: '20px'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e9ecef'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
         >
           <FaArrowLeft /> Back to Admin
         </button>
 
-        <h2 className="mb-4 text-dark fw-bold border-bottom border-primary pb-3" style={{ width: "fit-content" }}>
+        <h2 style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          color: '#1a3c34',
+          borderBottom: '3px solid #1a73e8',
+          paddingBottom: '12px',
+          marginBottom: '25px',
+          width: 'fit-content'
+        }}>
           Customer Management
         </h2>
 
-        {/* Warning Message Display */}
         {warningMessage && (
-          <div className="alert alert-warning d-flex align-items-center justify-content-center mx-auto mb-4 shadow" style={{ maxWidth: "600px" }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#fff3cd',
+            color: '#856404',
+            padding: '15px 20px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            maxWidth: '600px',
+            margin: '0 auto',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          }}>
             <span>{warningMessage}</span>
             <button
-              type="button"
-              className="btn-close ms-3"
-              aria-label="Close"
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                color: '#856404'
+              }}
               onClick={() => setWarningMessage("")}
-            ></button>
+            >
+              &times;
+            </button>
           </div>
         )}
 
-        <div className="mb-4 d-flex align-items-center gap-2">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '25px'
+        }}>
           <input
             type="text"
-            className="form-control rounded-pill shadow-sm"
             placeholder="Search by phone number..."
             value={searchTerm}
             onChange={handleSearch}
-            style={{ maxWidth: "300px" }}
+            style={{
+              padding: '12px 20px',
+              borderRadius: '25px',
+              border: '1px solid #ced4da',
+              fontSize: '16px',
+              width: '300px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#1a73e8';
+              e.currentTarget.style.boxShadow = '0 0 8px rgba(26, 115, 232, 0.3)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#ced4da';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+            }}
           />
         </div>
 
         {loading && (
-          <div className="text-center text-muted">
+          <div style={{
+            textAlign: 'center',
+            color: '#6c757d',
+            fontSize: '18px',
+            padding: '20px'
+          }}>
             <p>Loading customers...</p>
           </div>
         )}
         {error && (
-          <div className="alert alert-danger d-flex align-items-center justify-content-center mx-auto mb-4 shadow" style={{ maxWidth: "600px" }}>
+          <div style={{
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            padding: '15px 20px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            maxWidth: '600px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          }}>
             <span>{error}</span>
             <button
-              type="button"
-              className="btn-close ms-3"
-              aria-label="Close"
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                color: '#721c24'
+              }}
               onClick={() => setError("")}
-            ></button>
+            >
+              &times;
+            </button>
           </div>
         )}
         {!loading && !error && filteredCustomers.length === 0 && (
-          <div className="bg-white p-4 rounded-3 text-center text-muted shadow mx-auto" style={{ maxWidth: "600px" }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: '20px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            color: '#6c757d',
+            fontSize: '18px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            maxWidth: '600px',
+            margin: '0 auto'
+          }}>
             No customers found
           </div>
         )}
 
         {!loading && !error && filteredCustomers.length > 0 && (
-          <div className="card shadow rounded-3 overflow-auto">
-            <div className="card-body p-0">
-              <table className="table table-hover mb-0">
-                <thead className="bg-primary text-white">
-                  <tr>
-                    <th scope="col" className="p-3">ID</th>
-                    <th scope="col" className="p-3">Name</th>
-                    <th scope="col" className="p-3">Phone</th>
-                    <th scope="col" className="p-3">Building</th>
-                    <th scope="col" className="p-3">Flat/Villa</th>
-                    <th scope="col" className="p-3">Location</th>
-                    <th scope="col" className="p-3">WhatsApp</th>
-                    <th scope="col" className="p-3">Email</th>
-                    <th scope="col" className="p-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCustomers.map((customer) => (
-                    <tr key={customer._id}>
-                      <td className="p-3">{customer._id}</td>
-                      <td className="p-3">{customer.customer_name}</td>
-                      <td className="p-3">{customer.phone_number}</td>
-                      <td className="p-3">{customer.building_name || "N/A"}</td>
-                      <td className="p-3">{customer.flat_villa_no || "N/A"}</td>
-                      <td className="p-3">{customer.location || "N/A"}</td>
-                      <td className="p-3">{customer.whatsapp_number || "N/A"}</td>
-                      <td className="p-3">{customer.email || "N/A"}</td>
-                      <td className="p-3">
-                        <button
-                          className="btn btn-success btn-sm me-2 rounded-pill"
-                          onClick={() => handleEditCustomer(customer)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm rounded-pill"
-                          onClick={() => handleDeleteCustomer(customer._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
+          <div style={{
+            overflowX: 'auto',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              backgroundColor: '#ffffff'
+            }}>
+              <thead style={{
+                backgroundColor: '#1a73e8',
+                color: '#ffffff',
+                fontWeight: '600'
+              }}>
+                <tr>
+                  {[
+                    'ID',
+                    'Name',
+                    'Phone',
+                    'Building',
+                    'Flat/Villa',
+                    'Location',
+                    'WhatsApp',
+                    'Email',
+                    'Actions'
+                  ].map((header, index) => (
+                    <th key={index} style={{
+                      padding: '15px',
+                      fontSize: '16px',
+                      textAlign: 'left',
+                      borderBottom: '2px solid #e9ecef',
+                      ...(index === 0 && { borderTopLeftRadius: '8px' }),
+                      ...(index === 8 && { borderTopRightRadius: '8px' })
+                    }}>
+                      {header}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.map((customer, index) => (
+                  <tr key={customer._id} style={{
+                    backgroundColor: index % 2 === 0 ? '#f8f9fa' : '#ffffff',
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e8f0fe'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff'}
+                  >
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer._id}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.customer_name}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.phone_number}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.building_name || 'N/A'}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.flat_villa_no || 'N/A'}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.location || 'N/A'}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.whatsapp_number || 'N/A'}</td>
+                    <td style={{ padding: '15px', fontSize: '15px', color: '#333' }}>{customer.email || 'N/A'}</td>
+                    <td style={{ padding: '15px' }}>
+                      <button
+                        onClick={() => handleEditCustomer(customer)}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#28a745',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '20px',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          marginRight: '10px',
+                          transition: 'background-color 0.3s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#218838'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#28a745'}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCustomer(customer._id)}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#dc3545',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '20px',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.3s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#c82333'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {/* Edit Customer Modal */}
         {showModal && (
-          <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
-            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: "500px" }}>
-              <div className="modal-content rounded-3 shadow">
-                <div className="modal-header border-bottom">
-                  <h5 className="modal-title text-dark fw-bold">Edit Customer</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setShowModal(false)}
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  {[
-                    { label: "Name", name: "customer_name" },
-                    { label: "Phone", name: "phone_number" },
-                    { label: "Building", name: "building_name" },
-                    { label: "Flat/Villa No", name: "flat_villa_no" },
-                    { label: "Location", name: "location" },
-                    { label: "WhatsApp", name: "whatsapp_number" },
-                    { label: "Email", name: "email", type: "email" },
-                  ].map((field) => (
-                    <div key={field.name} className="mb-3">
-                      <label className="form-label fw-medium text-dark">{field.label}</label>
-                      <input
-                        type={field.type || "text"}
-                        name={field.name}
-                        className="form-control rounded"
-                        value={selectedCustomer[field.name] || ""}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="modal-footer border-top">
-                  <button
-                    type="button"
-                    className="btn btn-success rounded-pill"
-                    onClick={handleSaveCustomer}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary rounded-pill"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              maxWidth: '500px',
+              width: '100%',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                padding: '20px',
+                borderBottom: '1px solid #e9ecef',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <h5 style={{
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  color: '#1a3c34',
+                  margin: 0
+                }}>
+                  Edit Customer
+                </h5>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#6c757d'
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+              <div style={{ padding: '20px' }}>
+                {[
+                  { label: "Name", name: "customer_name" },
+                  { label: "Phone", name: "phone_number" },
+                  { label: "Building", name: "building_name" },
+                  { label: "Flat/Villa No", name: "flat_villa_no" },
+                  { label: "Location", name: "location" },
+                  { label: "WhatsApp", name: "whatsapp_number" },
+                  { label: "Email", name: "email", type: "email" },
+                ].map((field) => (
+                  <div key={field.name} style={{ marginBottom: '20px' }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '15px',
+                      fontWeight: '500',
+                      color: '#1a3c34',
+                      marginBottom: '8px'
+                    }}>
+                      {field.label}
+                    </label>
+                    <input
+                      type={field.type || "text"}
+                      name={field.name}
+                      value={selectedCustomer[field.name] || ""}
+                      onChange={handleInputChange}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '1px solid #ced4da',
+                        fontSize: '15px',
+                        transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#1a73e8';
+                        e.currentTarget.style.boxShadow = '0 0 8px rgba(26, 115, 232, 0.3)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#ced4da';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div style={{
+                padding: '20px',
+                borderTop: '1px solid #e9ecef',
+                display: 'flex',
+                gap: '10px',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={handleSaveCustomer}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#28a745',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#218838'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#28a745'}
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6c757d',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#5c636a'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#6c757d'}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
-          <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
-            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: "400px" }}>
-              <div className="modal-content rounded-3 shadow">
-                <div className="modal-body text-center">
-                  <p className="text-dark mb-4">Are you sure you want to delete this customer?</p>
-                  <div className="d-flex gap-3">
-                    <button
-                      className="btn btn-danger rounded-pill flex-fill"
-                      onClick={confirmDelete}
-                    >
-                      Yes, Delete
-                    </button>
-                    <button
-                      className="btn btn-secondary rounded-pill flex-fill"
-                      onClick={() => setShowDeleteConfirm(false)}
-                    >
-                      No, Cancel
-                    </button>
-                  </div>
-                </div>
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              maxWidth: '400px',
+              width: '100%',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+              padding: '20px',
+              textAlign: 'center'
+            }}>
+              <p style={{
+                fontSize: '16px',
+                color: '#1a3c34',
+                marginBottom: '20px'
+              }}>
+                Are you sure you want to delete this customer?
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                justifyContent: 'center'
+              }}>
+                <button
+                  onClick={confirmDelete}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#dc3545',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    flex: 1,
+                    transition: 'background-color 0.3s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#c82333'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#6c757d',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    flex: 1,
+                    transition: 'background-color 0.3s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#5c636a'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#6c757d'}
+                >
+                  No, Cancel
+                </button>
               </div>
             </div>
           </div>

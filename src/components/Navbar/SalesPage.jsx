@@ -36,13 +36,16 @@ const SalesPage = () => {
   const [filterCustomer, setFilterCustomer] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
   const [filterItem, setFilterItem] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterUser, setFilterUser] = useState("");
   const [itemOptions, setItemOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [userList, setUserList] = useState([]);
   const [itemSearch, setItemSearch] = useState("");
   const [showItemDropdown, setShowItemDropdown] = useState(false);
   const [filterOrderType, setFilterOrderType] = useState("");
   const [warningMessage, setWarningMessage] = useState("");
   const [warningType, setWarningType] = useState("warning");
-  const [pendingAction, setPendingAction] = useState(null);
   const navigate = useNavigate();
 
   const [columnOrder, setColumnOrder] = useState([
@@ -61,6 +64,8 @@ const SalesPage = () => {
   useEffect(() => {
     fetchSalesData();
     fetchItemOptions();
+    fetchCategoryOptions();
+    fetchUsers();
   }, []);
 
   const fetchSalesData = () => {
@@ -89,17 +94,18 @@ const SalesPage = () => {
         const items = response.data.map((item) => ({
           name: item.item_name,
           type: "Item",
+          category: item.item_group || "N/A",
         }));
         const addons = response.data
           .flatMap((item) => item.addons || [])
           .map((addon) => ({
-            name: addon.name1,
+            name: addon.name1 || "",
             type: "Addon",
           }));
         const combos = response.data
           .flatMap((item) => item.combos || [])
           .map((combo) => ({
-            name: combo.name1,
+            name: combo.name1 || "",
             type: "Combo",
           }));
         const allOptions = [...items, ...addons, ...combos];
@@ -110,6 +116,32 @@ const SalesPage = () => {
       }
     } catch (error) {
       console.error("Error fetching item options:", error);
+    }
+  };
+
+  const fetchCategoryOptions = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/items");
+      if (response.data && Array.isArray(response.data)) {
+        const categories = [...new Set(response.data.map((item) => item.item_group))].filter(
+          (category) => category
+        );
+        setCategoryOptions(categories);
+      }
+    } catch (error) {
+      console.error("Error fetching category options:", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/users");
+      if (response.data && Array.isArray(response.data)) {
+        const bearers = response.data.filter((user) => user.role.toLowerCase() === "bearer");
+        setUserList(bearers);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
   };
 
@@ -136,6 +168,7 @@ const SalesPage = () => {
       .map((sale) => ({
         ...sale,
         orderType: sale.orderType || "N/A",
+        userId: sale.userId || "N/A",
       }));
 
     const invoiceNos = cleaned.map((sale) => sale.invoice_no);
@@ -252,88 +285,73 @@ const SalesPage = () => {
                     <tr style="margin-bottom: 5px;">
                         <td style="width: 50%; text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Invoice No</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${
-                          sale.invoice_no
-                        }</td>
+                        <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${sale.invoice_no}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Customer</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.customer || "N/A"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.customer || "N/A"}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Phone</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.phoneNumber || "N/A"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.phoneNumber || "N/A"}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Email</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.email || "N/A"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.email || "N/A"}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">WhatsApp</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.whatsappNumber || "N/A"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.whatsappNumber || "N/A"}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Order Type</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.orderType || "N/A"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.orderType || "N/A"}</td>
                     </tr>
-                    ${
-                      sale.tableNumber && sale.tableNumber !== "N/A"
-                        ? `
+                    ${sale.tableNumber && sale.tableNumber !== "N/A"
+                      ? `
                             <tr style="margin-bottom: 5px;">
                                 <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Table</td>
                                 <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
                                 <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.tableNumber}</td>
                             </tr>
                         `
-                        : ""
+                      : ""
                     }
-                    ${
-                      hasDeliveryAddress
-                        ? `
+                    ${hasDeliveryAddress
+                      ? `
                             <tr style="margin-bottom: 5px;">
                                 <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Delivery Address</td>
                                 <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
                                 <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${deliveryAddress}</td>
                             </tr>
                         `
-                        : ""
+                      : ""
                     }
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Payment Mode</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${
-                          sale.payments?.[0]?.mode_of_payment || "CASH"
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.payments?.[0]?.mode_of_payment || "CASH"}</td>
                     </tr>
                     ${cashGivenDisplay}
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Date</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${
-                          sale.date
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${sale.date}</td>
                     </tr>
                     <tr style="margin-bottom: 5px;">
                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Time</td>
                         <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
-                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${
-                          sale.time
-                        }</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap; color: #000000;">${sale.time}</td>
+                    </tr>
+                    <tr style="margin-bottom: 5px;">
+                        <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; color: #000000;">Bearer</td>
+                        <td style="text-align: center; padding: 2px; border: none; line-height: 1.5; color: #000000;">:</td>
+                        <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all; color: #000000;">${sale.userId || "N/A"}</td>
                     </tr>
                 </tbody>
             </table>
@@ -457,15 +475,6 @@ const SalesPage = () => {
             </div>
         </div>
     `;
-  };
-
-  const handleWarningOk = () => {
-    if (pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
-    setWarningMessage("");
-    setWarningType("warning");
   };
 
   const handlePrint = (sale) => {
@@ -658,6 +667,19 @@ const SalesPage = () => {
         })
       : true;
 
+    const categoryMatch = filterCategory
+      ? sale.items.some((item) => {
+          const itemCategory = itemOptions.find(
+            (option) => option.name === item.item_name
+          )?.category;
+          return itemCategory === filterCategory;
+        })
+      : true;
+
+    const userMatch = filterUser
+      ? sale.userId === filterUser
+      : true;
+
     const orderTypeMatch = filterOrderType
       ? normalizeOrderType(sale.orderType).toLowerCase() ===
         normalizeOrderType(filterOrderType).toLowerCase()
@@ -670,6 +692,8 @@ const SalesPage = () => {
       customerMatch &&
       phoneMatch &&
       itemMatch &&
+      categoryMatch &&
+      userMatch &&
       orderTypeMatch
     );
   });
@@ -737,7 +761,7 @@ const SalesPage = () => {
           <button
             type="button"
             className="btn btn-primary ms-3"
-            onClick={handleWarningOk}
+            onClick={() => setWarningMessage("")}
           >
             OK
           </button>
@@ -859,6 +883,36 @@ const SalesPage = () => {
           )}
         </div>
         <div className="filter-item">
+          <Form.Label className="fw-bold">Category:</Form.Label>
+          <Form.Select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="form-control shadow-sm"
+          >
+            <option value="">All Categories</option>
+            {categoryOptions.map((category, index) => (
+              <option key={index} value={category}>
+                {category}
+              </option>
+            ))}
+          </Form.Select>
+        </div>
+        <div className="filter-item">
+          <Form.Label className="fw-bold">Bearer:</Form.Label>
+          <Form.Select
+            value={filterUser}
+            onChange={(e) => setFilterUser(e.target.value)}
+            className="form-control shadow-sm"
+          >
+            <option value="">All Bearers</option>
+            {userList.map((user, index) => (
+              <option key={index} value={user.email}>
+                {user.firstName || user.email}
+              </option>
+            ))}
+          </Form.Select>
+        </div>
+        <div className="filter-item">
           <Form.Label className="fw-bold">Order Type:</Form.Label>
           <Form.Select
             value={filterOrderType}
@@ -886,6 +940,8 @@ const SalesPage = () => {
                 filterCustomer ||
                 filterPhone ||
                 filterItem ||
+                filterCategory ||
+                filterUser ||
                 filterOrderType
                   ? "Filtered Sales Data"
                   : "All Sales Data"}

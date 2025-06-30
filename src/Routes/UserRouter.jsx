@@ -39,6 +39,7 @@ import Employee from "../components/Form/Employee";
 import TripReport from "../components/Header/TripReport";
 import PosBalance from "../components/Header/PosBalance";
 import EmailSettings from "../components/Form/EmailSettings";
+import Purchase from "../components/Form/Purchase"; // Added import for Purchase component
 
 const UserRouter = () => {
   return (
@@ -69,6 +70,7 @@ const UserRouter = () => {
         <Route path="/record" element={<RecordPage />} />
         <Route path="/opening-entry" element={<OpeningEntry />} />
         <Route path="/closing-entry" element={<ClosingEntry />} />
+        <Route path="/purchase" element={<Purchase />} /> {/* Added route for Purchase module */}
 
         {/* System Configuration Routes */}
         <Route path="/backup" element={<BackupPage />} />

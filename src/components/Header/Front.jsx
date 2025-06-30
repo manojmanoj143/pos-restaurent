@@ -14,20 +14,6 @@ function FrontPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [billCartItems, setBillCartItems] = useState([]);
-  const location = useLocation();
-  const { state } = location;
-  const {
-    tableNumber = "N/A",
-    chairsBooked = [],
-    orderType = "Dine In",
-    existingOrder,
-    cartItems: initialCartItems,
-    phoneNumber: initialPhoneNumber,
-    customerName: initialCustomerName,
-    deliveryAddress: initialDeliveryAddress,
-    whatsappNumber: initialWhatsappNumber,
-    email: initialEmail,
-  } = state || {};
   const [isPhoneNumberSet, setIsPhoneNumberSet] = useState(false);
   const [savedOrders, setSavedOrders] = useState([]);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -43,7 +29,6 @@ function FrontPage() {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [email, setEmail] = useState("");
   const [orderId, setOrderId] = useState(null);
-  const navigate = useNavigate();
   const [bookedTables, setBookedTables] = useState([]);
   const [bookedChairs, setBookedChairs] = useState({});
   const [vatRate] = useState(0.10);
@@ -63,6 +48,7 @@ function FrontPage() {
 
   const phoneNumberRef = useRef(null);
   const customerSectionRef = useRef(null);
+
   const reduxUser = useSelector((state) => state.user.user);
   const storedUser = JSON.parse(localStorage.getItem("user")) || { email: "Guest" };
   const user = reduxUser || storedUser;
@@ -75,7 +61,22 @@ function FrontPage() {
     { code: "+61", country: "Australia" },
   ];
 
-  // **Handle clicks outside customer section**
+  const location = useLocation();
+  const { state } = location;
+  const {
+    tableNumber = "N/A",
+    chairsBooked = [],
+    orderType = "Dine In",
+    existingOrder,
+    cartItems: initialCartItems,
+    phoneNumber: initialPhoneNumber,
+    customerName: initialCustomerName,
+    deliveryAddress: initialDeliveryAddress,
+    whatsappNumber: initialWhatsappNumber,
+    email: initialEmail,
+  } = state || {};
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -90,12 +91,10 @@ function FrontPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showCustomerSection]);
 
-  // **Update date and time**
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      setCurrentDate(now.toLocaleDateString("en-US", options));
+      setCurrentDate(now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }));
       setCurrentTime(now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }));
     };
     updateDateTime();
@@ -103,7 +102,6 @@ function FrontPage() {
     return () => clearInterval(intervalId);
   }, []);
 
-  // **Fetch total chairs for the table**
   useEffect(() => {
     const fetchTableData = async () => {
       try {
@@ -117,7 +115,6 @@ function FrontPage() {
         if (table) {
           setTotalChairs(table.number_of_chairs || 0);
         } else {
-          console.warn(`Table ${tableNumber} not found in the backend.`);
           setTotalChairs(0);
         }
       } catch (err) {
@@ -128,7 +125,6 @@ function FrontPage() {
     if (tableNumber && tableNumber !== "N/A") fetchTableData();
   }, [tableNumber]);
 
-  // **Initialize state from location**
   useEffect(() => {
     if (state) {
       setPhoneNumber(initialPhoneNumber?.replace(/^\+\d+/, "") || existingOrder?.phoneNumber?.replace(/^\+\d+/, "") || "");
@@ -149,7 +145,6 @@ function FrontPage() {
     }
   }, [state, existingOrder, initialCartItems, initialPhoneNumber, initialCustomerName, initialDeliveryAddress, initialWhatsappNumber, initialEmail]);
 
-  // **Load saved orders and booked data**
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("savedOrders")) || [];
     setSavedOrders(saved);
@@ -159,7 +154,6 @@ function FrontPage() {
     setBookedChairs(chairs);
   }, []);
 
-  // **Fetch menu items**
   useEffect(() => {
     const fetchItems = async () => {
       try {
@@ -216,7 +210,6 @@ function FrontPage() {
     fetchItems();
   }, []);
 
-  // **Fetch customers**
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -234,7 +227,6 @@ function FrontPage() {
     fetchCustomers();
   }, []);
 
-  // **Search functionality**
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredItems(menuItems);
@@ -248,7 +240,6 @@ function FrontPage() {
     }
   }, [searchQuery, menuItems]);
 
-  // **Filter by category**
   const handleFilter = (category) => {
     setSearchQuery("");
     if (category === "All Items") {
@@ -260,14 +251,12 @@ function FrontPage() {
     setSelectedCategory(category);
   };
 
-  // **Handle item selection**
   const handleItemClick = (item) => {
     const existingCartItem = cartItems.find((cartItem) => cartItem.item_name === item.name);
     setSelectedItem(item);
     setSelectedCartItem(existingCartItem || null);
   };
 
-  // **Handle cart item click**
   const handleCartItemClick = (cartItem) => {
     const menuItem = menuItems.find((item) => item.name === cartItem.item_name || item.name === cartItem.name);
     if (menuItem) {
@@ -276,7 +265,6 @@ function FrontPage() {
     }
   };
 
-  // **Check for active offer**
   const hasActiveOffer = (item) => {
     return (
       item &&
@@ -286,7 +274,6 @@ function FrontPage() {
     );
   };
 
-  // **Calculate offer price based on size**
   const calculateOfferSizePrice = (offerPrice, size) => {
     if (!offerPrice) return 0;
     switch (size) {
@@ -297,7 +284,6 @@ function FrontPage() {
     }
   };
 
-  // **Update cart item**
   const handleItemUpdate = (updatedItem) => {
     const menuItem = menuItems.find((item) => item.name === updatedItem.item_name);
     const hasSizeVariant = menuItem?.size?.enabled || false;
@@ -330,7 +316,12 @@ function FrontPage() {
         ? Object.values(addonCustomVariantsDetails[addonName]).reduce((sum, variant) => sum + (variant.price || 0), 0)
         : 0;
       const totalAddonPrice = addonSizePrice + addonSpicyPrice + customVariantsPrice;
-      addonVariants[addonName] = { size: addonSize, spicy: addonSpicy, kitchen: addon?.kitchen || "Main Kitchen" };
+      addonVariants[addonName] = { 
+        size: addonSize, 
+        spicy: addonSpicy, 
+        kitchen: addon?.kitchen || "Main Kitchen",
+        sugar: updatedItem.addonVariants?.[addonName]?.sugar || 'medium'
+      };
       addonImages[addonName] = addon?.addon_image || "/static/images/default-addon-image.jpg";
       addonPrices[addonName] = totalAddonPrice;
       addonSizePrices[addonName] = addonSizePrice;
@@ -358,7 +349,12 @@ function FrontPage() {
         ? Object.values(comboCustomVariantsDetails[comboName]).reduce((sum, variant) => sum + (variant.price || 0), 0)
         : 0;
       const totalComboPrice = comboSizePrice + comboSpicyPrice + customVariantsPrice;
-      comboVariants[comboName] = { size: comboSize, spicy: comboSpicy, kitchen: combo?.kitchen || "Main Kitchen" };
+      comboVariants[comboName] = { 
+        size: comboSize, 
+        spicy: comboSpicy, 
+        kitchen: combo?.kitchen || "Main Kitchen",
+        sugar: updatedItem.comboVariants?.[comboName]?.sugar || 'medium'
+      };
       comboImages[comboName] = combo?.combo_image || "/static/images/default-combo-image.jpg";
       comboPrices[comboName] = totalComboPrice;
       comboSizePrices[comboName] = comboSizePrice;
@@ -410,6 +406,7 @@ function FrontPage() {
       selectedSize: updatedSelectedSize,
       icePreference: updatedItem.variants?.cold?.icePreference || "without_ice",
       isSpicy: updatedItem.variants?.spicy?.isSpicy || false,
+      sugarLevel: updatedItem.variants?.sugar?.level || (menuItem?.sugar?.level || 'medium'),
       kitchen: updatedItem.kitchen || "Main Kitchen",
       ingredients: updatedItem.ingredients || [],
       selectedCustomVariants: updatedItem.selectedCustomVariants || {},
@@ -439,7 +436,6 @@ function FrontPage() {
     setSelectedCartItem(null);
   };
 
-  // **Handle quantity changes**
   const handleQuantityChange = (itemId, value, type, name) => {
     const newQty = Math.max(1, parseInt(value) || 1);
     const updateItems = (prevItems) =>
@@ -486,7 +482,6 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
-  // **Calculate totals**
   const getAddonsTotal = (item) => {
     if (!item.addonQuantities || !item.addonPrices) return 0;
     return Object.entries(item.addonQuantities).reduce((sum, [addonName, qty]) => {
@@ -516,13 +511,11 @@ function FrontPage() {
     return mainItemPrice * item.quantity;
   };
 
-  // **Remove from cart**
   const removeFromCart = (item) => {
     setCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
     setBillCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
   };
 
-  // **Remove addon or combo**
   const removeAddonOrCombo = (itemId, type, name) => {
     const updateItems = (prevItems) =>
       prevItems.map((cartItem) => {
@@ -573,7 +566,6 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
-  // **Remove custom variant**
   const removeCustomVariant = (itemId, variantName) => {
     const updateItems = (prevItems) =>
       prevItems.map((cartItem) => {
@@ -597,7 +589,6 @@ function FrontPage() {
     setBillCartItems(updateItems);
   };
 
-  // **Handle warning confirmation**
   const handleWarningOk = () => {
     if (pendingAction) {
       pendingAction();
@@ -607,7 +598,6 @@ function FrontPage() {
     setWarningType("warning");
   };
 
-  // **Calculate subtotal**
   const calculateSubtotal = (items) => {
     return items.reduce((sum, item) => {
       const mainItemPrice = item.basePrice + item.icePrice + item.spicyPrice + getCustomVariantsTotal(item);
@@ -618,10 +608,15 @@ function FrontPage() {
     }, 0);
   };
 
-  // **Handle payment selection**
   const handlePaymentSelection = async (method) => {
     if (billCartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before proceeding.");
+      setWarningType("warning");
+      return;
+    }
+
+    if (user.email === "Guest") {
+      setWarningMessage("Please log in to save the sale.");
       setWarningType("warning");
       return;
     }
@@ -631,7 +626,6 @@ function FrontPage() {
       mode_of_payment: method,
       amount: Number(subtotal.toFixed(2)),
     };
-
     const billDetails = {
       customerName: customerName || "N/A",
       phoneNumber: phoneNumber ? `${selectedISDCode}${phoneNumber}` : "N/A",
@@ -647,6 +641,7 @@ function FrontPage() {
         icePrice: item.icePrice,
         isSpicy: item.isSpicy,
         spicyPrice: item.spicyPrice,
+        sugarLevel: item.sugarLevel,
         quantity: item.quantity,
         totalPrice: item.totalPrice,
         addonQuantities: item.addonQuantities || {},
@@ -729,7 +724,6 @@ function FrontPage() {
     }
   };
 
-  // **Handle payment completion**
   const handlePaymentCompletion = (tableNumber, chairsBooked) => {
     const updatedOrders = savedOrders.filter(
       (order) =>
@@ -773,12 +767,17 @@ function FrontPage() {
     setPendingAction(() => () => navigate("/table"));
   };
 
-  // **Save to backend**
   const handleSaveToBackend = async (paymentDetails) => {
     if (billCartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before saving.");
       setWarningType("warning");
       throw new Error("Cart is empty");
+    }
+
+    if (user.email === "Guest") {
+      setWarningMessage("Please log in to save the sale.");
+      setWarningType("warning");
+      throw new Error("User not logged in");
     }
 
     const validItems = billCartItems.filter((item) => item.quantity > 0);
@@ -799,11 +798,12 @@ function FrontPage() {
       email: email || "N/A",
       items: validItems.map((item) => ({
         item_name: item.item_name || item.name,
-        basePrice: item.basePrice,
+        basePrice: Number(item.basePrice),
         icePreference: item.icePreference,
-        ice_price: item.icePrice,
+        ice_price: Number(item.icePrice),
         isSpicy: item.isSpicy,
-        spicy_price: item.spicyPrice,
+        spicy_price: Number(item.spicyPrice),
+        sugarLevel: item.sugarLevel,
         quantity: Number(item.quantity) || 1,
         amount: Number(item.totalPrice.toFixed(2)),
         addons: Object.entries(item.addonQuantities || {}).map(([addonName, qty]) => ({
@@ -814,6 +814,7 @@ function FrontPage() {
           size: item.addonVariants?.[addonName]?.size || "M",
           isSpicy: item.addonVariants?.[addonName]?.spicy || false,
           kitchen: item.addonVariants?.[addonName]?.kitchen || "Main Kitchen",
+          sugar: item.addonVariants?.[addonName]?.sugar || 'medium',
           custom_variants: item.addonCustomVariantsDetails?.[addonName] || {},
         })),
         selectedCombos: Object.entries(item.comboQuantities || {}).map(([comboName, qty]) => ({
@@ -822,8 +823,9 @@ function FrontPage() {
           combo_price: Number(item.comboPrices?.[comboName] || item.comboVariants[comboName]?.price || 0),
           size: item.comboVariants?.[comboName]?.size || "M",
           isSpicy: item.comboVariants?.[comboName]?.spicy || false,
-          combo_quantity: Number(qty),
           kitchen: item.comboVariants?.[comboName]?.kitchen || "Main Kitchen",
+          sugar: item.comboVariants?.[comboName]?.sugar || 'medium',
+          combo_quantity: Number(qty),
           custom_variants: item.comboCustomVariantsDetails?.[comboName] || {},
         })),
         kitchen: item.kitchen || "Main Kitchen",
@@ -835,10 +837,15 @@ function FrontPage() {
         image: item.image || "/static/images/default-item.jpg",
       })),
       total: Number(subtotal.toFixed(2)),
+      userId: user.email, // Ensure userId is the logged-in user's email
       payment_terms: [{ due_date: new Date().toISOString().split("T")[0], payment_terms: "Immediate" }],
       payments: [paymentDetails],
       orderType: orderType || "Dine In",
+      status: "Pending",
     };
+
+    console.log("Saving sale with userId:", user.email);
+    console.log("Payload being sent to /api/sales:", payload);
 
     try {
       const response = await fetch("http://localhost:5000/api/sales", {
@@ -848,7 +855,9 @@ function FrontPage() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Failed to save sale");
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save sale");
+      }
 
       console.log("Sale saved successfully:", result);
       setWarningMessage(`Sale saved successfully! Invoice No: ${result.invoice_no}`);
@@ -866,14 +875,12 @@ function FrontPage() {
     }
   };
 
-  // **Handle key press**
   const handleKeyPress = (e) => {
     if (e.key === " " || e.keyCode === 32) {
       e.preventDefault();
     }
   };
 
-  // **Create customer**
   const handleCreateCustomer = async () => {
     if (orderType !== "Dine In" && (!customerName.trim() || !phoneNumber)) {
       setWarningMessage("Customer name and phone number are required for non-Dine In orders.");
@@ -930,7 +937,6 @@ function FrontPage() {
     }
   };
 
-  // **Handle customer name change**
   const handleCustomerNameChange = (e) => {
     const value = e.target.value;
     setCustomerName(value);
@@ -949,7 +955,6 @@ function FrontPage() {
     }
   };
 
-  // **Handle phone number change**
   const handlePhoneNumberChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) {
@@ -979,13 +984,11 @@ function FrontPage() {
     }
   };
 
-  // **Handle ISD code selection**
   const handleISDCodeSelect = (code) => {
     setSelectedISDCode(code);
     setShowISDCodeDropdown(false);
   };
 
-  // **Handle customer selection**
   const handleCustomerSelect = (customer) => {
     setCustomerName(customer.customer_name);
     const fullPhone = customer.phone_number || "";
@@ -1003,7 +1006,6 @@ function FrontPage() {
     setIsPhoneNumberSet(true);
   };
 
-  // **Handle customer submission**
   const handleCustomerSubmit = () => {
     if (orderType === "Dine In") {
       setIsPhoneNumberSet(true);
@@ -1026,7 +1028,6 @@ function FrontPage() {
     }
   };
 
-  // **Save order**
   const saveOrder = async () => {
     if (cartItems.length === 0) {
       setWarningMessage("Cart is empty. Please add items before saving.");
@@ -1059,6 +1060,7 @@ function FrontPage() {
         icePrice: Number(item.icePrice) || 0,
         isSpicy: item.isSpicy || false,
         spicyPrice: Number(item.spicyPrice) || 0,
+        sugarLevel: item.sugarLevel || 'medium',
         totalPrice: Number(item.totalPrice) || item.basePrice * (item.quantity || 1),
         addonQuantities: item.addonQuantities || {},
         addonVariants: item.addonVariants || {},
@@ -1161,18 +1163,15 @@ function FrontPage() {
     }
   };
 
-  // **Handle delivery address change**
   const handleDeliveryAddressChange = (field, value) => {
     setDeliveryAddress((prev) => ({ ...prev, [field]: value.trimStart() }));
   };
 
-  // **Handle WhatsApp number change**
   const handleWhatsappNumberChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) setWhatsappNumber(value);
   };
 
-  // **Set phone number**
   const handleSetPhoneNumber = () => {
     if (orderType === "Dine In") {
       setIsPhoneNumberSet(true);
@@ -1187,7 +1186,6 @@ function FrontPage() {
     handleCustomerSubmit();
   };
 
-  // **Cancel cart**
   const cancelCart = () => {
     setCartItems([]);
     setBillCartItems([]);
@@ -1195,12 +1193,10 @@ function FrontPage() {
     setWarningType("success");
   };
 
-  // **Navigate to active orders**
   const handleActiveOrdersClick = () => {
     navigate("/active-orders");
   };
 
-  // **Category navigation**
   const handleNext = () => {
     setStartIndex((prev) => prev + 1);
   };
@@ -1209,17 +1205,14 @@ function FrontPage() {
     setStartIndex((prev) => Math.max(0, prev - 1));
   };
 
-  // **Navigate to sales report**
   const handleSalesReportNavigation = () => {
     navigate("/sales-reports");
   };
 
-  // **Navigate to closing entry**
   const handleClosingEntryNavigation = () => {
     navigate("/closing-entry");
   };
 
-  // **Handle logout**
   const handleLogout = () => {
     setWarningMessage("Logout Successful!");
     setWarningType("success");
@@ -1229,7 +1222,6 @@ function FrontPage() {
     });
   };
 
-  // **Calculate chair status**
   const totalBookedChairs = bookedChairs[tableNumber]?.length || 0;
   const availableChairs = totalChairs - totalBookedChairs;
   const subtotal = calculateSubtotal(cartItems);
@@ -1238,7 +1230,6 @@ function FrontPage() {
   const showKitchenColumn = orderType === "Dine In";
   const visibleCategories = categories.slice(startIndex, startIndex + 5);
 
-  // **Render component**
   return (
     <div className="frontpage-container">
       <div className={`frontpage-sidebar ${isSidebarOpen ? "open" : ""}`}>
@@ -1249,65 +1240,37 @@ function FrontPage() {
         )}
         <ul className="navbar-nav mx-auto mb-2 mb-lg-0 d-flex justify-content-center flex-column align-items-center h-100">
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/frontpage" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={() => navigate("/frontpage")}
-              title="Home"
-            >
+            <a className={`nav-link ${location.pathname === "/frontpage" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={() => navigate("/frontpage")} title="Home">
               <img src="/menuIcons/home.svg" alt="Home" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/home" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={() => navigate("/home")}
-              title="Type Of Delivery"
-            >
+            <a className={`nav-link ${location.pathname === "/home" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={() => navigate("/home")} title="Type Of Delivery">
               <img src="/menuIcons/delivery.svg" alt="Delivery" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/table" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={() => navigate("/table")}
-              title="Table"
-            >
+            <a className={`nav-link ${location.pathname === "/table" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={() => navigate("/table")} title="Table">
               <img src="/menuIcons/table1.svg" alt="Table" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/kitchen" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={() => navigate("/kitchen")}
-              title="Kitchen"
-            >
+            <a className={`nav-link ${location.pathname === "/kitchen" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={() => navigate("/kitchen")} title="Kitchen">
               <img src="/menuIcons/kitchen.svg" alt="Kitchen" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/salespage" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={() => navigate("/salespage")}
-              title="Sales Invoice"
-            >
+            <a className={`nav-link ${location.pathname === "/salespage" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={() => navigate("/salespage")} title="Sales Invoice">
               <img src="/menuIcons/save.svg" alt="Save" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/sales-reports" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={handleSalesReportNavigation}
-              title="Sales Report"
-            >
+            <a className={`nav-link ${location.pathname === "/sales-reports" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={handleSalesReportNavigation} title="Sales Report">
               <img src="/menuIcons/salesreport.svg" alt="Sales Report" className="icon-size" />
             </a>
           </li>
           <li className="nav-item">
-            <a
-              className={`nav-link ${location.pathname === "/closing-entry" ? "active text-primary" : "text-black"} cursor-pointer`}
-              onClick={handleClosingEntryNavigation}
-              title="Closing Entry"
-            >
+            <a className={`nav-link ${location.pathname === "/closing-entry" ? "active text-primary" : "text-black"} cursor-pointer`} onClick={handleClosingEntryNavigation} title="Closing Entry">
               <img src="/menuIcons/closingentry.svg" alt="Closing Entry" className="icon-size" />
             </a>
           </li>
@@ -1405,32 +1368,6 @@ function FrontPage() {
 
         {showCustomerSection && (
           <div className="frontpage-customer-info" ref={customerSectionRef}>
-            {tableNumber && tableNumber !== "N/A" && (
-              <>
-                <h4 className="frontpage-order-header">
-                  Order for Table {tableNumber}, Chairs {Array.isArray(chairsBooked) ? chairsBooked.join(", ") : "None"}
-                </h4>
-                <div className="frontpage-chairs-container">
-                  {totalChairs > 0 ? (
-                    <>
-                      {Array.from({ length: totalBookedChairs }).map((_, index) => (
-                        <i key={`booked-${index}`} className="fa-solid fa-chair hazırlanpage-chair-icon frontpage-booked-chair"></i>
-                      ))}
-                      {Array.from({ length: availableChairs }).map((_, index) => (
-                        <i key={`available-${index}`} className="fa-solid fa-chair frontpage-chair-icon frontpage-available-chair"></i>
-                      ))}
-                    </>
-                  ) : (
-                    <span>No chairs</span>
-                  )}
-                </div>
-                <div className="frontpage-chair-status">
-                  {totalChairs > 0 && (
-                    <span>{totalBookedChairs} booked, {availableChairs} available</span>
-                  )}
-                </div>
-              </>
-            )}
             <div className="frontpage-input-group">
               <input
                 type="text"
@@ -1518,6 +1455,41 @@ function FrontPage() {
             )}
           </div>
         )}
+
+        <div className="frontpage-order-details">
+          {orderType === "Dine In" && tableNumber && tableNumber !== "N/A" && (
+            <>
+              <h4 className="frontpage-order-header">
+                Order for Table {tableNumber}, Chairs {Array.isArray(chairsBooked) ? chairsBooked.join(", ") : "None"}
+              </h4>
+              <div className="frontpage-chairs-container">
+                {totalChairs > 0 ? (
+                  <>
+                    {Array.from({ length: totalBookedChairs }).map((_, index) => (
+                      <i key={`booked-${index}`} className="fa-solid fa-chair frontpage-chair-icon frontpage-booked-chair"></i>
+                    ))}
+                    {Array.from({ length: availableChairs }).map((_, index) => (
+                      <i key={`available-${index}`} className="fa-solid fa-chair frontpage-chair-icon frontpage-available-chair"></i>
+                    ))}
+                  </>
+                ) : (
+                  <span>No chairs</span>
+                )}
+              </div>
+              <div className="frontpage-chair-status">
+                {totalChairs > 0 && (
+                  <span>{totalBookedChairs} booked, {availableChairs} available</span>
+                )}
+              </div>
+            </>
+          )}
+          {(customerName || phoneNumber) && (
+            <div className="frontpage-selected-customer">
+              {customerName && <p>Customer: {customerName}</p>}
+              {phoneNumber && <p>Phone: {selectedISDCode}{phoneNumber}</p>}
+            </div>
+          )}
+        </div>
 
         <div className="frontpage-cart-section">
           <table className="frontpage-cart-table">
@@ -1727,6 +1699,44 @@ function FrontPage() {
                                 </td>
                               </tr>
                             )}
+                            {item.addonVariants[addonName]?.sugar && item.addonVariants[addonName].sugar !== 'medium' && (
+                              <tr>
+                                <td></td>
+                                <td>
+                                  <div className="frontpage-cart-item-option">
+                                    {addonName} (Sugar: {item.addonVariants[addonName].sugar.charAt(0).toUpperCase() + item.addonVariants[addonName].sugar.slice(1)})
+                                  </div>
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    className="frontpage-cart-quantity-input"
+                                    value={qty}
+                                    onChange={(e) => handleQuantityChange(item.id, e.target.value, "addon", addonName)}
+                                    min="1"
+                                  />
+                                </td>
+                                <td>₹0.00</td>
+                                {showKitchenColumn && <td></td>}
+                                <td>
+                                  <button
+                                    className="frontpage-remove-btn"
+                                    onClick={() => {
+                                      const updatedVariants = {
+                                        ...item.addonVariants,
+                                        [addonName]: { ...item.addonVariants[addonName], sugar: 'medium' },
+                                      };
+                                      handleItemUpdate({
+                                        ...item,
+                                        addonVariants: updatedVariants,
+                                      });
+                                    }}
+                                  >
+                                    <i className="bi bi-x"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            )}
                             {item.addonCustomVariantsDetails?.[addonName] &&
                               Object.entries(item.addonCustomVariantsDetails[addonName]).map(([variantName, variant]) => (
                                 <tr key={`${item.id}-addon-${addonName}-custom-${variantName}`}>
@@ -1834,6 +1844,44 @@ function FrontPage() {
                                         ...item,
                                         comboVariants: updatedVariants,
                                         comboSpicyPrices: { ...item.comboSpicyPrices, [comboName]: 0 },
+                                      });
+                                    }}
+                                  >
+                                    <i className="bi bi-x"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            )}
+                            {item.comboVariants[comboName]?.sugar && item.comboVariants[comboName].sugar !== 'medium' && (
+                              <tr>
+                                <td></td>
+                                <td>
+                                  <div className="frontpage-cart-item-option">
+                                    {comboName} (Sugar: {item.comboVariants[comboName].sugar.charAt(0).toUpperCase() + item.comboVariants[comboName].sugar.slice(1)})
+                                  </div>
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    className="frontpage-cart-quantity-input"
+                                    value={qty}
+                                    onChange={(e) => handleQuantityChange(item.id, e.target.value, "combo", comboName)}
+                                    min="1"
+                                  />
+                                </td>
+                                <td>₹0.00</td>
+                                {showKitchenColumn && <td></td>}
+                                <td>
+                                  <button
+                                    className="frontpage-remove-btn"
+                                    onClick={() => {
+                                      const updatedVariants = {
+                                        ...item.comboVariants,
+                                        [comboName]: { ...item.comboVariants[comboName], sugar: 'medium' },
+                                      };
+                                      handleItemUpdate({
+                                        ...item,
+                                        comboVariants: updatedVariants,
                                       });
                                     }}
                                   >

@@ -1,0 +1,1 @@
+dist_electron/win-unpacked/resources/app.asar filter=lfs diff=lfs merge=lfs -text

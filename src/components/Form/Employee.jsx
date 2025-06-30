@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -13,6 +14,7 @@ function EmployeePage() {
     phoneNumber: '',
     vehicleNumber: '',
     role: 'Delivery Boy',
+    email: '', // Added email field
   });
   const [editMode, setEditMode] = useState(false);
   const [editEmployeeId, setEditEmployeeId] = useState(null);
@@ -59,7 +61,7 @@ function EmployeePage() {
   const handleCreateEmployee = async (e) => {
     e.preventDefault();
     const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
-    if (!formData.name || !formData.phoneNumber || !formData.vehicleNumber) {
+    if (!formData.name || !formData.phoneNumber || !formData.vehicleNumber || !formData.email) {
       setError('Please fill in all fields');
       return;
     }
@@ -72,9 +74,10 @@ function EmployeePage() {
         phoneNumber: fullPhoneNumber,
         vehicleNumber: formData.vehicleNumber,
         role: formData.role,
+        email: formData.email,
       });
       setMessage('Employee created successfully');
-      setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy' });
+      setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy', email: '' });
       fetchEmployees();
     } catch (err) {
       setError(`Failed to create employee: ${err.response?.data?.error || err.message}`);
@@ -95,6 +98,7 @@ function EmployeePage() {
       phoneNumber,
       vehicleNumber: employee.vehicleNumber,
       role: employee.role,
+      email: employee.email || '',
     });
     setSelectedEmployee(employee);
   };
@@ -103,7 +107,7 @@ function EmployeePage() {
   const handleUpdateEmployee = async (e) => {
     e.preventDefault();
     const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
-    if (!formData.name || !formData.phoneNumber || !formData.vehicleNumber) {
+    if (!formData.name || !formData.phoneNumber || !formData.vehicleNumber || !formData.email) {
       setError('Please fill in all fields');
       return;
     }
@@ -116,9 +120,10 @@ function EmployeePage() {
         phoneNumber: fullPhoneNumber,
         vehicleNumber: formData.vehicleNumber,
         role: formData.role,
+        email: formData.email,
       });
       setMessage('Employee updated successfully');
-      setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy' });
+      setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy', email: '' });
       setEditMode(false);
       setEditEmployeeId(null);
       setSelectedEmployee(null);
@@ -152,7 +157,7 @@ function EmployeePage() {
   const handleSelectEmployee = (employee) => {
     setSelectedEmployee(employee);
     setEditMode(false);
-    setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy' });
+    setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy', email: '' });
   };
 
   return (
@@ -238,6 +243,20 @@ function EmployeePage() {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Employee Name"
+                style={{
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
+                  fontSize: '1rem',
+                  outline: 'none',
+                }}
+              />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email Address"
                 style={{
                   padding: '10px',
                   border: '1px solid #ccc',
@@ -335,7 +354,7 @@ function EmployeePage() {
                 <button
                   onClick={() => {
                     setEditMode(false);
-                    setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy' });
+                    setFormData({ name: '', countryCode: '+91', phoneNumber: '', vehicleNumber: '', role: 'Delivery Boy', email: '' });
                     setEditEmployeeId(null);
                   }}
                   style={{
@@ -455,6 +474,7 @@ function EmployeePage() {
               Employee Details
             </h3>
             <p style={{ margin: '5px 0' }}><strong>Name:</strong> {selectedEmployee.name}</p>
+            <p style={{ margin: '5px 0' }}><strong>Email:</strong> {selectedEmployee.email || 'N/A'}</p>
             <p style={{ margin: '5px 0' }}><strong>Phone Number:</strong> {selectedEmployee.phoneNumber}</p>
             <p style={{ margin: '5px 0' }}><strong>Vehicle Number:</strong> {selectedEmployee.vehicleNumber}</p>
             <p style={{ margin: '5px 0' }}><strong>Role:</strong> {selectedEmployee.role}</p>
