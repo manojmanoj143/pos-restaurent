@@ -1,77 +1,272 @@
-/* card.css */
+/* card.css - Comprehensive stylesheet for Card component */
+
+/* Root container styling */
 .card-container {
     min-height: 100vh;
-    background-color: #f8f9fa;
-    padding: 20px 0;
+    background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+    padding: 30px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: relative;
+    overflow-x: hidden;
 }
 
-.back-button {
-    position: absolute;
+/* Back button styling */
+.card-back-btn {
+    position: fixed;
     top: 20px;
     left: 20px;
-    font-size: 2rem;
-    color: #007bff;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 25px;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.back-button:hover {
-    color: #0056b3;
+.card-back-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+.card-back-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.card-back-btn i {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+/* Card component styling */
 .card {
+    max-width: 700px;
+    width: 100%;
     border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
     overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 60px;
 }
 
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Card header styling */
 .card-header {
     background: linear-gradient(135deg, #007bff, #00b4db);
+    padding: 20px;
+    text-align: center;
     border-bottom: none;
 }
 
-.items-list {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.item-card {
-    background: #fff;
-    border: 1px solid #e9ecef;
-}
-
-.item-card .item-total {
-    color: #28a745;
-}
-
-.addon-list, .combo-list {
-    list-style: none;
-    padding: 0;
+.card-header h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #ffffff;
     margin: 0;
-    font-size: 0.9rem;
-    color: #6c757d;
+    letter-spacing: 0.5px;
 }
 
-.totals-section {
+/* Card body styling */
+.card-body {
+    padding: 25px;
+    background: #f9f9f9;
+}
+
+/* Customer info section */
+.customer-info {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.customer-info h5 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+}
+
+.customer-info p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+    color: #333333;
+}
+
+.customer-info .text-primary {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Items table styling */
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    padding: 12px;
+    vertical-align: middle;
     border: 1px solid #dee2e6;
 }
 
-.form-control {
+.table th {
+    background: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
+}
+
+.table td {
+    background: #ffffff;
+    color: #333333;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.sub-item td {
+    background: #f1f1f1;
+    font-size: 0.85rem;
+    color: #555555;
+}
+
+/* Totals section styling */
+.totals-section {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.totals-section .row {
+    margin: 0;
+}
+
+.totals-section .col-6 {
+    padding: 8px 0;
+}
+
+.totals-section .text-start {
+    color: #333333;
+}
+
+.totals-section .text-end {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.totals-section .fw-bold {
     font-size: 1.1rem;
-    padding: 10px;
+    color: #000000;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 500;
+    color: #333333;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 12px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    font-size: 0.85rem;
+    color: #dc3545;
+}
+
+/* Buttons styling */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-success {
-    font-weight: bold;
-    font-size: 1.1rem;
-    transition: background-color 0.3s ease;
+    background-color: #28a745;
+    border-color: #28a745;
 }
 
 .btn-success:hover {
     background-color: #218838;
+    border-color: #1e7e34;
 }
 
-/* Warning and Success Alerts */
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Alert styling */
 .alert {
     position: fixed;
     top: 20px;
@@ -79,34 +274,181 @@
     transform: translateX(-50%);
     z-index: 1050;
     min-width: 300px;
+    max-width: 90%;
+    padding: 15px 20px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 15px;
+    justify-content: space-between;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     font-size: 1rem;
+    animation: slideIn 0.3s ease;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeeba;
 }
 
 .alert .btn {
-    margin-left: 15px;
-    padding: 5px 20px;
+    padding: 6px 20px;
     font-size: 0.9rem;
+    border-radius: 6px;
 }
 
-/* Responsive Adjustments */
+/* Modal styling */
+.cash-modal-header {
+    background: linear-gradient(135deg, #007bff, #00b4db);
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.cash-modal-header .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.cash-modal-header .btn-close {
+    filter: invert(1);
+}
+
+.cash-modal-input {
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+.cash-modal-footer {
+    border-top: none;
+    padding: 15px;
+}
+
+.cash-modal-footer .btn {
+    margin-left: 10px;
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+    from {
+        transform: translateX(-50%) translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
 @media (max-width: 991px) {
+    .card {
+        max-width: 90%;
+    }
+
     .alert {
         min-width: 80%;
+        font-size: 0.95rem;
+    }
+
+    .alert .btn {
+        padding: 5px 15px;
+        font-size: 0.85rem;
     }
 }
 
 @media (max-width: 576px) {
-    .alert {
-        min-width: 90%;
+    .card-container {
+        padding: 20px 10px;
+    }
+
+    .card-back-btn {
+        top: 15px;
+        left: 15px;
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+
+    .card {
+        margin-top: 50px;
+    }
+
+    .card-header h3 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    .totals-section {
         font-size: 0.9rem;
     }
 
+    .form-control {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        font-size: 0.95rem;
+    }
+
+    .alert {
+        min-width: 95%;
+        font-size: 0.9rem;
+        padding: 12px 15px;
+    }
+
     .alert .btn {
-        padding: 4px 15px;
+        padding: 4px 12px;
         font-size: 0.8rem;
+    }
+
+    .cash-modal-header .modal-title {
+        font-size: 1.25rem;
+    }
+
+    .cash-modal-input {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+}
+
+@media print {
+    .card-container {
+        background: none;
+    }
+
+    .card-back-btn,
+    .alert,
+    .btn {
+        display: none;
+    }
+
+    .card {
+        box-shadow: none;
+        margin: 0;
+        border: none;
+    }
+
+    .card-body {
+        padding: 0;
     }
 }

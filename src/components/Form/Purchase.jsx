@@ -3,6 +3,64 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaShoppingCart, FaTruck, FaFileInvoice, FaChartBar, FaTrash, FaUser, FaPrint } from 'react-icons/fa';
 
+function WarningMessage({ message, onConfirm, onCancel }) {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: '#fff3cd',
+      padding: '20px',
+      borderRadius: '8px',
+      border: '1px solid #ffeeba',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+      zIndex: 1000,
+      maxWidth: '400px',
+      width: '90%',
+      textAlign: 'center'
+    }}>
+      <p style={{ color: '#856404', marginBottom: '20px', fontSize: '1.1rem' }}>{message}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+        <button
+          onClick={onConfirm}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#3498db',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            transition: 'background-color 0.3s'
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = '#2980b9')}
+          onMouseOut={(e) => (e.target.style.backgroundColor = '#3498db')}
+        >
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#e74c3c',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            transition: 'background-color 0.3s'
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = '#c0392b')}
+          onMouseOut={(e) => (e.target.style.backgroundColor = '#e74c3c')}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Purchase() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('item');
@@ -16,6 +74,8 @@ function Purchase() {
   const [message, setMessage] = useState('');
   const [editingItem, setEditingItem] = useState(null);
   const [editingSupplier, setEditingSupplier] = useState(null);
+  const [showWarning, setShowWarning] = useState(null);
+  const [warningAction, setWarningAction] = useState(null);
 
   // Form states
   const [itemForm, setItemForm] = useState({ name: '', mainUnit: '', subUnit: '', conversionFactor: '' });
@@ -187,11 +247,11 @@ function Purchase() {
       setMessage('');
       setError(null);
       const response = await axios.put(`http://localhost:5000/api/purchase_items/${editingItem._id}`, itemForm);
-      setItems(items.map(i => i._id === editingItem._id ? { ...i, ...itemForm } : i));
+      setItems(items.map(item => item._id === editingItem._id ? { ...item, ...itemForm } : item));
       setEditingItem(null);
       setItemForm({ name: '', mainUnit: '', subUnit: '', conversionFactor: '' });
       setMessage(response.data.message);
-      fetchItems(); // Refetch to ensure data consistency
+      fetchItems();
     } catch (err) {
       setError(`Failed to update item: ${err.response?.data?.error || err.message}`);
     } finally {
@@ -200,19 +260,22 @@ function Purchase() {
   };
 
   const deleteItem = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
+    setShowWarning('Are you sure you want to delete this item?');
+    setWarningAction(() => async () => {
       try {
         setLoading(true);
         const response = await axios.delete(`http://localhost:5000/api/purchase_items/${id}`);
-        fetchItems(); // Refetch items
+        fetchItems();
         setMessage(response.data.message);
         setError(null);
       } catch (err) {
         setError(`Failed to delete item: ${err.response?.data?.error || err.message}`);
       } finally {
         setLoading(false);
+        setShowWarning(null);
+        setWarningAction(null);
       }
-    }
+    });
   };
 
   // Supplier handlers
@@ -246,7 +309,7 @@ function Purchase() {
       return;
     }
     try {
-      setLoading(true );
+      setLoading(true);
       setMessage('');
       setError(null);
       const response = await axios.put(`http://localhost:5000/api/suppliers/${editingSupplier._id}`, supplierForm);
@@ -254,7 +317,7 @@ function Purchase() {
       setEditingSupplier(null);
       setSupplierForm({ name: '', shopName: '', address: '', phone: '', email: '' });
       setMessage(response.data.message);
-      fetchSuppliers(); // Refetch to ensure data consistency
+      fetchSuppliers();
     } catch (err) {
       setError(`Failed to update supplier: ${err.response?.data?.error || err.message}`);
     } finally {
@@ -263,19 +326,22 @@ function Purchase() {
   };
 
   const deleteSupplier = async (id) => {
-    if (window.confirm('Are you sure you want to delete this supplier?')) {
+    setShowWarning('Are you sure you want to delete this supplier?');
+    setWarningAction(() => async () => {
       try {
         setLoading(true);
         const response = await axios.delete(`http://localhost:5000/api/suppliers/${id}`);
-        fetchSuppliers(); // Refetch suppliers
+        fetchSuppliers();
         setMessage(response.data.message);
         setError(null);
       } catch (err) {
         setError(`Failed to delete supplier: ${err.response?.data?.error || err.message}`);
       } finally {
         setLoading(false);
+        setShowWarning(null);
+        setWarningAction(null);
       }
-    }
+    });
   };
 
   // PO form handlers
@@ -422,51 +488,60 @@ function Purchase() {
 
   // Delete handlers
   const deletePo = async (id) => {
-    if (window.confirm('Are you sure you want to delete this purchase order?')) {
+    setShowWarning('Are you sure you want to delete this purchase order?');
+    setWarningAction(() => async () => {
       try {
         setLoading(true);
         const response = await axios.delete(`http://localhost:5000/api/purchase_orders/${id}`);
-        fetchPurchaseOrders(); // Refetch POs
+        fetchPurchaseOrders();
         setMessage(response.data.message);
         setError(null);
       } catch (err) {
         setError(`Failed to delete Purchase Order: ${err.response?.data?.error || err.message}`);
       } finally {
         setLoading(false);
+        setShowWarning(null);
+        setWarningAction(null);
       }
-    }
+    });
   };
 
   const deletePr = async (id) => {
-    if (window.confirm('Are you sure you want to delete this purchase receipt?')) {
+    setShowWarning('Are you sure you want to delete this purchase receipt?');
+    setWarningAction(() => async () => {
       try {
         setLoading(true);
         const response = await axios.delete(`http://localhost:5000/api/purchase_receipts/${id}`);
-        fetchPurchaseReceipts(); // Refetch PRs
+        fetchPurchaseReceipts();
         setMessage(response.data.message);
         setError(null);
       } catch (err) {
         setError(`Failed to delete Purchase Receipt: ${err.response?.data?.error || err.message}`);
       } finally {
         setLoading(false);
+        setShowWarning(null);
+        setWarningAction(null);
       }
-    }
+    });
   };
 
   const deletePi = async (id) => {
-    if (window.confirm('Are you sure you want to delete this purchase invoice?')) {
+    setShowWarning('Are you sure you want to delete this purchase invoice?');
+    setWarningAction(() => async () => {
       try {
         setLoading(true);
         const response = await axios.delete(`http://localhost:5000/api/purchase_invoices/${id}`);
-        fetchPurchaseInvoices(); // Refetch PIs
+        fetchPurchaseInvoices();
         setMessage(response.data.message);
         setError(null);
       } catch (err) {
         setError(`Failed to delete Purchase Invoice: ${err.response?.data?.error || err.message}`);
       } finally {
         setLoading(false);
+        setShowWarning(null);
+        setWarningAction(null);
       }
-    }
+    });
   };
 
   // Print handler
@@ -666,29 +741,29 @@ function Purchase() {
               Loading...
             </div>
           )}
-          {error && (
+          {(error || message) && (
             <div style={{ 
-              backgroundColor: '#ffebee', 
+              backgroundColor: '#fff3cd', 
               padding: '10px', 
               marginBottom: '20px', 
-              color: '#c0392b', 
+              color: '#856404', 
               borderRadius: '5px', 
-              textAlign: 'center' 
+              textAlign: 'center',
+              border: '1px solid #ffeeba'
             }}>
-              {error}
+              {error || message}
             </div>
           )}
-          {message && (
-            <div style={{ 
-              backgroundColor: message.includes('success') ? '#d4edda' : '#ffebee', 
-              padding: '10px', 
-              marginBottom: '20px', 
-              color: message.includes('success') ? '#155724' : '#c0392b', 
-              borderRadius: '5px', 
-              textAlign: 'center' 
-            }}>
-              {message}
-            </div>
+
+          {showWarning && (
+            <WarningMessage
+              message={showWarning}
+              onConfirm={warningAction}
+              onCancel={() => {
+                setShowWarning(null);
+                setWarningAction(null);
+              }}
+            />
           )}
 
           {/* Items Tab */}
@@ -1274,7 +1349,7 @@ function Purchase() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#ecf0f1' }}>
-                    <th style={{ border: '1px solid #bdc3c7', padding: '12px', color: '#2c3e50', fontWeight: 'expanded: true' }}>PO Number</th>
+                    <th style={{ border: '1px solid #bdc3c7', padding: '12px', color: '#2c3e50', fontWeight: '600' }}>PO Number</th>
                     <th style={{ border: '1px solid #bdc3c7', padding: '12px', color: '#2c3e50', fontWeight: '600' }}>Date</th>
                     <th style={{ border: '1px solid #bdc3c7', padding: '12px', color: '#2c3e50', fontWeight: '600' }}>Supplier</th>
                     <th style={{ border: '1px solid #bdc3c7', padding: '12px', color: '#2c3e50', fontWeight: '600' }}>Items</th>
@@ -1559,7 +1634,6 @@ function Purchase() {
               </table>
             </div>
           )}
-
           {/* Purchase Invoice Tab */}
           {activeTab === 'invoice' && (
             <div style={{ 

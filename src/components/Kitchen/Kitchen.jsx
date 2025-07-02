@@ -13,7 +13,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: "20px", color: "red", textAlign: "center" }}>
-          <h3>Something went wrong.</h3>
+          <h3>Something went wrong in the Kitchen view.</h3>
           <p>{this.state.error?.message || "Unknown error"}</p>
           <button
             style={{
@@ -52,11 +52,26 @@ function Kitchen() {
   const BASE_URL = "http://127.0.0.1:5000";
   const currentYear = new Date().getFullYear().toString();
 
+  // Retry logic for API calls
+  const retryRequest = async (fn, retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (i === retries - 1) throw error;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  };
+
+  // Fetch active orders
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${BASE_URL}/api/activeorders`);
+        const response = await retryRequest(() =>
+          axios.get(`${BASE_URL}/api/activeorders`, { timeout: 5000 })
+        );
         if (Array.isArray(response.data)) {
           const ordersWithStatuses = response.data.map((order) => ({
             ...order,
@@ -75,7 +90,9 @@ function Kitchen() {
       } catch (error) {
         console.error("Error fetching orders:", error);
         setSavedOrders([]);
-        setErrorMessage("Failed to fetch orders: " + error.message);
+        setErrorMessage(
+          `Failed to fetch orders: ${error.response?.data?.message || error.message}`
+        );
       } finally {
         setLoading(false);
       }
@@ -85,10 +102,13 @@ function Kitchen() {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch historical picked-up items
   const fetchPickedUpItems = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/api/picked-up-items`);
+      const response = await retryRequest(() =>
+        axios.get(`${BASE_URL}/api/picked-up-items`, { timeout: 5000 })
+      );
       if (response.data.success && Array.isArray(response.data.pickedUpItems)) {
         setPickedUpItems(response.data.pickedUpItems);
       } else {
@@ -98,7 +118,9 @@ function Kitchen() {
     } catch (error) {
       console.error("Error fetching picked-up items:", error);
       setPickedUpItems([]);
-      setErrorMessage("Failed to fetch picked-up items: " + error.message);
+      setErrorMessage(
+        `Failed to fetch picked-up items: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -108,6 +130,7 @@ function Kitchen() {
     fetchPickedUpItems();
   }, []);
 
+  // Fetch item details
   useEffect(() => {
     const fetchItemDetails = async () => {
       const itemsToFetch = savedOrders
@@ -118,7 +141,9 @@ function Kitchen() {
       for (const item of itemsToFetch) {
         try {
           const itemName = encodeURIComponent(item.name);
-          const response = await axios.get(`${BASE_URL}/api/items/${itemName}`);
+          const response = await retryRequest(() =>
+            axios.get(`${BASE_URL}/api/items/${itemName}`, { timeout: 5000 })
+          );
           if (response.data.success) {
             const fetchedData = {
               image: response.data.image || item.image || "/static/uploads/placeholder.png",
@@ -163,6 +188,7 @@ function Kitchen() {
     }
   }, [savedOrders]);
 
+  // Derive kitchens
   const kitchens = [
     ...new Set(
       savedOrders
@@ -195,6 +221,7 @@ function Kitchen() {
     }
   }, [kitchens, selectedKitchen]);
 
+  // Filter orders for selected kitchen
   const filteredOrders = savedOrders
     .map((order) => {
       const relevantItems = Array.isArray(order.cartItems)
@@ -248,82 +275,81 @@ function Kitchen() {
             })
             .filter((item) => item.displayInKitchen)
         : [];
-      return {
-        ...order,
-        cartItems: relevantItems,
-      };
+      return { ...order, cartItems: relevantItems };
     })
     .filter((order) => order.cartItems.length > 0);
 
+  // Formatting helpers
   const formatItemVariants = (item) => {
     const variants = [];
-    if (item.selectedSize) {
-      variants.push(`Size: ${item.selectedSize}`);
+    if (item.selectedSize) variants.push(`Size: ${item.selectedSize}`);
+    if (item.icePreference === "with_ice") variants.push(`Ice: With Ice`);
+    if (item.isSpicy === true) variants.push(`Spicy: Yes`);
+    if (item.sugarLevel && item.sugarLevel !== "medium") {
+      variants.push(
+        `Sugar: ${item.sugarLevel.charAt(0).toUpperCase() + item.sugarLevel.slice(1)}`
+      );
     }
-    if (item.icePreference === 'with_ice') {
-      variants.push(`Ice: With Ice`);
-    }
-    if (item.isSpicy === true) {
-      variants.push(`Spicy: Yes`);
-    }
-    if (item.sugarLevel && item.sugarLevel !== 'medium') {
-      variants.push(`Sugar: ${item.sugarLevel.charAt(0).toUpperCase() + item.sugarLevel.slice(1)}`);
-    }
-    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+    return variants.length > 0 ? `(${variants.join(", ")})` : "";
   };
 
   const formatCustomVariants = (customVariantsDetails) => {
-    if (!customVariantsDetails) return '';
+    if (!customVariantsDetails) return "";
     const custom = Object.values(customVariantsDetails)
       .map((v) => `${v.heading}: ${v.name}`)
-      .join(', ');
-    return custom ? `Custom: ${custom}` : '';
+      .join(", ");
+    return custom ? `Custom: ${custom}` : "";
   };
 
   const formatAddonVariants = (addonVariants) => {
     const variants = [];
-    if (addonVariants?.size && addonVariants.size !== 'M') {
+    if (addonVariants?.size && addonVariants.size !== "M") {
       variants.push(`Size: ${addonVariants.size}`);
     }
     if (addonVariants?.spicy === true) {
       variants.push(`Spicy: Yes`);
     }
-    if (addonVariants?.sugar && addonVariants.sugar !== 'medium') {
-      variants.push(`Sugar: ${addonVariants.sugar.charAt(0).toUpperCase() + addonVariants.sugar.slice(1)}`);
+    if (addonVariants?.sugar && addonVariants.sugar !== "medium") {
+      variants.push(
+        `Sugar: ${addonVariants.sugar.charAt(0).toUpperCase() + addonVariants.sugar.slice(1)}`
+      );
     }
-    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+    return variants.length > 0 ? `(${variants.join(", ")})` : "";
   };
 
   const formatAddonCustomVariants = (addonCustomVariantsDetails) => {
-    if (!addonCustomVariantsDetails) return '';
+    if (!addonCustomVariantsDetails) return "";
     const custom = Object.values(addonCustomVariantsDetails)
       .map((v) => `${v.heading}: ${v.name}`)
-      .join(', ');
-    return custom ? `Custom: ${custom}` : '';
+      .join(", ");
+    return custom ? `Custom: ${custom}` : "";
   };
 
   const formatComboVariants = (comboVariants) => {
     const variants = [];
-    if (comboVariants?.size && comboVariants.size !== 'M') {
+    if (comboVariants?.size && comboVariants.size !== "M") {
       variants.push(`Size: ${comboVariants.size}`);
     }
     if (comboVariants?.spicy === true) {
       variants.push(`Spicy: Yes`);
     }
-    if (comboVariants?.sugar && comboVariants.sugar !== 'medium') {
-      variants.push(`Sugar: ${comboVariants.sugar.charAt(0).toUpperCase() + comboVariants.sugar.slice(1)}`);
+    if (comboVariants?.sugar && comboVariants.sugar !== "medium") {
+      variants.push(
+        `Sugar: ${comboVariants.sugar.charAt(0).toUpperCase() + comboVariants.sugar.slice(1)}`
+      );
     }
-    return variants.length > 0 ? `(${variants.join(', ')})` : '';
+    return variants.length > 0 ? `(${variants.join(", ")})` : "";
   };
 
   const formatComboCustomVariants = (comboCustomVariantsDetails) => {
-    if (!comboCustomVariantsDetails) return '';
+    if (!comboCustomVariantsDetails) return "";
     const custom = Object.values(comboCustomVariantsDetails)
       .map((v) => `${v.heading}: ${v.name}`)
-      .join(', ');
-    return custom ? `Custom: ${custom}` : '';
+      .join(", ");
+    return custom ? `Custom: ${custom}` : "";
   };
 
+  // Popup data logic
   const getLastHourItems = () => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     let filteredItems = (pickedUpItems || []).filter((entry) => {
@@ -365,12 +391,15 @@ function Kitchen() {
     return sortedItems.sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
   };
 
+  // Action handlers
   const handleMarkPrepared = async (orderId, itemId, kitchen) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/api/activeorders/${orderId}/items/${itemId}/mark-prepared`,
-        { kitchen },
-        { headers: { "Content-Type": "application/json" } }
+      const response = await retryRequest(() =>
+        axios.post(
+          `${BASE_URL}/api/activeorders/${orderId}/items/${itemId}/mark-prepared`,
+          { kitchen },
+          { headers: { "Content-Type": "application/json" }, timeout: 5000 }
+        )
       );
       if (response.data.success) {
         setSavedOrders((prev) =>
@@ -396,7 +425,9 @@ function Kitchen() {
       }
     } catch (error) {
       console.error("Error marking as prepared:", error);
-      setErrorMessage("Failed to mark as prepared: " + error.message);
+      setErrorMessage(
+        `Failed to mark as prepared: ${error.response?.data?.message || error.message}`
+      );
     }
   };
 
@@ -406,10 +437,12 @@ function Kitchen() {
       const order = savedOrders.find((o) => o.orderId === orderId);
       const pickedItem = order?.cartItems.find((item) => item.id === itemId);
       if (pickedItem && pickedItem.kitchenStatuses?.[selectedKitchen] === "Prepared") {
-        const response = await axios.post(
-          `${BASE_URL}/api/activeorders/${orderId}/items/${itemId}/mark-pickedup`,
-          { kitchen: selectedKitchen },
-          { headers: { "Content-Type": "application/json" } }
+        const response = await retryRequest(() =>
+          axios.post(
+            `${BASE_URL}/api/activeorders/${orderId}/items/${itemId}/mark-pickedup`,
+            { kitchen: selectedKitchen },
+            { headers: { "Content-Type": "application/json" }, timeout: 5000 }
+          )
         );
         if (response.data.success) {
           setSavedOrders((prev) =>
@@ -433,11 +466,17 @@ function Kitchen() {
             )
           );
           await fetchPickedUpItems();
+        } else {
+          setErrorMessage("Failed to mark item as picked up: Invalid server response");
         }
+      } else {
+        setErrorMessage("Item must be in Prepared status to mark as Picked Up");
       }
     } catch (error) {
       console.error("Error marking as picked up:", error);
-      setErrorMessage("Failed to mark item as picked up: " + error.message);
+      setErrorMessage(
+        `Failed to mark item as picked up: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -470,7 +509,9 @@ function Kitchen() {
       setSelectedCustomers([]);
     } catch (error) {
       console.error("Error during bulk pickup:", error);
-      setErrorMessage("Failed to mark items as picked up: " + error.message);
+      setErrorMessage(
+        `Failed to mark items as picked up: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -482,6 +523,7 @@ function Kitchen() {
     );
   };
 
+  // Style helpers
   const getRowStyle = (status) => {
     switch (status || "Pending") {
       case "Pending":
@@ -507,15 +549,12 @@ function Kitchen() {
     return {};
   };
 
-  const handleBack = () => navigate(-1);
-
   const getImageUrl = (imagePath) => {
     if (!imagePath) return `${BASE_URL}/static/uploads/placeholder.png`;
     const normalizedPath = imagePath.replace(/^\/+/, "");
-    if (normalizedPath.startsWith("static/uploads/")) {
-      return `${BASE_URL}/${normalizedPath}`;
-    }
-    return `${BASE_URL}/static/uploads/${normalizedPath}`;
+    return normalizedPath.startsWith("static/uploads/")
+      ? `${BASE_URL}/${normalizedPath}`
+      : `${BASE_URL}/static/uploads/${normalizedPath}`;
   };
 
   const getAddonComboImages = (item) => {
@@ -531,6 +570,7 @@ function Kitchen() {
         src: getImageUrl(item.image || itemDetails.image),
         label: item.name || "Item",
         type: "item",
+        status: item.kitchenStatuses?.[selectedKitchen] || "Pending",
       });
     }
 
@@ -549,6 +589,7 @@ function Kitchen() {
           src: getImageUrl(addonImage),
           label: addonName || "Addon",
           type: "addon",
+          status: item.kitchenStatuses?.[selectedKitchen] || "Pending",
         });
       });
 
@@ -567,6 +608,7 @@ function Kitchen() {
           src: getImageUrl(comboImage),
           label: comboName || "Combo",
           type: "combo",
+          status: item.kitchenStatuses?.[selectedKitchen] || "Pending",
         });
       });
 
@@ -576,7 +618,9 @@ function Kitchen() {
   return (
     <ErrorBoundary>
       <div style={{ marginTop: "24px", padding: "0 15px", position: "relative" }}>
-        {loading && <div style={{ textAlign: "center", fontSize: "18px" }}>Loading...</div>}
+        {loading && (
+          <div style={{ textAlign: "center", fontSize: "18px" }}>Loading...</div>
+        )}
         {errorMessage && (
           <div
             style={{
@@ -599,9 +643,12 @@ function Kitchen() {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-              onClick={() => setErrorMessage("")}
+              onClick={() => {
+                setErrorMessage("");
+                fetchPickedUpItems(); // Retry on dismiss
+              }}
             >
-              Dismiss
+              Retry
             </button>
           </div>
         )}
@@ -622,11 +669,13 @@ function Kitchen() {
               borderRadius: "4px",
               cursor: "pointer",
             }}
-            onClick={handleBack}
+            onClick={() => navigate(-1)}
           >
             Back
           </button>
-          <h3 style={{ textAlign: "center", flex: "1", margin: "0" }}>Kitchen Services</h3>
+          <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>
+            Kitchen Services
+          </h3>
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               style={{
@@ -706,7 +755,7 @@ function Kitchen() {
                 Mark Selected as Picked Up
               </button>
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
               <thead>
                 <tr>
                   <th style={{ border: "1px solid #ddd", padding: "8px" }}>Customer</th>
@@ -723,7 +772,7 @@ function Kitchen() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order, orderIndex) =>
+                {filteredOrders.map((order) =>
                   order.cartItems.map((item, itemIndex) => (
                     <tr
                       key={`${order.orderId}-${item.id}`}
@@ -733,7 +782,7 @@ function Kitchen() {
                         <>
                           <td
                             rowSpan={order.cartItems.length}
-                            style={{ border: "1px solid #ddd", padding: "8px" }}
+                            style={{ border: "1px solid #ddd", padding: "8px", verticalAlign: "top" }}
                           >
                             <input
                               type="checkbox"
@@ -745,19 +794,19 @@ function Kitchen() {
                           </td>
                           <td
                             rowSpan={order.cartItems.length}
-                            style={{ border: "1px solid #ddd", padding: "8px" }}
+                            style={{ border: "1px solid #ddd", padding: "8px", verticalAlign: "top" }}
                           >
                             {order.orderNo || "N/A"}
                           </td>
                           <td
                             rowSpan={order.cartItems.length}
-                            style={{ border: "1px solid #ddd", padding: "8px" }}
+                            style={{ border: "1px solid #ddd", padding: "8px", verticalAlign: "top" }}
                           >
                             {order.orderType || "N/A"}
                           </td>
                           <td
                             rowSpan={order.cartItems.length}
-                            style={{ border: "1px solid #ddd", padding: "8px" }}
+                            style={{ border: "1px solid #ddd", padding: "8px", verticalAlign: "top" }}
                           >
                             {order.orderType === "Dine In" ? order.tableNumber || "N/A" : "-"}
                           </td>
@@ -765,60 +814,37 @@ function Kitchen() {
                       )}
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                         {item.kitchen === selectedKitchen && (
-                          <span style={{ color: "black" }}>
-                            {item.name} {formatItemVariants(item)} {formatCustomVariants(item.customVariantsDetails)}
-                          </span>
+                          <div>
+                            <strong>{item.name}</strong> {formatItemVariants(item)}{" "}
+                            {formatCustomVariants(item.customVariantsDetails)}
+                          </div>
                         )}
-                        {item.addonQuantities && Object.keys(item.addonQuantities).length > 0 && (
-                          <ul
-                            style={{
-                              listStyleType: "none",
-                              padding: 0,
-                              marginTop: "5px",
-                              fontSize: "12px",
-                              color: "black",
-                            }}
-                          >
-                            {Object.entries(item.addonQuantities)
-                              .filter(
-                                ([addonName, qty]) =>
-                                  qty > 0 &&
-                                  item.addonVariants?.[addonName]?.kitchen === selectedKitchen
-                              )
-                              .map(([addonName, qty]) => (
-                                <li key={addonName}>
-                                  + Addon: {addonName} {formatAddonVariants(item.addonVariants[addonName])}{" "}
-                                  {formatAddonCustomVariants(item.addonCustomVariantsDetails?.[addonName])} x{qty}
-                                </li>
-                              ))}
-                          </ul>
-                        )}
+                        {Object.entries(item.addonQuantities || {}).map(([addonName, qty]) => (
+                          qty > 0 &&
+                          item.addonVariants?.[addonName]?.kitchen === selectedKitchen && (
+                            <div
+                              key={addonName}
+                              style={{ fontSize: "12px", color: "#555", marginLeft: "10px" }}
+                            >
+                              + Addon: {addonName} {formatAddonVariants(item.addonVariants[addonName])}{" "}
+                              {formatAddonCustomVariants(item.addonCustomVariantsDetails?.[addonName])} x{qty}
+                            </div>
+                          )
+                        ))}
                       </td>
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                        {item.comboQuantities && Object.keys(item.comboQuantities).length > 0 && (
-                          <ul
-                            style={{
-                              listStyleType: "none",
-                              padding: 0,
-                              marginTop: "5px",
-                              fontSize: "12px",
-                              color: "black",
-                            }}
-                          >
-                            {Object.entries(item.comboQuantities)
-                              .filter(
-                                ([comboName, qty]) =>
-                                  qty > 0 &&
-                                  item.comboVariants?.[comboName]?.kitchen === selectedKitchen
-                              )
-                              .map(([comboName, qty]) => (
-                                <li key={comboName}>
-                                  + Combo: {comboName} {formatComboVariants(item.comboVariants[comboName])}{" "}
-                                  {formatComboCustomVariants(item.comboCustomVariantsDetails?.[comboName])} x{qty}
-                                </li>
-                              ))}
-                          </ul>
-                        )}
+                        {Object.entries(item.comboQuantities || {}).map(([comboName, qty]) => (
+                          qty > 0 &&
+                          item.comboVariants?.[comboName]?.kitchen === selectedKitchen && (
+                            <div
+                              key={comboName}
+                              style={{ fontSize: "12px", color: "#555", marginLeft: "10px" }}
+                            >
+                              + Combo: {comboName} {formatComboVariants(item.comboVariants[comboName])}{" "}
+                              {formatComboCustomVariants(item.comboCustomVariantsDetails?.[comboName])} x{qty}
+                            </div>
+                          )
+                        ))}
                       </td>
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
@@ -834,9 +860,7 @@ function Kitchen() {
                                   borderRadius: "4px",
                                 }}
                                 alt={image.label}
-                                onError={(e) =>
-                                  (e.target.src = `${BASE_URL}/static/uploads/placeholder.png`)
-                                }
+                                onError={(e) => (e.target.src = `${BASE_URL}/static/uploads/placeholder.png`)}
                               />
                               <span
                                 style={{
@@ -852,6 +876,26 @@ function Kitchen() {
                               >
                                 {image.type}
                               </span>
+                              {image.status === "PickedUp" && (
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    top: "2px",
+                                    right: "2px",
+                                    backgroundColor: "green",
+                                    color: "white",
+                                    fontSize: "12px",
+                                    width: "20px",
+                                    height: "20px",
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  ✓
+                                </span>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -909,7 +953,6 @@ function Kitchen() {
         {showStatusPopup && (
           <div
             style={{
-              display: "block",
               position: "fixed",
               top: 0,
               left: 0,
@@ -917,13 +960,15 @@ function Kitchen() {
               height: "100%",
               backgroundColor: "rgba(0,0,0,0.5)",
               zIndex: 1050,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <div
               style={{
                 maxWidth: "800px",
                 width: "90%",
-                margin: "50px auto",
                 backgroundColor: "white",
                 borderRadius: "4px",
                 overflow: "hidden",
@@ -938,9 +983,16 @@ function Kitchen() {
                   borderBottom: "1px solid #dee2e6",
                 }}
               >
-                <h5 style={{ margin: 0, fontSize: "20px" }}>Picked Up Items (Last 1 Hour)</h5>
+                <h5 style={{ margin: 0, fontSize: "20px" }}>
+                  Picked Up Items (Last 1 Hour)
+                </h5>
                 <button
-                  style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                  }}
                   onClick={() => setShowStatusPopup(false)}
                 >
                   ×
@@ -963,24 +1015,30 @@ function Kitchen() {
                 {getLastHourItems().length === 0 ? (
                   <p style={{ fontSize: "16px" }}>No items picked up in the last hour.</p>
                 ) : (
-                  <div
-                    style={{
-                      overflowX: "auto",
-                      maxHeight: "60vh",
-                      overflowY: "auto",
-                    }}
-                  >
+                  <div style={{ overflowX: "auto", maxHeight: "60vh", overflowY: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Customer</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Order Type</th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Customer
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Order Type
+                          </th>
                           <th style={{ border: "1px solid #ddd", padding: "8px" }}>Table</th>
                           <th style={{ border: "1px solid #ddd", padding: "8px" }}>Item</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Quantity</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Category</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Kitchen</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Pickup Time</th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Quantity
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Category
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Kitchen
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Pickup Time
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1008,13 +1066,17 @@ function Kitchen() {
                                     rowSpan={(entry.items || [entry]).length}
                                     style={{ border: "1px solid #ddd", padding: "8px" }}
                                   >
-                                    {entry.orderType === "Dine In" ? entry.tableNumber || "N/A" : "-"}
+                                    {entry.orderType === "Dine In"
+                                      ? entry.tableNumber || "N/A"
+                                      : "-"}
                                   </td>
                                 </>
                               )}
                               <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                                <span style={{ color: "black" }}>{item.itemName || "N/A"}</span>
-                                {item.addonCounts && item.addonCounts.length > 0 && (
+                                <span style={{ color: "black" }}>
+                                  {item.itemName || "N/A"}
+                                </span>
+                                {item.addonCounts?.length > 0 && (
                                   <ul
                                     style={{
                                       listStyleType: "none",
@@ -1025,11 +1087,13 @@ function Kitchen() {
                                     }}
                                   >
                                     {item.addonCounts.map((addon, idx) => (
-                                      <li key={idx}>+ Addon: {addon.name} x{addon.quantity}</li>
+                                      <li key={idx}>
+                                        + Addon: {addon.name} x{addon.quantity}
+                                      </li>
                                     ))}
                                   </ul>
                                 )}
-                                {item.selectedCombos && item.selectedCombos.length > 0 && (
+                                {item.selectedCombos?.length > 0 && (
                                   <ul
                                     style={{
                                       listStyleType: "none",
@@ -1041,7 +1105,8 @@ function Kitchen() {
                                   >
                                     {item.selectedCombos.map((combo, idx) => (
                                       <li key={idx}>
-                                        + Combo: {combo.name} ({combo.size}) x{combo.quantity || 1}
+                                        + Combo: {combo.name} ({combo.size}) x
+                                        {combo.quantity || 1}
                                         {combo.isSpicy && " (Spicy)"}
                                       </li>
                                     ))}
@@ -1062,7 +1127,9 @@ function Kitchen() {
                                   rowSpan={(entry.items || [entry]).length}
                                   style={{ border: "1px solid #ddd", padding: "8px" }}
                                 >
-                                  {entry.pickupTime || "N/A"}
+                                  {entry.pickupTime
+                                    ? new Date(entry.pickupTime).toLocaleString()
+                                    : "N/A"}
                                 </td>
                               )}
                             </tr>
@@ -1073,7 +1140,13 @@ function Kitchen() {
                   </div>
                 )}
               </div>
-              <div style={{ padding: "16px", borderTop: "1px solid #dee2e6", textAlign: "right" }}>
+              <div
+                style={{
+                  padding: "16px",
+                  borderTop: "1px solid #dee2e6",
+                  textAlign: "right",
+                }}
+              >
                 <button
                   style={{
                     padding: "6px 12px",
@@ -1095,7 +1168,6 @@ function Kitchen() {
         {showAllStatusPopup && (
           <div
             style={{
-              display: "block",
               position: "fixed",
               top: 0,
               left: 0,
@@ -1103,13 +1175,15 @@ function Kitchen() {
               height: "100%",
               backgroundColor: "rgba(0,0,0,0.5)",
               zIndex: 1050,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <div
               style={{
                 maxWidth: "800px",
                 width: "90%",
-                margin: "50px auto",
                 backgroundColor: "white",
                 borderRadius: "4px",
                 overflow: "hidden",
@@ -1126,7 +1200,12 @@ function Kitchen() {
               >
                 <h5 style={{ margin: 0, fontSize: "20px" }}>All Picked Up Items</h5>
                 <button
-                  style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                  }}
                   onClick={() => setShowAllStatusPopup(false)}
                 >
                   ×
@@ -1149,24 +1228,30 @@ function Kitchen() {
                 {getAllPickedUpItems().length === 0 ? (
                   <p style={{ fontSize: "16px" }}>No items have been picked up yet.</p>
                 ) : (
-                  <div
-                    style={{
-                      overflowX: "auto",
-                      maxHeight: "60vh",
-                      overflowY: "auto",
-                    }}
-                  >
+                  <div style={{ overflowX: "auto", maxHeight: "60vh", overflowY: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Customer</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Order Type</th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Customer
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Order Type
+                          </th>
                           <th style={{ border: "1px solid #ddd", padding: "8px" }}>Table</th>
                           <th style={{ border: "1px solid #ddd", padding: "8px" }}>Item</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Quantity</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Category</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Kitchen</th>
-                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>Pickup Time</th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Quantity
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Category
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Kitchen
+                          </th>
+                          <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                            Pickup Time
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1194,13 +1279,17 @@ function Kitchen() {
                                     rowSpan={(entry.items || [entry]).length}
                                     style={{ border: "1px solid #ddd", padding: "8px" }}
                                   >
-                                    {entry.orderType === "Dine In" ? entry.tableNumber || "N/A" : "-"}
+                                    {entry.orderType === "Dine In"
+                                      ? entry.tableNumber || "N/A"
+                                      : "-"}
                                   </td>
                                 </>
                               )}
                               <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                                <span style={{ color: "black" }}>{item.itemName || "N/A"}</span>
-                                {item.addonCounts && item.addonCounts.length > 0 && (
+                                <span style={{ color: "black" }}>
+                                  {item.itemName || "N/A"}
+                                </span>
+                                {item.addonCounts?.length > 0 && (
                                   <ul
                                     style={{
                                       listStyleType: "none",
@@ -1211,11 +1300,13 @@ function Kitchen() {
                                     }}
                                   >
                                     {item.addonCounts.map((addon, idx) => (
-                                      <li key={idx}>+ Addon: {addon.name} x{addon.quantity}</li>
+                                      <li key={idx}>
+                                        + Addon: {addon.name} x{addon.quantity}
+                                      </li>
                                     ))}
                                   </ul>
                                 )}
-                                {item.selectedCombos && item.selectedCombos.length > 0 && (
+                                {item.selectedCombos?.length > 0 && (
                                   <ul
                                     style={{
                                       listStyleType: "none",
@@ -1227,7 +1318,8 @@ function Kitchen() {
                                   >
                                     {item.selectedCombos.map((combo, idx) => (
                                       <li key={idx}>
-                                        + Combo: {combo.name} ({combo.size}) x{combo.quantity || 1}
+                                        + Combo: {combo.name} ({combo.size}) x
+                                        {combo.quantity || 1}
                                         {combo.isSpicy && " (Spicy)"}
                                       </li>
                                     ))}
@@ -1248,7 +1340,9 @@ function Kitchen() {
                                   rowSpan={(entry.items || [entry]).length}
                                   style={{ border: "1px solid #ddd", padding: "8px" }}
                                 >
-                                  {entry.pickupTime || "N/A"}
+                                  {entry.pickupTime
+                                    ? new Date(entry.pickupTime).toLocaleString()
+                                    : "N/A"}
                                 </td>
                               )}
                             </tr>
@@ -1259,7 +1353,13 @@ function Kitchen() {
                   </div>
                 )}
               </div>
-              <div style={{ padding: "16px", borderTop: "1px solid #dee2e6", textAlign: "right" }}>
+              <div
+                style={{
+                  padding: "16px",
+                  borderTop: "1px solid #dee2e6",
+                  textAlign: "right",
+                }}
+              >
                 <button
                   style={{
                     padding: "6px 12px",

@@ -1,6 +1,6 @@
 {
   "name": "pos1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "POS1 - A Point of Sale application built with Electron, React, and Flask",
   "author": "Your Name <your.email@example.com>",

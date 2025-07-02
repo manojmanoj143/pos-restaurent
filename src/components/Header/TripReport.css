@@ -1,30 +1,298 @@
-/* Custom styles to complement Bootstrap and maintain original design */
+/* Ensure the body does not have horizontal scrollbars */
+body {
+  overflow-x: hidden;
+  margin: 0;
+}
+
+/* Main container for the TripReport page */
 .trip-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
   min-height: 100vh;
-  background-color: #f5f6fa;
-  margin-left: 0px; /* Retain sidebar offset */
+  background-color: #f0f4f8;
+  padding: 2rem 0;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
 }
 
-.back-button {
-  color: #333;
+/* Header styling */
+.trip-main .trip-main-header {
+  width: 100%;
+  max-width: 1400px;
+  padding-left: 1rem;
+}
+
+.trip-main .trip-main-back-button {
+  color: #1a3c61;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.3s ease;
+  font-size: 1.5rem;
 }
 
-.back-button:hover {
-  color: #0d6efd; /* Bootstrap primary color */
+.trip-main .trip-main-back-button:hover {
+  color: #0d6efd;
+  transform: scale(1.1);
 }
 
-.dropdown-menu {
-  max-height: 200px;
+.trip-main .trip-main-title {
+  margin: 0;
+  color: #1a3c61;
+}
+
+/* Content wrapper with increased width */
+.trip-main .trip-main-content-wrapper {
+  max-width: 1400px;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+/* Card styling */
+.trip-main .trip-main-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.trip-main .trip-main-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Form control styling */
+.trip-main .trip-main-form-control {
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: #f8f9fa;
+}
+
+.trip-main .trip-main-form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Form label styling */
+.trip-main .trip-main-form-label {
+  color: #1a3c61;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Primary button styling */
+.trip-main .trip-main-btn-primary {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.trip-main .trip-main-btn-primary:hover {
+  background: linear-gradient(90deg, #0a58ca, #520dc2);
+  transform: translateY(-2px);
+}
+
+/* Success button styling */
+.trip-main .trip-main-btn-success {
+  background: linear-gradient(90deg, #28a745, #20c997);
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.trip-main .trip-main-btn-success:hover {
+  background: linear-gradient(90deg, #218838, #1aa179);
+  transform: translateY(-2px);
+}
+
+/* Action buttons styling */
+.trip-main .trip-main-btn-action-details {
+  background-color: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.trip-main .trip-main-btn-action-details:hover {
+  background-color: #1557b0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+.trip-main .trip-main-btn-action-invoice {
+  background-color: #34a853;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.trip-main .trip-main-btn-action-invoice:hover {
+  background-color: #2a8a50;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(52, 168, 83, 0.3);
+}
+
+/* Danger button styling */
+.trip-main .trip-main-btn-danger {
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  border: none;
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.trip-main .trip-main-btn-danger:hover {
+  background: linear-gradient(90deg, #c82333, #b21f2d);
+  transform: translateY(-2px);
+}
+
+/* Apply action button styles to the table */
+.trip-main .trip-main-table .trip-main-btn-action-details,
+.trip-main .trip-main-table .trip-main-btn-action-invoice {
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Dropdown menu styling */
+.trip-main .trip-main-dropdown-menu {
+  max-height: 250px;
   overflow-y: auto;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  margin-top: 0.5rem;
 }
 
-.dropdown-item {
-  transition: background-color 0.2s;
+.trip-main .trip-main-dropdown-item {
+  padding: 0.75rem 1.5rem;
+  color: #1a3c61;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.dropdown-item:hover {
-  background-color: #f0f0f0;
+.trip-main .trip-main-dropdown-item:hover {
+  background-color: #e9ecef;
+  color: #0d6efd;
+}
+
+/* Table styling */
+.trip-main .trip-main-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.trip-main .trip-main-table-primary {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  color: #fff;
+}
+
+.trip-main .trip-main-table-primary th {
+  font-weight: 600;
+  border: none;
+}
+
+.trip-main .trip-main-table tbody tr:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+/* Alert styling */
+.trip-main .trip-main-alert {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+}
+
+.trip-main .trip-main-alert-success {
+  background: linear-gradient(90deg, #28a745, #20c997);
+  color: #fff;
+}
+
+.trip-main .trip-main-alert-warning {
+  background: linear-gradient(90deg, #ffc107, #ffca2c);
+  color: #1a3c61;
+}
+
+/* Loading and error styling */
+.trip-main .trip-main-loading {
+  color: #6c757d;
+}
+
+.trip-main .trip-main-error {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* No orders styling */
+.trip-main .trip-main-no-orders {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal styling */
+.trip-main .trip-main-modal-content {
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.trip-main .trip-main-modal-header {
+  border-radius: 12px 12px 0 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .trip-main {
+    padding: 1rem 0;
+  }
+
+  .trip-main .trip-main-content-wrapper {
+    padding: 0 0.5rem;
+  }
+
+  .trip-main .trip-main-card {
+    padding: 1rem;
+  }
+
+  .trip-main .trip-main-btn-primary,
+  .trip-main .trip-main-btn-success,
+  .trip-main .trip-main-btn-danger {
+    padding: 0.5rem 1rem;
+  }
+
+  .trip-main .trip-main-form-control {
+    padding: 0.5rem 1rem;
+  }
+
+  .trip-main .trip-main-alert {
+    min-width: 90%;
+    max-width: 90%;
+  }
+
+  .trip-main .trip-main-btn-action-details,
+  .trip-main .trip-main-btn-action-invoice {
+    padding: 0.4rem 1rem;
+    min-width: 100px;
+  }
 }

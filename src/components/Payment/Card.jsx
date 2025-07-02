@@ -38,13 +38,13 @@ function Card() {
                 totalAmount: Number(location.state.billDetails.totalAmount) || 0,
                 customerName: location.state.billDetails.customerName || "Manoj",
                 phoneNumber: location.state.billDetails.phoneNumber || "+918921083090",
-                email: location.state.billDetails.email || "manojmanoj88680@gmail.com",
+                email: location.state.billDetails.email || "manoj.k88680@gmail.com",
                 whatsappNumber: location.state.billDetails.whatsappNumber || "+918921083090",
                 tableNumber: location.state.billDetails.tableNumber || "N/A",
                 deliveryAddress: location.state.billDetails.deliveryAddress || {
-                    building_name: "Kyle Solution",
-                    flat_villa_no: "21",
-                    location: "Kozhikode",
+                    building_name: "23rw",
+                    flat_villa_no: "1123",
+                    location: "sdfdfg",
                 },
                 date: location.state.billDetails.date || new Date().toISOString().split("T")[0],
                 time:
@@ -53,40 +53,61 @@ function Card() {
                 payments: location.state.billDetails.payments || [{ mode_of_payment: "CARD" }],
                 items: location.state.billDetails.items.map((item) => ({
                     ...item,
-                    item_name: item.item_name || item.name || "Rice (M)",
+                    item_name: item.item_name || item.name || "Unnamed Item",
                     quantity: Number(item.quantity) || 1,
-                    basePrice: Number(item.price) || Number(item.basePrice) || 200.00,
-                    selectedSize: item.selectedSize || "M",
+                    basePrice: Number(item.basePrice) || Number(item.price) || 0,
+                    totalPrice: Number(item.totalPrice) || Number(item.basePrice) * Number(item.quantity) || 0,
+                    selectedSize: item.selectedSize || null,
                     icePreference: item.icePreference || "without_ice",
                     icePrice: Number(item.icePrice) || 0,
                     isSpicy: item.isSpicy || false,
                     spicyPrice: item.isSpicy ? Number(item.spicyPrice) || 20.00 : 0,
+                    addonQuantities: item.addonQuantities || {},
+                    addonVariants: item.addonVariants || {},
+                    addonPrices: item.addonPrices || {},
+                    addonSizePrices: item.addonSizePrices || {},
+                    addonSpicyPrices: item.addonSpicyPrices || {},
+                    addonImages: item.addonImages || {},
+                    comboQuantities: item.comboQuantities || {},
+                    comboVariants: item.comboVariants || {},
+                    comboPrices: item.comboPrices || {},
+                    comboSizePrices: item.comboSizePrices || {},
+                    comboSpicyPrices: item.comboSpicyPrices || {},
+                    comboImages: item.comboImages || {},
+                    selectedCombos: item.selectedCombos || [],
+                    kitchen: item.kitchen || "Main Kitchen",
+                    ingredients: item.ingredients || [],
+                    selectedCustomVariants: item.selectedCustomVariants || {},
+                    customVariantsDetails: item.customVariantsDetails || {},
+                    customVariantsQuantities: item.customVariantsQuantities || {},
                     addons: item.addonQuantities
                         ? Object.entries(item.addonQuantities)
-                              .filter(([_, qty]) => qty > 0)
+                              .filter(([_, qty]) => Number(qty) > 0)
                               .map(([name, qty]) => ({
                                   addon_name: name,
                                   addon_quantity: Number(qty) || 0,
-                                  addon_price:
-                                      name === "Beef Burger" && item.addonVariants?.[name]?.size === "M"
-                                          ? 150.00
-                                          : Number(item.addonPrices?.[name]) || 20.00,
-                                  size: item.addonVariants?.[name]?.size || item.addonSizes?.[name] || "M",
+                                  addon_price: Number(item.addonSizePrices?.[name]) || Number(item.addonPrices?.[name]) || 0,
+                                  addon_total_price: Number(item.addonPrices?.[name]) || 0,
+                                  size: item.addonVariants?.[name]?.size || "M",
                                   isSpicy: item.addonVariants?.[name]?.spicy || false,
+                                  spicyPrice: Number(item.addonSpicyPrices?.[name]) || 0,
+                                  kitchen: item.addonVariants?.[name]?.kitchen || "Main Kitchen",
+                                  addon_image: item.addonImages?.[name] || "/static/images/default-addon-image.jpg",
                               }))
                         : [],
-                    selectedCombos: item.comboQuantities
+                    combos: item.comboQuantities
                         ? Object.entries(item.comboQuantities)
-                              .filter(([_, qty]) => qty > 0)
+                              .filter(([_, qty]) => Number(qty) > 0)
                               .map(([name, qty]) => ({
                                   name1: name,
-                                  combo_price:
-                                      name === "Beef Burger" && item.comboVariants?.[name]?.size === "M"
-                                          ? 150.00
-                                          : Number(item.comboPrices?.[name]) || 0,
-                                  size: item.comboVariants?.[name]?.size || item.comboSizes?.[name] || "M",
+                                  combo_price: Number(item.comboSizePrices?.[name]) || Number(item.comboPrices?.[name]) || 0,
+                                  combo_total_price: Number(item.comboPrices?.[name]) || 0,
+                                  size: item.comboVariants?.[name]?.size || "M",
                                   combo_quantity: Number(qty) || 1,
                                   isSpicy: item.comboVariants?.[name]?.spicy || false,
+                                  spicyPrice: Number(item.comboSpicyPrices?.[name]) || 0,
+                                  kitchen: item.comboVariants?.[name]?.kitchen || "Main Kitchen",
+                                  combo_image: item.comboImages?.[name] || "/static/images/default-combo-image.jpg",
                               }))
                         : item.selectedCombos || [],
                 })),
@@ -98,44 +119,69 @@ function Card() {
                 invoice_no: `INV-${Date.now()}`,
                 customerName: "Manoj",
                 phoneNumber: "+918921083090",
-                email: "manojmanoj88680@gmail.com",
+                email: "manoj.k88680@gmail.com",
                 whatsappNumber: "+918921083090",
                 tableNumber: "N/A",
                 deliveryAddress: {
-                    building_name: "Kyle Solution",
-                    flat_villa_no: "21",
-                    location: "Kozhikode",
+                    building_name: "23rw",
+                    flat_villa_no: "1123",
+                    location: "sdfdfg",
                 },
                 date: new Date().toISOString().split("T")[0],
                 time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                 payments: [{ mode_of_payment: "CARD" }],
                 items: [
                     {
-                        item_name: "Rice (M)",
-                        basePrice: 200.00,
+                        item_name: "Chicken Burger",
+                        basePrice: 100.00,
+                        quantity: 1,
+                        selectedSize: "S",
+                        icePreference: "without_ice",
+                        icePrice: 0,
+                        isSpicy: false,
+                        spicyPrice: 0,
+                        kitchen: "journal kitchen",
+                        addons: [
+                            { addon_name: "Patty", addon_quantity: 1, addon_price: 50.00, size: "M", isSpicy: true, spicyPrice: 20.00, kitchen: "journal kitchen" },
+                            { addon_name: "Buffalo Sauce", addon_quantity: 1, addon_price: 50.00, size: "M", isSpicy: true, spicyPrice: 20.00, kitchen: "journal kitchen" },
+                        ],
+                        combos: [
+                            { name1: "Burger & Fries", combo_price: 120.00, size: "S", combo_quantity: 1, isSpicy: true, spicyPrice: 30.00, kitchen: "journal kitchen" },
+                        ],
+                        customVariantsDetails: {},
+                        customVariantsQuantities: {},
+                    },
+                    {
+                        item_name: "ice",
+                        basePrice: 15.00,
+                        quantity: 1,
+                        selectedSize: "S",
+                        icePreference: "with_ice",
+                        icePrice: 0,
+                        isSpicy: false,
+                        spicyPrice: 0,
+                        kitchen: "Juice Counter",
+                        addons: [],
+                        combos: [],
+                        customVariantsDetails: {
+                            flavour: { heading: "flavour", name: "vennila", price: 30.00 },
+                        },
+                        customVariantsQuantities: { flavour: 1 },
+                    },
+                    {
+                        item_name: "Watermelon",
+                        basePrice: 40.00,
                         quantity: 1,
                         selectedSize: "M",
                         icePreference: "without_ice",
                         icePrice: 0,
                         isSpicy: false,
                         spicyPrice: 0,
-                        addons: [
-                            { addon_name: "Buffalo Sauce", addon_quantity: 1, addon_price: 20.00, size: "M", isSpicy: false },
-                            { addon_name: "Patty", addon_quantity: 1, addon_price: 20.00, size: "M", isSpicy: false },
-                        ],
-                        selectedCombos: [],
-                    },
-                    {
-                        item_name: "Beef Burger (M)",
-                        basePrice: 150.00,
-                        quantity: 1,
-                        selectedSize: "M",
-                        icePreference: "with_ice",
-                        icePrice: 10.00,
-                        isSpicy: true,
-                        spicyPrice: 20.00,
-                        addons: [{ addon_name: "Patty", addon_quantity: 1, addon_price: 20.00, size: "M", isSpicy: false }],
-                        selectedCombos: [],
+                        kitchen: "Juice Counter",
+                        addons: [],
+                        combos: [],
+                        customVariantsDetails: {},
+                        customVariantsQuantities: {},
                     },
                 ],
             };
@@ -163,7 +209,7 @@ function Card() {
         }
     }, [billDetails]);
 
-    // Calculate item prices including addons, combos, and extras
+    // Calculate item prices including addons, combos, and custom variants
     const calculateItemPrices = (item) => {
         const basePrice = Number(item.basePrice) || 0;
         const icePrice = item.icePreference === "with_ice" ? Number(item.icePrice) || 0 : 0;
@@ -173,23 +219,29 @@ function Card() {
                 ? item.addons.reduce(
                       (sum, addon) =>
                           sum +
-                          (Number(addon.addon_price) || 0) * (addon.addon_quantity ?? 0) +
-                          (addon.isSpicy ? 20.00 * (addon.addon_quantity ?? 0) : 0),
+                          (Number(addon.addon_price) || 0) * (addon.addon_quantity || 0) +
+                          (addon.isSpicy ? (Number(addon.spicyPrice) || 0) * (addon.addon_quantity || 0) : 0),
                       0
                   )
                 : 0;
         const comboTotal =
-            item.selectedCombos?.length > 0
-                ? item.selectedCombos.reduce(
+            item.combos?.length > 0
+                ? item.combos.reduce(
                       (sum, combo) =>
                           sum +
-                          (Number(combo.combo_price) || 0) * (combo.combo_quantity ?? 1) +
-                          (combo.isSpicy ? 20.00 * (combo.combo_quantity ?? 1) : 0),
+                          (Number(combo.combo_price) || 0) * (combo.combo_quantity || 1) +
+                          (combo.isSpicy ? (Number(combo.spicyPrice) || 0) * (combo.combo_quantity || 1) : 0),
                       0
                   )
                 : 0;
-        const totalAmount = (basePrice + icePrice + spicyPrice) * (item.quantity ?? 1) + addonTotal + comboTotal;
-        return { basePrice, icePrice, spicyPrice, addonTotal, comboTotal, totalAmount };
+        const customVariantsTotal = item.customVariantsDetails
+            ? Object.values(item.customVariantsDetails).reduce(
+                  (sum, variant) => sum + (Number(variant.price) || 0) * (item.customVariantsQuantities?.[variant.name] || 1),
+                  0
+              ) * (item.quantity || 1)
+            : 0;
+        const totalAmount = (basePrice + icePrice + spicyPrice) * (item.quantity || 1) + addonTotal + comboTotal + customVariantsTotal;
+        return { basePrice, icePrice, spicyPrice, addonTotal, comboTotal, customVariantsTotal, totalAmount };
     };
 
     // Get display name for items
@@ -268,9 +320,7 @@ function Card() {
         console.log("Amount:", calculateGrandTotal().toFixed(2));
         setTimeout(() => {
             setWarningMessage(
-                `Payment of ₹${calculateGrandTotal().toFixed(2)} successful with card ending ${cardData.cardNumber.slice(
-                    -4
-                )}`
+                `Payment of ₹${calculateGrandTotal().toFixed(2)} successful with card ending ${cardData.cardNumber.slice(-4)}`
             );
             setWarningType("success");
             setPendingAction(() => () => {
@@ -348,9 +398,7 @@ function Card() {
                 billDetails.deliveryAddress.flat_villa_no ||
                 billDetails.deliveryAddress.location);
         const deliveryAddress = hasDeliveryAddress
-            ? `${billDetails.deliveryAddress.building_name || ""}, ${
-                  billDetails.deliveryAddress.flat_villa_no || ""
-              }, ${billDetails.deliveryAddress.location || ""}`
+            ? `${billDetails.deliveryAddress.building_name || ""}, ${billDetails.deliveryAddress.flat_villa_no || ""}, ${billDetails.deliveryAddress.location || ""}`
             : null;
 
         const borderStyle = isPreview ? "border: none;" : "border: 1px solid #000000;";
@@ -360,9 +408,7 @@ function Card() {
                 <tr style="margin-bottom: 5px;">
                     <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Card Number</td>
                     <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                    <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap;">**** **** **** ${cardData.cardNumber.slice(
-                        -4
-                    )}</td>
+                    <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap;">**** **** **** ${cardData.cardNumber.slice(-4)}</td>
                 </tr>
                 <tr style="margin-bottom: 5px;">
                     <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Transaction Number</td>
@@ -391,40 +437,30 @@ function Card() {
                         <tr style="margin-bottom: 5px;">
                             <td style="width: 50%; text-align: left; padding: 2px; border: none; line-height: 1.5;">Invoice No</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap;">${
-                                billDetails.invoice_no
-                            }</td>
+                            <td style="width: 50%; text-align: right; padding: 2px; border: none; line-height: 1.5; white-space: nowrap;">${billDetails.invoice_no}</td>
                         </tr>
                         <tr style="margin-bottom: 5px;">
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Customer</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${
-                                billDetails.customerName || "N/A"
-                            }</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${billDetails.customerName || "N/A"}</td>
                         </tr>
                         <tr style="margin-bottom: 5px;">
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Phone</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${
-                                billDetails.phoneNumber || "N/A"
-                            }</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${billDetails.phoneNumber || "N/A"}</td>
                         </tr>
                         <tr style="margin-bottom: 5px;">
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Email</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${
-                                billDetails.email || "N/A"
-                            }</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${billDetails.email || "N/A"}</td>
                         </tr>
                         <tr style="margin-bottom: 5px;">
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">WhatsApp</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${
-                                billDetails.whatsappNumber || "N/A"
-                            }</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${billDetails.whatsappNumber || "N/A"}</td>
                         </tr>
                         ${
-                            billDetails?.tableNumber && billDetails.tableNumber !== "N/A"
+                            billDetails.tableNumber && billDetails.tableNumber !== "N/A"
                                 ? `
                                     <tr style="margin-bottom: 5px;">
                                         <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Table</td>
@@ -448,9 +484,7 @@ function Card() {
                         <tr style="margin-bottom: 5px;">
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5;">Payment Mode</td>
                             <td style="text-align: center; padding: 2px; border: none; line-height: 1.5;">:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${
-                                billDetails.payments?.[0]?.mode_of_payment || "CARD"
-                            }</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; word-break: break-all;">${billDetails.payments?.[0]?.mode_of_payment || "CARD"}</td>
                         </tr>
                         ${cardDetailsDisplay}
                         <tr style="margin-bottom: 5px;">
@@ -477,8 +511,7 @@ function Card() {
                     <tbody>
                         ${billDetails.items
                             .map((item) => {
-                                const { basePrice, icePrice, spicyPrice, addonTotal, comboTotal, totalAmount } =
-                                    calculateItemPrices(item);
+                                const { basePrice, icePrice, spicyPrice, addonTotal, comboTotal, customVariantsTotal, totalAmount } = calculateItemPrices(item);
                                 return `
                                     <tr>
                                         <td style="text-align: left; padding: 4px;">${getItemDisplayName(item)}</td>
@@ -493,9 +526,7 @@ function Card() {
                                                     <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Ice</td>
                                                     <td style="text-align: center; padding: 4px;">${item.quantity}</td>
                                                     <td style="text-align: right; padding: 4px;">₹${formatTotal(icePrice)}</td>
-                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                        icePrice * item.quantity
-                                                    )}</td>
+                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(icePrice * item.quantity)}</td>
                                                 </tr>
                                             `
                                             : ""
@@ -507,11 +538,23 @@ function Card() {
                                                     <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Spicy</td>
                                                     <td style="text-align: center; padding: 4px;">${item.quantity}</td>
                                                     <td style="text-align: right; padding: 4px;">₹${formatTotal(spicyPrice)}</td>
-                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                        spicyPrice * item.quantity
-                                                    )}</td>
+                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(spicyPrice * item.quantity)}</td>
                                                 </tr>
                                             `
+                                            : ""
+                                    }
+                                    ${
+                                        item.customVariantsDetails && Object.keys(item.customVariantsDetails).length > 0
+                                            ? Object.entries(item.customVariantsDetails)
+                                                  .map(([variantName, variant]) => `
+                                                    <tr>
+                                                        <td style="text-align: left; padding-left: 10px; padding: 4px;">+ ${variant.heading}: ${variant.name}</td>
+                                                        <td style="text-align: center; padding: 4px;">${item.customVariantsQuantities?.[variantName] || 1}</td>
+                                                        <td style="text-align: right; padding: 4px;">₹${formatTotal(variant.price)}</td>
+                                                        <td style="text-align: right; padding: 4px;">₹${formatTotal(variant.price * (item.customVariantsQuantities?.[variantName] || 1))}</td>
+                                                    </tr>
+                                                  `)
+                                                  .join("")
                                             : ""
                                     }
                                     ${
@@ -522,33 +565,19 @@ function Card() {
                                                           addon.addon_quantity > 0
                                                               ? `
                                                                 <tr>
-                                                                    <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Addon: ${
-                                                                        addon.addon_name
-                                                                    }${addon.size ? ` (${addon.size})` : ""}</td>
-                                                                    <td style="text-align: center; padding: 4px;">${
-                                                                        addon.addon_quantity
-                                                                    }</td>
-                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                        addon.addon_price
-                                                                    )}</td>
-                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                        addon.addon_price * addon.addon_quantity
-                                                                    )}</td>
+                                                                    <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Addon: ${addon.addon_name}${addon.size ? ` (${addon.size})` : ""}</td>
+                                                                    <td style="text-align: center; padding: 4px;">${addon.addon_quantity}</td>
+                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(addon.addon_price)}</td>
+                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(addon.addon_price * addon.addon_quantity)}</td>
                                                                 </tr>
                                                                 ${
-                                                                    addon.isSpicy
+                                                                    addon.isSpicy && addon.spicyPrice > 0
                                                                         ? `
                                                                             <tr>
                                                                                 <td style="text-align: left; padding-left: 15px; padding: 4px;">+ Spicy</td>
-                                                                                <td style="text-align: center; padding: 4px;">${
-                                                                                    addon.addon_quantity
-                                                                                }</td>
-                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                                    20.00
-                                                                                )}</td>
-                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                                    20.00 * addon.addon_quantity
-                                                                                )}</td>
+                                                                                <td style="text-align: center; padding: 4px;">${addon.addon_quantity}</td>
+                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(addon.spicyPrice)}</td>
+                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(addon.spicyPrice * addon.addon_quantity)}</td>
                                                                             </tr>
                                                                         `
                                                                         : ""
@@ -560,40 +589,26 @@ function Card() {
                                             : ""
                                     }
                                     ${
-                                        item.selectedCombos?.length > 0
-                                            ? item.selectedCombos
+                                        item.combos?.length > 0
+                                            ? item.combos
                                                   .map(
                                                       (combo) =>
                                                           combo.combo_quantity > 0
                                                               ? `
                                                                 <tr>
-                                                                    <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Combo: ${
-                                                                        combo.name1
-                                                                    }${combo.size ? ` (${combo.size})` : ""}</td>
-                                                                    <td style="text-align: center; padding: 4px;">${
-                                                                        combo.combo_quantity
-                                                                    }</td>
-                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                        combo.combo_price
-                                                                    )}</td>
-                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                        combo.combo_price * combo.combo_quantity
-                                                                    )}</td>
+                                                                    <td style="text-align: left; padding-left: 10px; padding: 4px;">+ Combo: ${combo.name1}${combo.size ? ` (${combo.size})` : ""}</td>
+                                                                    <td style="text-align: center; padding: 4px;">${combo.combo_quantity}</td>
+                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(combo.combo_price)}</td>
+                                                                    <td style="text-align: right; padding: 4px;">₹${formatTotal(combo.combo_price * combo.combo_quantity)}</td>
                                                                 </tr>
                                                                 ${
-                                                                    combo.isSpicy
+                                                                    combo.isSpicy && combo.spicyPrice > 0
                                                                         ? `
                                                                             <tr>
                                                                                 <td style="text-align: left; padding-left: 15px; padding: 4px;">+ Spicy</td>
-                                                                                <td style="text-align: center; padding: 4px;">${
-                                                                                    combo.combo_quantity
-                                                                                }</td>
-                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                                    20.00
-                                                                                )}</td>
-                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(
-                                                                                    20.00 * combo.combo_quantity
-                                                                                )}</td>
+                                                                                <td style="text-align: center; padding: 4px;">${combo.combo_quantity}</td>
+                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(combo.spicyPrice)}</td>
+                                                                                <td style="text-align: right; padding: 4px;">₹${formatTotal(combo.spicyPrice * combo.combo_quantity)}</td>
                                                                             </tr>
                                                                         `
                                                                         : ""
@@ -613,21 +628,15 @@ function Card() {
                     <tbody>
                         <tr>
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">Subtotal:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${subtotal.toFixed(
-                                2
-                            )}</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${subtotal.toFixed(2)}</td>
                         </tr>
                         <tr>
-                            <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">VAT (10%):</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${vatAmount.toFixed(
-                                2
-                            )}</td>
+                            <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">VAT (${vatRate * 100}%):</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${vatAmount.toFixed(2)}</td>
                         </tr>
                         <tr>
                             <td style="text-align: left; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">Grand Total:</td>
-                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${grandTotal.toFixed(
-                                2
-                            )}</td>
+                            <td style="text-align: right; padding: 2px; border: none; line-height: 1.5; font-size: 15px;">₹${grandTotal.toFixed(2)}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -787,9 +796,7 @@ function Card() {
                                                 <strong>Location:</strong>{" "}
                                                 {billDetails.tableNumber !== "N/A"
                                                     ? `Table ${billDetails.tableNumber}`
-                                                    : `${billDetails.deliveryAddress?.building_name || ""}, ${
-                                                          billDetails.deliveryAddress?.flat_villa_no || ""
-                                                      }, ${billDetails.deliveryAddress?.location || "N/A"}`}
+                                                    : `${billDetails.deliveryAddress?.building_name || ""}, ${billDetails.deliveryAddress?.flat_villa_no || ""}, ${billDetails.deliveryAddress?.location || "N/A"}`}
                                             </p>
                                         </div>
                                         <h6 className="fw-bold mb-3">Items Ordered:</h6>
@@ -843,6 +850,20 @@ function Card() {
                                                                         <td>₹{formatTotal(spicyPrice)}</td>
                                                                     </tr>
                                                                 )}
+                                                                {item.customVariantsDetails &&
+                                                                    Object.keys(item.customVariantsDetails).length > 0 &&
+                                                                    Object.entries(item.customVariantsDetails).map(([variantName, variant], idx) => (
+                                                                        <tr className="sub-item" key={`${index}-custom-${idx}`}>
+                                                                            <td></td>
+                                                                            <td>
+                                                                                <div style={{ color: "#888", fontSize: "12px" }}>
+                                                                                    + {variant.heading}: {variant.name} (₹{formatTotal(variant.price)})
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>{item.customVariantsQuantities?.[variantName] || 1}</td>
+                                                                            <td>₹{formatTotal(variant.price)}</td>
+                                                                        </tr>
+                                                                    ))}
                                                                 {item.addons?.map(
                                                                     (addon, idx) =>
                                                                         addon.addon_quantity > 0 && (
@@ -858,22 +879,22 @@ function Card() {
                                                                                     <td>{addon.addon_quantity}</td>
                                                                                     <td>₹{formatTotal(addon.addon_price)}</td>
                                                                                 </tr>
-                                                                                {addon.isSpicy && (
+                                                                                {addon.isSpicy && addon.spicyPrice > 0 && (
                                                                                     <tr className="sub-item">
                                                                                         <td></td>
                                                                                         <td>
                                                                                             <div style={{ color: "#888", fontSize: "12px" }}>
-                                                                                                + Spicy (₹20.00)
+                                                                                                + Spicy (₹{formatTotal(addon.spicyPrice)})
                                                                                             </div>
                                                                                         </td>
                                                                                         <td>{addon.addon_quantity}</td>
-                                                                                        <td>₹{formatTotal(20.00 * addon.addon_quantity)}</td>
+                                                                                        <td>₹{formatTotal(addon.spicyPrice * addon.addon_quantity)}</td>
                                                                                     </tr>
                                                                                 )}
                                                                             </React.Fragment>
                                                                         )
                                                                 )}
-                                                                {item.selectedCombos?.map(
+                                                                {item.combos?.map(
                                                                     (combo, idx) =>
                                                                         combo.combo_quantity > 0 && (
                                                                             <React.Fragment key={`${index}-combo-${idx}`}>
@@ -888,16 +909,16 @@ function Card() {
                                                                                     <td>{combo.combo_quantity}</td>
                                                                                     <td>₹{formatTotal(combo.combo_price)}</td>
                                                                                 </tr>
-                                                                                {combo.isSpicy && (
+                                                                                {combo.isSpicy && combo.spicyPrice > 0 && (
                                                                                     <tr className="sub-item">
                                                                                         <td></td>
                                                                                         <td>
                                                                                             <div style={{ color: "#888", fontSize: "12px" }}>
-                                                                                                + Spicy (₹20.00)
+                                                                                                + Spicy (₹{formatTotal(combo.spicyPrice)})
                                                                                             </div>
                                                                                         </td>
                                                                                         <td>{combo.combo_quantity}</td>
-                                                                                        <td>₹{formatTotal(20.00 * combo.combo_quantity)}</td>
+                                                                                        <td>₹{formatTotal(combo.spicyPrice * combo.combo_quantity)}</td>
                                                                                     </tr>
                                                                                 )}
                                                                             </React.Fragment>
@@ -913,7 +934,7 @@ function Card() {
                                             <div className="row">
                                                 <div className="col-6 text-start">Total Quantity:</div>
                                                 <div className="col-6 text-end">
-                                                    {billDetails.items.reduce((sum, item) => sum + (item.quantity ?? 0), 0)}
+                                                    {billDetails.items.reduce((sum, item) => sum + (item.quantity || 0), 0)}
                                                 </div>
                                                 <div className="col-6 text-start">Subtotal:</div>
                                                 <div className="col-6 text-end">₹{formatTotal(calculateSubtotal())}</div>
@@ -945,8 +966,7 @@ function Card() {
                                                 )}
                                                 {cardData && (
                                                     <div className="mt-2 text-success">
-                                                        Card Detected: **** **** **** {cardData.cardNumber?.slice(-4)} (Expiry:{" "}
-                                                        {cardData.expiry?.slice(0, 2)}/{cardData.expiry?.slice(2)})
+                                                        Card Detected: **** **** **** {cardData.cardNumber?.slice(-4)} (Expiry: {cardData.expiry?.slice(0, 2)}/{cardData.expiry?.slice(2)})
                                                     </div>
                                                 )}
                                             </div>
@@ -1055,9 +1075,7 @@ function Card() {
                                                 <strong>Delivery Address:</strong>
                                             </td>
                                             <td style={{ textAlign: "right" }}>
-                                                {`${billDetails.deliveryAddress?.building_name || ""}, ${
-                                                    billDetails.deliveryAddress?.flat_villa_no || ""
-                                                }, ${billDetails.deliveryAddress?.location || ""}`}
+                                                {`${billDetails.deliveryAddress?.building_name || ""}, ${billDetails.deliveryAddress?.flat_villa_no || ""}, ${billDetails.deliveryAddress?.location || ""}`}
                                             </td>
                                         </tr>
                                     )}
@@ -1065,7 +1083,7 @@ function Card() {
                                         <td style={{ textAlign: "left" }}>
                                             <strong>Payment Mode:</strong>
                                         </td>
-                                        <td style={ { textAlign: "right" }}>
+                                        <td style={{ textAlign: "right" }}>
                                             {billDetails.payments?.[0]?.mode_of_payment || "CARD"}
                                         </td>
                                     </tr>
@@ -1110,7 +1128,7 @@ function Card() {
                                             <th style={{ width: "50px" }}>T.No.</th>
                                             <th>Item Details</th>
                                             <th style={{ width: "80px" }}>Qty</th>
-                                            <th style={{ width: "100px" }}>Price</th>
+                                            <th style={{ width: "80px" }}>Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1150,6 +1168,20 @@ function Card() {
                                                             <td>₹{formatTotal(spicyPrice)}</td>
                                                         </tr>
                                                     )}
+                                                    {item.customVariantsDetails &&
+                                                        Object.keys(item.customVariantsDetails).length > 0 &&
+                                                        Object.entries(item.customVariantsDetails).map(([variantName, variant], idx) => (
+                                                            <tr key={`${index}-custom-${idx}`}>
+                                                                <td></td>
+                                                                <td>
+                                                                    <div style={{ fontSize: "12px" }}>
+                                                                        + {variant.heading}: {variant.name} (₹{formatTotal(variant.price)})
+                                                                    </div>
+                                                                </td>
+                                                                <td>{item.customVariantsQuantities?.[variantName] || 1}</td>
+                                                                <td>₹{formatTotal(variant.price)}</td>
+                                                            </tr>
+                                                        ))}
                                                     {item.addons?.map(
                                                         (addon, idx) =>
                                                             addon.addon_quantity > 0 && (
@@ -1165,22 +1197,22 @@ function Card() {
                                                                         <td>{addon.addon_quantity}</td>
                                                                         <td>₹{formatTotal(addon.addon_price)}</td>
                                                                     </tr>
-                                                                    {addon.isSpicy && (
+                                                                    {addon.isSpicy && addon.spicyPrice > 0 && (
                                                                         <tr>
                                                                             <td></td>
                                                                             <td>
                                                                                 <div style={{ fontSize: "12px" }}>
-                                                                                    + Spicy (₹20.00)
+                                                                                    + Spicy (₹{formatTotal(addon.spicyPrice)})
                                                                                 </div>
                                                                             </td>
                                                                             <td>{addon.addon_quantity}</td>
-                                                                            <td>₹{formatTotal(20.00 * addon.addon_quantity)}</td>
+                                                                            <td>₹{formatTotal(addon.spicyPrice * addon.addon_quantity)}</td>
                                                                         </tr>
                                                                     )}
                                                                 </React.Fragment>
                                                             )
                                                     )}
-                                                    {item.selectedCombos?.map(
+                                                    {item.combos?.map(
                                                         (combo, idx) =>
                                                             combo.combo_quantity > 0 && (
                                                                 <React.Fragment key={`${index}-combo-${idx}`}>
@@ -1195,16 +1227,16 @@ function Card() {
                                                                         <td>{combo.combo_quantity}</td>
                                                                         <td>₹{formatTotal(combo.combo_price)}</td>
                                                                     </tr>
-                                                                    {combo.isSpicy && (
+                                                                    {combo.isSpicy && combo.spicyPrice > 0 && (
                                                                         <tr>
                                                                             <td></td>
                                                                             <td>
                                                                                 <div style={{ fontSize: "12px" }}>
-                                                                                    + Spicy (₹20.00)
+                                                                                    + Spicy (₹{formatTotal(combo.spicyPrice)})
                                                                                 </div>
                                                                             </td>
                                                                             <td>{combo.combo_quantity}</td>
-                                                                            <td>₹{formatTotal(20.00 * combo.combo_quantity)}</td>
+                                                                            <td>₹{formatTotal(combo.spicyPrice * combo.combo_quantity)}</td>
                                                                         </tr>
                                                                     )}
                                                                 </React.Fragment>

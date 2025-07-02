@@ -219,7 +219,7 @@ function TripReport() {
         whatsappNumber: report.whatsappNumber || 'N/A',
         status: 'Draft',
         orderType: 'Online Delivery',
-        userId: selectedEmployee.email, // Add userId field using selected employee's email
+        userId: selectedEmployee.email,
       };
 
       const response = await axios.post('http://localhost:5000/api/sales', salesData, {
@@ -473,10 +473,10 @@ function TripReport() {
   }, []);
 
   return (
-    <div className="trip-main container-fluid p-4">
+    <div className="trip-main">
       {warningMessage && (
         <div
-          className={`alert alert-${warningType === 'success' ? 'success' : 'warning'} position-fixed top-50 start-50 translate-middle shadow z-3 p-4 rounded-3 text-center`}
+          className={`trip-main-alert alert-${warningType === 'success' ? 'success' : 'warning'} position-fixed top-50 start-50 translate-middle shadow z-3 p-4 rounded-3 text-center`}
           style={{ minWidth: '400px', maxWidth: '600px' }}
         >
           {warningMessage}
@@ -497,37 +497,37 @@ function TripReport() {
         </div>
       )}
       {loading && (
-        <div className="text-center text-muted fs-5 my-3">
+        <div className="trip-main-loading text-center text-muted fs-5 my-3">
           Loading...
         </div>
       )}
       {error && (
-        <div className="alert alert-danger my-3 text-center">
+        <div className="trip-main-error alert alert-danger my-3 text-center">
           {error}
         </div>
       )}
-      <div className="d-flex align-items-center mb-4">
+      <div className="trip-main-header d-flex align-items-center mb-4">
         <FaArrowLeft
-          className="back-button fs-3 me-3"
+          className="trip-main-back-button fs-3 me-3"
           onClick={handleBack}
           role="button"
           tabIndex={0}
           onKeyPress={(e) => e.key === 'Enter' && handleBack()}
         />
-        <h1 className="h3 mb-0" style={{marginLeft:"20%"}}>Delivery Person Trip Report</h1>
+        <h1 className="trip-main-title h3 mb-0">Delivery Person Trip Report</h1>
       </div>
-      <div className="content-wrapper mx-auto" style={{ maxWidth: '1200px' }}>
-        <div className="card p-4 mb-4 shadow-sm">
+      <div className="trip-main-content-wrapper">
+        <div className="trip-main-card p-4 mb-4 shadow-sm">
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
               <div className="col-md-6">
-                <label htmlFor="deliveryPerson" className="form-label fw-bold">
+                <label htmlFor="deliveryPerson" className="trip-main-form-label fw-bold">
                   Delivery Person
                 </label>
                 <div className="position-relative" ref={dropdownRef}>
                   <input
                     type="text"
-                    className="form-control"
+                    className="trip-main-form-control"
                     id="deliveryPerson"
                     value={searchTerm}
                     onChange={handleSearchChange}
@@ -536,11 +536,11 @@ function TripReport() {
                     required
                   />
                   {showDropdown && filteredEmployees.length > 0 && (
-                    <ul className="dropdown-menu show w-100 mt-1">
+                    <ul className="trip-main-dropdown-menu show w-100 mt-1">
                       {filteredEmployees.map((employee) => (
                         <li
                           key={employee.employeeId}
-                          className="dropdown-item"
+                          className="trip-main-dropdown-item"
                           onClick={() => handleSelectEmployee(employee)}
                         >
                           {employee.name}
@@ -551,12 +551,12 @@ function TripReport() {
                 </div>
               </div>
               <div className="col-md-6">
-                <label htmlFor="dateFilter" className="form-label fw-bold">
+                <label htmlFor="dateFilter" className="trip-main-form-label fw-bold">
                   Filter by Date
                 </label>
                 <input
                   type="date"
-                  className="form-control"
+                  className="trip-main-form-control"
                   id="dateFilter"
                   value={selectedDate}
                   onChange={handleDateChange}
@@ -566,12 +566,12 @@ function TripReport() {
             </div>
             <div className="row g-3 mt-2">
               <div className="col-md-6">
-                <label htmlFor="billNumber" className="form-label fw-bold">
+                <label htmlFor="billNumber" className="trip-main-form-label fw-bold">
                   Bill Number
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="trip-main-form-control"
                   id="billNumber"
                   value={billNumber}
                   onChange={handleBillNumberChange}
@@ -579,12 +579,12 @@ function TripReport() {
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="customerName" className="form-label fw-bold">
+                <label htmlFor="customerName" className="trip-main-form-label fw-bold">
                   Customer Name
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="trip-main-form-control"
                   id="customerName"
                   value={customerName}
                   onChange={handleCustomerNameChange}
@@ -592,19 +592,19 @@ function TripReport() {
                 />
               </div>
             </div>
-            <button type="submit" className="btn btn-primary w-100 mt-4">
+            <button type="submit" className="trip-main-btn-primary w-100 mt-4">
               Submit
             </button>
           </form>
         </div>
 
         {selectedEmployee && (
-          <div className="card p-4 mb-4 shadow-sm">
+          <div className="trip-main-card p-4 mb-4 shadow-sm">
             <h3 className="h5">Selected Delivery Person</h3>
             <p><strong>Name:</strong> {selectedEmployee.name}</p>
             {filteredReports.length > 0 && (
               <button
-                className="btn btn-success"
+                className="trip-main-btn-success"
                 onClick={createAllSalesInvoices}
               >
                 Submit All
@@ -614,11 +614,11 @@ function TripReport() {
         )}
 
         {selectedEmployee && filteredReports.length > 0 && (
-          <div className="card p-4 shadow-sm">
+          <div className="trip-main-card p-4 shadow-sm">
             <h2 className="h4 mb-3">Assigned Delivery Orders</h2>
             <div className="table-responsive">
-              <table className="table table-striped table-bordered">
-                <thead className="table-primary">
+              <table className="trip-main-table table table-striped table-bordered">
+                <thead className="trip-main-table-primary">
                   <tr>
                     <th>Order No</th>
                     <th>Date</th>
@@ -682,7 +682,7 @@ function TripReport() {
                           <div className="mt-2">
                             <input
                               type="text"
-                              className="form-control"
+                              className="trip-main-form-control"
                               placeholder="Enter Card Number"
                               value={report.cardDetails || ''}
                               onChange={(e) =>
@@ -695,7 +695,7 @@ function TripReport() {
                           <div className="mt-2">
                             <input
                               type="text"
-                              className="form-control"
+                              className="trip-main-form-control"
                               placeholder="Enter UPI ID"
                               value={report.upiDetails || ''}
                               onChange={(e) =>
@@ -707,13 +707,13 @@ function TripReport() {
                       </td>
                       <td>
                         <button
-                          className="btn btn-info btn-sm me-2"
+                          className="trip-main-btn-action-details btn-sm me-2"
                           onClick={() => handleShowDetails(report)}
                         >
                           Details
                         </button>
                         <button
-                          className="btn btn-success btn-sm"
+                          className="trip-main-btn-action-invoice btn-sm"
                           onClick={() => handleActionSubmit(report)}
                         >
                           Create Invoice
@@ -727,7 +727,7 @@ function TripReport() {
           </div>
         )}
         {selectedEmployee && filteredReports.length === 0 && !loading && (
-          <div className="text-center my-4 text-muted">
+          <div className="trip-main-no-orders text-center my-4 text-muted">
             <p>
               No delivery orders assigned to {selectedEmployee.name} for the selected date
               {billNumber ? ` and bill number ${billNumber}` : ''}
@@ -737,16 +737,16 @@ function TripReport() {
         )}
 
         {showPopup && selectedReport && (
-          <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="trip-main-modal modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog modal-dialog-centered modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
+              <div className="trip-main-modal-content modal-content">
+                <div className="trip-main-modal-header modal-header">
                   <h5 className="modal-title">Order Details</h5>
                 </div>
-                <div className="modal-body">
+                <div className="trip-main-modal-body modal-body">
                   <div className="table-responsive">
-                    <table className="table table-striped table-bordered">
-                      <thead className="table-primary">
+                    <table className="trip-main-table table table-striped table-bordered">
+                      <thead className="trip-main-table-primary">
                         <tr>
                           <th>Order No</th>
                           <th>Date</th>
@@ -779,7 +779,7 @@ function TripReport() {
                           </td>
                           <td>
                             <button
-                              className="btn btn-danger"
+                              className="trip-main-btn-danger"
                               onClick={handleClosePopup}
                             >
                               Close

@@ -77,6 +77,7 @@ function FrontPage() {
   } = state || {};
   const navigate = useNavigate();
 
+  // Handle clicks outside customer section
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -91,6 +92,7 @@ function FrontPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showCustomerSection]);
 
+  // Update date and time
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -102,16 +104,12 @@ function FrontPage() {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Fetch table data
   useEffect(() => {
     const fetchTableData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/tables", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
-        const table = data.message.find((t) => String(t.table_number) === String(tableNumber));
+        const response = await axios.get("http://localhost:5000/api/tables");
+        const table = response.data.message.find((t) => String(t.table_number) === String(tableNumber));
         if (table) {
           setTotalChairs(table.number_of_chairs || 0);
         } else {
@@ -125,6 +123,7 @@ function FrontPage() {
     if (tableNumber && tableNumber !== "N/A") fetchTableData();
   }, [tableNumber]);
 
+  // Initialize state from location state
   useEffect(() => {
     if (state) {
       setPhoneNumber(initialPhoneNumber?.replace(/^\+\d+/, "") || existingOrder?.phoneNumber?.replace(/^\+\d+/, "") || "");
@@ -145,6 +144,7 @@ function FrontPage() {
     }
   }, [state, existingOrder, initialCartItems, initialPhoneNumber, initialCustomerName, initialDeliveryAddress, initialWhatsappNumber, initialEmail]);
 
+  // Load saved orders and booked tables/chairs
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("savedOrders")) || [];
     setSavedOrders(saved);
@@ -154,12 +154,12 @@ function FrontPage() {
     setBookedChairs(chairs);
   }, []);
 
+  // Fetch menu items
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/items");
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
+        const response = await axios.get("http://localhost:5000/api/items");
+        const data = response.data;
         if (Array.isArray(data)) {
           const formattedItems = data.map((item) => ({
             id: uuidv4(),
@@ -210,16 +210,15 @@ function FrontPage() {
     fetchItems();
   }, []);
 
+  // Fetch customers
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/customers");
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
-        setCustomers(data);
-        setFilteredCustomers(data);
+        const response = await axios.get("http://localhost:5000/api/customers");
+        setCustomers(response.data);
+        setFilteredCustomers(response.data);
       } catch (error) {
-        console.error("Network error:", error);
+        console.error("Error fetching customers:", error);
         setWarningMessage("Failed to load customers. Please try again.");
         setWarningType("warning");
       }
@@ -227,6 +226,7 @@ function FrontPage() {
     fetchCustomers();
   }, []);
 
+  // Filter menu items based on search query
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredItems(menuItems);
@@ -277,10 +277,14 @@ function FrontPage() {
   const calculateOfferSizePrice = (offerPrice, size) => {
     if (!offerPrice) return 0;
     switch (size) {
-      case "S": return offerPrice - 10;
-      case "M": return offerPrice;
-      case "L": return offerPrice + 10;
-      default: return offerPrice;
+      case "S":
+        return offerPrice - 10;
+      case "M":
+        return offerPrice;
+      case "L":
+        return offerPrice + 10;
+      default:
+        return offerPrice;
     }
   };
 
@@ -307,20 +311,22 @@ function FrontPage() {
       const addonSize = updatedItem.addonVariants?.[addonName]?.size || "M";
       const addonSpicy = updatedItem.addonVariants?.[addonName]?.spicy || false;
       const addonSizePrice = addon?.size?.enabled
-        ? addonSize === "S" ? addon.size.small_price || addonBasePrice - 10
-        : addonSize === "L" ? addon.size.large_price || addonBasePrice + 10
-        : addon.size.medium_price || addonBasePrice
+        ? addonSize === "S"
+          ? addon.size.small_price || addonBasePrice - 10
+          : addonSize === "L"
+          ? addon.size.large_price || addonBasePrice + 10
+          : addon.size.medium_price || addonBasePrice
         : addonBasePrice;
       const addonSpicyPrice = addonSpicy ? (updatedItem.addonVariants[addonName]?.spicy_price || 20) : 0;
       const customVariantsPrice = addonCustomVariantsDetails[addonName]
         ? Object.values(addonCustomVariantsDetails[addonName]).reduce((sum, variant) => sum + (variant.price || 0), 0)
         : 0;
       const totalAddonPrice = addonSizePrice + addonSpicyPrice + customVariantsPrice;
-      addonVariants[addonName] = { 
-        size: addonSize, 
-        spicy: addonSpicy, 
+      addonVariants[addonName] = {
+        size: addonSize,
+        spicy: addonSpicy,
         kitchen: addon?.kitchen || "Main Kitchen",
-        sugar: updatedItem.addonVariants?.[addonName]?.sugar || 'medium'
+        sugar: updatedItem.addonVariants?.[addonName]?.sugar || "medium",
       };
       addonImages[addonName] = addon?.addon_image || "/static/images/default-addon-image.jpg";
       addonPrices[addonName] = totalAddonPrice;
@@ -340,20 +346,22 @@ function FrontPage() {
       const comboSize = updatedItem.comboVariants?.[comboName]?.size || "M";
       const comboSpicy = updatedItem.comboVariants?.[comboName]?.spicy || false;
       const comboSizePrice = combo?.size?.enabled
-        ? comboSize === "S" ? combo.size.small_price || comboBasePrice - 10
-        : comboSize === "L" ? combo.size.large_price || comboBasePrice + 10
-        : combo.size.medium_price || comboBasePrice
+        ? comboSize === "S"
+          ? combo.size.small_price || comboBasePrice - 10
+          : comboSize === "L"
+          ? combo.size.large_price || comboBasePrice + 10
+          : combo.size.medium_price || comboBasePrice
         : comboBasePrice;
       const comboSpicyPrice = comboSpicy ? (updatedItem.comboVariants[comboName]?.spicy_price || 30) : 0;
       const customVariantsPrice = comboCustomVariantsDetails[comboName]
         ? Object.values(comboCustomVariantsDetails[comboName]).reduce((sum, variant) => sum + (variant.price || 0), 0)
         : 0;
       const totalComboPrice = comboSizePrice + comboSpicyPrice + customVariantsPrice;
-      comboVariants[comboName] = { 
-        size: comboSize, 
-        spicy: comboSpicy, 
+      comboVariants[comboName] = {
+        size: comboSize,
+        spicy: comboSpicy,
         kitchen: combo?.kitchen || "Main Kitchen",
-        sugar: updatedItem.comboVariants?.[comboName]?.sugar || 'medium'
+        sugar: updatedItem.comboVariants?.[comboName]?.sugar || "medium",
       };
       comboImages[comboName] = combo?.combo_image || "/static/images/default-combo-image.jpg";
       comboPrices[comboName] = totalComboPrice;
@@ -406,7 +414,7 @@ function FrontPage() {
       selectedSize: updatedSelectedSize,
       icePreference: updatedItem.variants?.cold?.icePreference || "without_ice",
       isSpicy: updatedItem.variants?.spicy?.isSpicy || false,
-      sugarLevel: updatedItem.variants?.sugar?.level || (menuItem?.sugar?.level || 'medium'),
+      sugarLevel: updatedItem.variants?.sugar?.level || (menuItem?.sugar?.level || "medium"),
       kitchen: updatedItem.kitchen || "Main Kitchen",
       ingredients: updatedItem.ingredients || [],
       selectedCustomVariants: updatedItem.selectedCustomVariants || {},
@@ -573,7 +581,10 @@ function FrontPage() {
           const { [variantName]: _, ...remainingCustomVariants } = cartItem.selectedCustomVariants || {};
           const { [variantName]: __, ...remainingCustomVariantsDetails } = cartItem.customVariantsDetails || {};
           const { [variantName]: ___, ...remainingCustomVariantsQuantities } = cartItem.customVariantsQuantities || {};
-          const customVariantsTotalPrice = Object.values(remainingCustomVariantsDetails).reduce((sum, variant) => sum + (variant.price || 0), 0);
+          const customVariantsTotalPrice = Object.values(remainingCustomVariantsDetails).reduce(
+            (sum, variant) => sum + (variant.price || 0),
+            0
+          );
           return {
             ...cartItem,
             selectedCustomVariants: remainingCustomVariants,
@@ -678,9 +689,18 @@ function FrontPage() {
         billDetails.invoice_no = savedSale.invoice_no;
       }
 
+      // Check if orderId exists before attempting to delete
       if (orderId) {
-        await axios.delete(`http://localhost:5000/api/activeorders/${orderId}`);
-        console.log("Order deleted successfully from activeorders");
+        try {
+          await axios.delete(`http://localhost:5000/api/activeorders/${orderId}`);
+          console.log("Order deleted successfully from activeorders");
+        } catch (error) {
+          if (error.response?.status === 404) {
+            console.warn(`Order ${orderId} not found in activeorders, proceeding with payment.`);
+          } else {
+            throw error;
+          }
+        }
       }
 
       if (orderType === "Takeaway") {
@@ -719,7 +739,7 @@ function FrontPage() {
       setShowPaymentModal(false);
     } catch (error) {
       console.error("Error processing payment:", error);
-      setWarningMessage("Failed to process payment. Please try again.");
+      setWarningMessage(`Failed to process payment: ${error.message}`);
       setWarningType("warning");
     }
   };
@@ -814,7 +834,7 @@ function FrontPage() {
           size: item.addonVariants?.[addonName]?.size || "M",
           isSpicy: item.addonVariants?.[addonName]?.spicy || false,
           kitchen: item.addonVariants?.[addonName]?.kitchen || "Main Kitchen",
-          sugar: item.addonVariants?.[addonName]?.sugar || 'medium',
+          sugar: item.addonVariants?.[addonName]?.sugar || "medium",
           custom_variants: item.addonCustomVariantsDetails?.[addonName] || {},
         })),
         selectedCombos: Object.entries(item.comboQuantities || {}).map(([comboName, qty]) => ({
@@ -824,7 +844,7 @@ function FrontPage() {
           size: item.comboVariants?.[comboName]?.size || "M",
           isSpicy: item.comboVariants?.[comboName]?.spicy || false,
           kitchen: item.comboVariants?.[comboName]?.kitchen || "Main Kitchen",
-          sugar: item.comboVariants?.[comboName]?.sugar || 'medium',
+          sugar: item.comboVariants?.[comboName]?.sugar || "medium",
           combo_quantity: Number(qty),
           custom_variants: item.comboCustomVariantsDetails?.[comboName] || {},
         })),
@@ -837,39 +857,25 @@ function FrontPage() {
         image: item.image || "/static/images/default-item.jpg",
       })),
       total: Number(subtotal.toFixed(2)),
-      userId: user.email, // Ensure userId is the logged-in user's email
+      userId: user.email,
       payment_terms: [{ due_date: new Date().toISOString().split("T")[0], payment_terms: "Immediate" }],
       payments: [paymentDetails],
       orderType: orderType || "Dine In",
       status: "Pending",
     };
 
-    console.log("Saving sale with userId:", user.email);
-    console.log("Payload being sent to /api/sales:", payload);
-
     try {
-      const response = await fetch("http://localhost:5000/api/sales", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to save sale");
-      }
-
-      console.log("Sale saved successfully:", result);
-      setWarningMessage(`Sale saved successfully! Invoice No: ${result.invoice_no}`);
+      const response = await axios.post("http://localhost:5000/api/sales", payload);
+      setWarningMessage(`Sale saved successfully! Invoice No: ${response.data.invoice_no}`);
       setWarningType("success");
       setPendingAction(() => () => {
         setCartItems([]);
         setBillCartItems([]);
       });
-      return result;
+      return response.data;
     } catch (error) {
-      console.error("Error saving to backend:", error.message);
-      setWarningMessage(`Failed to save sale: ${error.message}`);
+      console.error("Error saving to backend:", error);
+      setWarningMessage(`Failed to save sale: ${error.response?.data?.error || error.message}`);
       setWarningType("warning");
       throw error;
     }
@@ -905,24 +911,9 @@ function FrontPage() {
         email: email || "",
       };
 
-      const response = await fetch("http://localhost:5000/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(customerData),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        if (response.status === 409) {
-          setWarningMessage(`Phone number ${phoneNumber} already exists for customer ${data.customer_name}`);
-          setWarningType("warning");
-          return;
-        }
-        throw new Error(data.error || "Failed to create customer");
-      }
-
-      setCustomers((prev) => [...prev, { ...customerData, _id: data.id }]);
-      setFilteredCustomers((prev) => [...prev, { ...customerData, _id: data.id }]);
+      const response = await axios.post("http://localhost:5000/api/customers", customerData);
+      setCustomers((prev) => [...prev, { ...customerData, _id: response.data.id }]);
+      setFilteredCustomers((prev) => [...prev, { ...customerData, _id: response.data.id }]);
       setShowCustomerSection(false);
       setWarningMessage("Customer created successfully!");
       setWarningType("success");
@@ -932,7 +923,11 @@ function FrontPage() {
       });
     } catch (error) {
       console.error("Error creating customer:", error);
-      setWarningMessage("Failed to create customer: " + error.message);
+      if (error.response?.status === 409) {
+        setWarningMessage(`Phone number ${phoneNumber} already exists for customer ${error.response.data.customer_name}`);
+      } else {
+        setWarningMessage(`Failed to create customer: ${error.response?.data?.error || error.message}`);
+      }
       setWarningType("warning");
     }
   };
@@ -1035,11 +1030,13 @@ function FrontPage() {
       return;
     }
 
-    let currentOrderId = orderId || uuidv4();
-    if (!orderId) {
-      setOrderId(currentOrderId);
+    if (user.email === "Guest") {
+      setWarningMessage("Please log in to save the order.");
+      setWarningType("warning");
+      return;
     }
 
+    let currentOrderId = orderId || uuidv4();
     const newOrder = {
       orderId: currentOrderId,
       customerName: customerName || "N/A",
@@ -1060,7 +1057,7 @@ function FrontPage() {
         icePrice: Number(item.icePrice) || 0,
         isSpicy: item.isSpicy || false,
         spicyPrice: Number(item.spicyPrice) || 0,
-        sugarLevel: item.sugarLevel || 'medium',
+        sugarLevel: item.sugarLevel || "medium",
         totalPrice: Number(item.totalPrice) || item.basePrice * (item.quantity || 1),
         addonQuantities: item.addonQuantities || {},
         addonVariants: item.addonVariants || {},
@@ -1089,25 +1086,42 @@ function FrontPage() {
     };
 
     try {
+      // Send order to kitchen
       const kitchenResponse = await axios.post("http://localhost:5000/api/kitchen-saved", newOrder);
       if (!kitchenResponse.data.success) {
-        console.error("Failed to send order to kitchen:", kitchenResponse.data.error);
-        setWarningMessage("Failed to notify kitchen.");
-        setWarningType("warning");
-        return;
+        throw new Error(kitchenResponse.data.error || "Failed to notify kitchen");
       }
       console.log("Order sent to kitchen:", kitchenResponse.data.order_id);
 
       if (orderId) {
-        const response = await axios.put(`http://localhost:5000/api/activeorders/${orderId}`, newOrder);
-        if (response.status === 200) {
-          console.log("Order updated successfully");
-          setWarningMessage("Order updated successfully!");
-          setWarningType("success");
-        } else {
-          setWarningMessage("Failed to update order.");
-          setWarningType("warning");
-          return;
+        // Verify if order exists before updating
+        try {
+          const response = await axios.get(`http://localhost:5000/api/activeorders/${orderId}`);
+          if (response.status === 200) {
+            const updateResponse = await axios.put(`http://localhost:5000/api/activeorders/${orderId}`, newOrder);
+            if (updateResponse.status === 200) {
+              console.log("Order updated successfully");
+              setWarningMessage("Order updated successfully!");
+              setWarningType("success");
+            }
+          }
+        } catch (error) {
+          if (error.response?.status === 404) {
+            // If order not found, create a new one
+            console.warn(`Order ${orderId} not found, creating new order`);
+            const createResponse = await axios.post("http://localhost:5000/api/activeorders", newOrder);
+            if (createResponse.status === 201) {
+              console.log("New order created successfully");
+              setWarningMessage("Order created successfully!");
+              setWarningType("success");
+              setOrderId(createResponse.data.orderId);
+              currentOrderId = createResponse.data.orderId;
+            } else {
+              throw new Error("Failed to create new order");
+            }
+          } else {
+            throw error;
+          }
         }
       } else {
         const response = await axios.post("http://localhost:5000/api/activeorders", newOrder);
@@ -1116,10 +1130,9 @@ function FrontPage() {
           setWarningMessage("Order saved successfully!");
           setWarningType("success");
           setOrderId(response.data.orderId);
+          currentOrderId = response.data.orderId;
         } else {
-          setWarningMessage("Failed to save order.");
-          setWarningType("warning");
-          return;
+          throw new Error("Failed to save order");
         }
       }
 
@@ -1157,8 +1170,8 @@ function FrontPage() {
         }
       });
     } catch (error) {
-      console.error("Error saving order:", error.response?.data?.error || error.message);
-      setWarningMessage(error.response?.data?.error || "Failed to save order.");
+      console.error("Error saving order:", error);
+      setWarningMessage(`Failed to save order: ${error.response?.data?.error || error.message}`);
       setWarningType("warning");
     }
   };
