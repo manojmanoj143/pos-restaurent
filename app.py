@@ -3603,7 +3603,7 @@ def delete_purchase_invoice(id):
 
 
 
-# Serve React frontend
+# Serve React react
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
