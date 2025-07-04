@@ -1,4 +1,4 @@
-/* Ensure the body does not have horizontal scrollbars */
+Ensure the body does not have horizontal scrollbars
 body {
   overflow-x: hidden;
   margin: 0;
